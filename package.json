@@ -1,6 +1,6 @@
 {
   "name": "@buggyorg/typify",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Applies a type scheme to a weakly typed buggy graph.",
   "main": "lib/api.js",
   "scripts": {
