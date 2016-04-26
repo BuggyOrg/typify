@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+// #!/usr/bin/env node
 /* global __dirname, process */
 /*
 import program from 'commander'
@@ -11,7 +11,6 @@ program
   .version(JSON.parse(fs.readFileSync(__dirname + '/../package.json'))['version'])
   .option('-t, --typings <file>', 'A json document containing the typings information')
   .parse(process.argv)
-
 
 if (process.stdin.isTTY) {
 } else {

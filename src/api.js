@@ -8,20 +8,27 @@ export function validateTypings (typings) {
     !!typings.bool
 }
 
+var replaceAll = (str, search, replacement) => {
+  return str.split(search).join(replacement)
+}
+
+function replaceType (str, typings) {
+  return replaceAll(
+    replaceAll(
+      replaceAll(str, 'number', typings.number),
+      'bool', typings.bool),
+    'string', typings.string)
+}
+
 function retypePorts (ports, typings) {
-  return _.mapValues(ports, (p) => {
-    if (typings[p]) {
-      return typings[p]
-    } else {
-      return p
-    }
-  })
+  return _.mapValues(ports, _.partial(replaceType, _, typings))
 }
 
 function retypeNode (node, typings) {
   return _.merge({}, node, {
     inputPorts: retypePorts(node.inputPorts, typings),
-    outputPorts: retypePorts(node.outputPorts, typings)
+    outputPorts: retypePorts(node.outputPorts, typings),
+    typeHint: retypePorts(node.typeHint, typings)
   })
 }
 
