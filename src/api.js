@@ -1,5 +1,5 @@
 
-import {utils} from '@buggyorg/graphtools'
+import {graph as graphAPI} from '@buggyorg/graphtools'
 import _ from 'lodash'
 
 export function validateTypings (typings) {
@@ -34,9 +34,9 @@ function retypeNode (node, typings) {
 
 export function applyTypings (graph, typings) {
   if (!validateTypings(typings)) throw new Error('Cannot apply invalid typings')
-  var editGraph = utils.edit(graph)
+  var editGraph = graphAPI.toJSON(graph)
   editGraph.nodes = _.map(editGraph.nodes, (n) => {
     return _.merge({}, n, {value: retypeNode(n.value, typings)})
   })
-  return utils.finalize(editGraph)
+  return graphAPI.importJSON(editGraph)
 }
