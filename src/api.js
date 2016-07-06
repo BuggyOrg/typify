@@ -16,27 +16,9 @@ const isFunction = (type) => {
   return typeof (type) === 'object' && type.type === 'function'
 }
 
-/*
-{
-  "type": "function",
-  "arguments": {
-    "n": "number"
-  },
-  "argumentOrdering": [
-    "n",
-    "value",
-    "acc"
-  ],
-  "outputs": {
-    "value": "bool"
-  },
-  "return": "bool"
-}
-*/
 const mapFunctionTypes = (fn, mapping) => {
   fn.arguments = _.mapValues(fn.arguments, mapping)
-  fn.outputs = _.mapValues(fn.outputs.mapValues, mapping)
-  fn.return = mapping(fn.return)
+  fn.outputs = _.mapValues(fn.outputs, mapping)
   return fn
 }
 
