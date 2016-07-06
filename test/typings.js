@@ -41,4 +41,10 @@ describe('Typgins', () => {
     expect(() => api.applyTypings({}, {numba: 'a', bool: 'b', string: 'c'}))
       .to.throw(Error)
   })
+
+  it('can set types in functions', () => {
+    var graph = graphlib.json.read(JSON.parse(fs.readFileSync('test/fixtures/functions.json', 'utf8')))
+    var newGraph = api.applyTypings(graph, {number: 'a', bool: 'b', string: 'c'})
+    expect(newGraph.node('fac_11:fac_tr_7:<_5_copy_1').outputPorts.fn.arguments.n).to.equal('a')
+  })
 })

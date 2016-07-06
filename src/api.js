@@ -12,7 +12,42 @@ var replaceAll = (str, search, replacement) => {
   return str.split(search).join(replacement)
 }
 
+const isFunction = (type) => {
+  return typeof (type) === 'object' && type.type === 'function'
+}
+
+/*
+{
+  "type": "function",
+  "arguments": {
+    "n": "number"
+  },
+  "argumentOrdering": [
+    "n",
+    "value",
+    "acc"
+  ],
+  "outputs": {
+    "value": "bool"
+  },
+  "return": "bool"
+}
+*/
+const mapFunctionTypes = (fn, mapping) => {
+  fn.arguments = _.mapValues(fn.arguments, mapping)
+  fn.outputs = _.mapValues(fn.outputs.mapValues, mapping)
+  fn.return = mapping(fn.return)
+  return fn
+}
+
+const replaceFunctionTypes = (type, typings) => {
+  return mapFunctionTypes(type, _.partial(replaceType, _, typings))
+}
+
 function replaceType (str, typings) {
+  if (isFunction(str)) {
+    return replaceFunctionTypes(str, typings)
+  }
   return replaceAll(
     replaceAll(
       replaceAll(str, 'number', typings.number),
