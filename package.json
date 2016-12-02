@@ -19,11 +19,7 @@
     "standard": "^6.0.8"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@buggyorg/graphtools": "^0.4.0-pre.7",
-=======
-    "@buggyorg/graphtools": "^0.3.0",
->>>>>>> f8fe70817fad09d4df237ecd92580efef39a8b2f
     "graphlib": "^2.1.0",
     "lodash": "^4.11.1"
   }

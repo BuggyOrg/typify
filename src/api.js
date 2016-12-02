@@ -4,9 +4,14 @@ import * as Graph from '@buggyorg/graphtools'
 import * as Rewrite from '@buggyorg/rewrite'
 import _ from 'lodash'
 
-export function IsGenericPort (port) {
-  return port.type === 'generic'
-}
+export const TypifyAll = Rewrite.rewrite([
+  TypifySpecializingEdge(),
+  TypifyGeneralizingEdge(),
+  TypifyAtomicNode(),
+  TypifyCollectingNode(),
+  TypifyDistributingNode(),
+  TypifyRecursiveNode()
+])
 
 export function TypifySpecializingEdge () {
   return Rewrite.applyEdge(
@@ -57,7 +62,10 @@ export function TypifyGeneralizingEdge () {
 export function TypifyCollectingNode () {
   return Rewrite.applyNode(
       (node, graph) => {
-        var ports = Graph.Node.inputPorts(node)
+        if (Graph.Node.isAtomic(node)) {
+          return false // atomic nodes are typified seperately
+        }
+        var ports = Graph.Node.inputPorts(node, true)
         var genericPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p))
         var specificPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p) === false)
         if (genericPorts.length === 0) {
@@ -79,6 +87,88 @@ export function TypifyCollectingNode () {
         console.log(line)
         var newNode = _.assign(_.cloneDeep(match.node), {
           ports: _.map((match.node.ports), (p) => {
+            if (Graph.Port.isOutputPort(p)) {
+              return p
+            } else {
+              return _.assign(_.cloneDeep(p), {
+                type: match.type
+              })
+            }
+          })
+        })
+        return Graph.replaceNode(match.node, newNode, graph)
+      })
+}
+
+export function TypifyDistributingNode () {
+  return Rewrite.applyNode(
+      (node, graph) => {
+        if (Graph.Node.isAtomic(node)) {
+          return false // atomic nodes are typified seperately
+        }
+        var ports = Graph.Node.outputPorts(node, true)
+        var genericPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p))
+        var specificPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p) === false)
+        if (genericPorts.length === 0) {
+          return false
+        } else if (specificPorts.length === 0) {
+          return false
+        }
+        var type = specificPorts[0].type
+        if (_.every(specificPorts, (p) => p.type === type) === false) {
+          return false
+        }
+        return {
+          node: node,
+          type: type
+        }
+      },
+      (match, graph) => {
+        var line = 'typifying distributing node ' + match.node.name
+        console.log(line)
+        var newNode = _.assign(_.cloneDeep(match.node), {
+          ports: _.map((match.node.ports), (p) => {
+            if (Graph.Port.isInputPort(p)) {
+              return p
+            } else {
+              return _.assign(_.cloneDeep(p), {
+                type: match.type
+              })
+            }
+          })
+        })
+        return Graph.replaceNode(match.node, newNode, graph)
+      })
+}
+
+export function TypifyAtomicNode () {
+  return Rewrite.applyNode(
+      (node, graph) => {
+        if (Graph.Node.isAtomic(node) === false) {
+          return false
+        }
+        var ports = Graph.Node.ports(node, true)
+        var genericPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p))
+        var specificPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p) === false)
+        if (genericPorts.length === 0) {
+          return false
+        } else if (specificPorts.length === 0) {
+          return false
+        }
+        var type = specificPorts[0].type
+        if (_.every(specificPorts, (p) => p.type === type) === false) {
+          return false
+        }
+        return {
+          node: node,
+          type: type
+        }
+      },
+      (match, graph) => {
+        var line = 'typifying atomic node ' + match.node.name
+        console.log(line)
+        var newNode = _.assign(_.cloneDeep(match.node), {
+          ports: _.map((match.node.ports), (p) => {
             return _.assign(_.cloneDeep(p), {
               type: match.type
             })
@@ -88,14 +178,29 @@ export function TypifyCollectingNode () {
       })
 }
 
-export function TypifyDistributingNode () {
-  return Rewrite.applyNode(
-      (node, graph) => false,
-      (match, graph) => { })
-}
-
 export function TypifyRecursiveNode () {
   return Rewrite.applyNode(
-      (node, graph) => false,
-      (match, graph) => { })
+      (node, graph) => {
+        if (node.isRecursive === false) {
+          return false
+        }
+        _.filter(Graph.edges(graph), (e) => e.layer === 'recursion')
+        .forEach((e) => {
+          var src = Graph.node(e.from)
+          var dst = Graph.node(e.to)
+          var ref = _.find([src, dst], (n) => n.isRecursiveRoot === false)
+          var root = _.find([src, dst], (n) => n.isRecursiveRoot)
+          if (ref && root) {
+            return {
+              ref: ref,
+              root: root
+            }
+          }
+        })
+        return false
+      },
+      (match, graph) => {
+        console.log('typifying generalizing edge from ' + match.ref.name + ' to ' + match.root.name)
+        return graph
+      })
 }
