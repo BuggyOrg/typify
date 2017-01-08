@@ -24,9 +24,9 @@ export function TypifySpecializingEdge () {
       },
       (edge, graph) => {
         var line = 'typifying specializing edge from ' +
-        edge.source.name + '@' + edge.sourcePort.port +
+        edge.source.id + '@' + edge.sourcePort.port +
         ' to ' +
-        edge.target.name + '@' + edge.targetPort.port
+        edge.target.id + '@' + edge.targetPort.port
         console.log(line)
         var node = Graph.node(edge.source, graph)
         var port = _.assign(_.cloneDeep(edge.sourcePort), {
