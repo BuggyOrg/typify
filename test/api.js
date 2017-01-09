@@ -97,7 +97,7 @@ function createFacGraph () {
     }),
     Graph.addNode({
       name: 'Recursion',
-      atomic: true,
+      atomic: false,
       isRecursive: true,
       componentId: 'math/factorial',
       ports: [
@@ -121,14 +121,14 @@ function createFacGraph () {
     Graph.addEdge({ from: 'Multiply@out', to: 'Output@in' }),
     Graph.addEdge({ from: 'Recursion', to: '', layer: 'recursion' })
   )(Graph.compound({
-    name: 'Input',
+    name: 'Factorial',
     atomic: false,
     isRecursive: true,
     isRecursiveRoot: true,
     componentId: 'math/factorial',
     ports: [
-      { port: 'out', kind: 'input', type: 'number' },
-      { port: 'in', kind: 'output', type: 'number' }
+      { port: 'out', kind: 'input', type: 'generic' },
+      { port: 'in', kind: 'output', type: 'generic' }
     ]
   }))
   return Graph.addNode(cmp, Graph.empty())
@@ -149,10 +149,20 @@ describe('API tests', () => {
     var graph1 = createTestGraph2()
     var graph2 = API.TypifyAll(graph1)
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
+    expect(_.every(Graph.nodes(graph2), node => {
+      return _.every(Graph.Node.ports(node), (port) => {
+        return Rewrite.isGenericPort(port) === false
+      })
+    })).to.be.true
   })
-  xit('can typify recursive function (factorial)', () => {
+  it('can typify recursive function (factorial)', () => {
     var graph1 = createFacGraph()
     var graph2 = API.TypifyAll(graph1)
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
+    expect(_.every(Graph.nodes(graph2), node => {
+      return _.every(Graph.Node.ports(node), (port) => {
+        return Rewrite.isGenericPort(port) === false
+      })
+    })).to.be.true
   })
 })
