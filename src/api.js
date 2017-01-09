@@ -3,6 +3,7 @@ import * as Graph from '@buggyorg/graphtools'
 
 import * as Rewrite from '@buggyorg/rewrite'
 import _ from 'lodash'
+import debug from 'debug'
 
 export const TypifyAll = Rewrite.rewrite([
   TypifySpecializingEdge(),
@@ -27,7 +28,7 @@ export function TypifySpecializingEdge () {
         edge.source.id + '@' + edge.sourcePort.port +
         ' to ' +
         edge.target.id + '@' + edge.targetPort.port
-        console.log(line)
+        debug('[typify]', line)
         var node = Graph.node(edge.source, graph)
         var port = _.assign(_.cloneDeep(edge.sourcePort), {
           type: edge.targetPort.type
@@ -50,7 +51,7 @@ export function TypifyGeneralizingEdge () {
         edge.source.name + '@' + edge.sourcePort.port +
         ' to ' +
         edge.target.name + '@' + edge.targetPort.port
-        console.log(line)
+        debug('[typify]', line)
         var node = Graph.node(edge.target, graph)
         var port = _.assign(_.cloneDeep(edge.targetPort), {
           type: edge.sourcePort.type
@@ -84,7 +85,7 @@ export function TypifyCollectingNode () {
       },
       (match, graph) => {
         var line = 'typifying collecting node ' + match.node.name
-        console.log(line)
+        debug('[typify]', line)
         var newNode = _.assign(_.cloneDeep(match.node), {
           ports: _.map((match.node.ports), (p) => {
             if (Graph.Port.isOutputPort(p)) {
@@ -125,7 +126,7 @@ export function TypifyDistributingNode () {
       },
       (match, graph) => {
         var line = 'typifying distributing node ' + match.node.name
-        console.log(line)
+        debug('[typify]', line)
         var newNode = _.assign(_.cloneDeep(match.node), {
           ports: _.map((match.node.ports), (p) => {
             if (Graph.Port.isInputPort(p)) {
@@ -166,7 +167,7 @@ export function TypifyAtomicNode () {
       },
       (match, graph) => {
         var line = 'typifying atomic node ' + match.node.name
-        console.log(line)
+        debug('[typify]', line)
         var newNode = _.assign(_.cloneDeep(match.node), {
           ports: _.map((match.node.ports), (p) => {
             return _.assign(_.cloneDeep(p), {
@@ -200,7 +201,7 @@ export function TypifyRecursiveNode () {
         return false
       },
       (match, graph) => {
-        console.log('typifying generalizing edge from ' + match.ref.name + ' to ' + match.root.name)
+        debug('[typify]', 'typifying generalizing edge from ' + match.ref.name + ' to ' + match.root.name)
         return graph
       })
 }

@@ -22,6 +22,7 @@
     "@buggyorg/graphtools": "^0.4.0-pre.15",
     "@buggyorg/rewrite": "^0.2.4",
     "cli-ext": "^1.1.0",
+    "debug": "^2.6.0",
     "graphlib": "^2.1.0",
     "lodash": "^4.11.1"
   }
