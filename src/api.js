@@ -3,6 +3,7 @@ import * as Graph from '@buggyorg/graphtools'
 
 import * as Rewrite from '@buggyorg/rewrite'
 import _ from 'lodash'
+import debug from 'debug'
 
 export const TypifyAll = Rewrite.rewrite([
   TypifySpecializingEdge(),
@@ -24,13 +25,13 @@ export function TypifySpecializingEdge () {
       },
       (edge, graph) => {
         var line = 'typifying specializing edge from ' +
-        edge.source.name + '@' + edge.sourcePort.port +
+        edge.source.id + '@' + edge.sourcePort.port +
         ' to ' +
-        edge.target.name + '@' + edge.targetPort.port
-        console.log(line)
+        edge.target.id + '@' + edge.targetPort.port
+        debug('[typify]', line)
         var node = Graph.node(edge.source, graph)
         var port = _.assign(_.cloneDeep(edge.sourcePort), {
-          type: edge.targetPort.type
+          type: _.cloneDeep(edge.targetPort.type)
         })
         return Rewrite.replacePort(node, edge.sourcePort, port, graph)
       })
@@ -50,10 +51,10 @@ export function TypifyGeneralizingEdge () {
         edge.source.name + '@' + edge.sourcePort.port +
         ' to ' +
         edge.target.name + '@' + edge.targetPort.port
-        console.log(line)
+        debug('[typify]', line)
         var node = Graph.node(edge.target, graph)
         var port = _.assign(_.cloneDeep(edge.targetPort), {
-          type: edge.sourcePort.type
+          type: _.cloneDeep(edge.sourcePort.type)
         })
         return Rewrite.replacePort(node, edge.targetPort, port, graph)
       })
@@ -79,19 +80,19 @@ export function TypifyCollectingNode () {
         }
         return {
           node: node,
-          type: type
+          type: _.cloneDeep(type)
         }
       },
       (match, graph) => {
         var line = 'typifying collecting node ' + match.node.name
-        console.log(line)
+        debug('[typify]', line)
         var newNode = _.assign(_.cloneDeep(match.node), {
           ports: _.map((match.node.ports), (p) => {
             if (Graph.Port.isOutputPort(p)) {
               return p
             } else {
               return _.assign(_.cloneDeep(p), {
-                type: match.type
+                type: _.cloneDeep(match.type)
               })
             }
           })
@@ -120,19 +121,19 @@ export function TypifyDistributingNode () {
         }
         return {
           node: node,
-          type: type
+          type: _.cloneDeep(type)
         }
       },
       (match, graph) => {
         var line = 'typifying distributing node ' + match.node.name
-        console.log(line)
+        debug('[typify]', line)
         var newNode = _.assign(_.cloneDeep(match.node), {
           ports: _.map((match.node.ports), (p) => {
             if (Graph.Port.isInputPort(p)) {
               return p
             } else {
               return _.assign(_.cloneDeep(p), {
-                type: match.type
+                type: _.cloneDeep(match.type)
               })
             }
           })
@@ -161,12 +162,12 @@ export function TypifyAtomicNode () {
         }
         return {
           node: node,
-          type: type
+          type: _.cloneDeep(type)
         }
       },
       (match, graph) => {
         var line = 'typifying atomic node ' + match.node.name
-        console.log(line)
+        debug('[typify]', line)
         var newNode = _.assign(_.cloneDeep(match.node), {
           ports: _.map((match.node.ports), (p) => {
             return _.assign(_.cloneDeep(p), {
@@ -177,8 +178,6 @@ export function TypifyAtomicNode () {
         return Graph.replaceNode(match.node, newNode, graph)
       })
 }
-
-
 
 export function TypifyRecursiveNode () {
   return Rewrite.applyEdge(
@@ -193,6 +192,8 @@ export function TypifyRecursiveNode () {
           Graph.Node.ports(ref),
           Graph.Node.ports(root)],
           (p) => p.port)[0]
+
+
         ports = _.filter(ports, (p) => {
           var refPort = Graph.Node.port(p.port, ref)
           if (!refPort) return false
@@ -201,11 +202,11 @@ export function TypifyRecursiveNode () {
           if (Rewrite.isGenericPort(refPort) === Rewrite.isGenericPort(rootPort)) return false
           if (Rewrite.isGenericPort(rootPort)) {
             return _.assign(p, {
-              type: refPort.type
+              type: _.cloneDeep(refPort.type)
             })
           } else {
             return _.assign(p, {
-              type: rootPort.type
+              type: _.cloneDeep(rootPort.type)
             })
           }
         })
@@ -217,7 +218,8 @@ export function TypifyRecursiveNode () {
         }
       },
       (match, graph) => {
-        console.log('typifying recursion edge from ' + match.ref.name + ' to ' + match.root.name)
+        var line = 'typifying recursion edge from ' + match.ref.name + ' to ' + match.root.name
+        debug('[typify]', line)
         var newRef = _.assign(_.cloneDeep(match.ref), {
           ports: _.map(match.ref.ports, (p) => {
             var matchPort = _.find(match.ports, (p2) => p2.port === p.port)
@@ -229,7 +231,7 @@ export function TypifyRecursiveNode () {
           ports: _.map(match.root.ports, (p) => {
             var matchPort = _.find(match.ports, (p2) => p2.port === p.port)
             if (!matchPort) return p
-            return _.assign(p, { type: matchPort.type })
+            return _.assign(p, { type: _.cloneDeep(matchPort.type) })
           })
         })
         return Graph
@@ -259,7 +261,8 @@ export function TypifyRecursiveNode2 () {
         return _.find(edges, (e) => !!e) || false
       },
       (match, graph) => {
-        console.log('typifying recursion edge from ' + match.ref.name + ' to ' + match.root.name)
+        var line = 'typifying recursion edge from ' + match.ref.name + ' to ' + match.root.name
+        debug('[typify]', line)
         if (match.ref.type === 'generic') {
           var newRef = _.assign(_.cloneDeep(match.ref), {
             type: match.root.type
@@ -267,7 +270,7 @@ export function TypifyRecursiveNode2 () {
           return Graph.replaceNode(match.ref, newRef, graph)
         } else if (match.root.type === 'generic') {
           var newRoot = _.assign(_.cloneDeep(match.root), {
-            type: match.ref.type
+            type: _.cloneDeep(match.ref.type)
           })
           return Graph.replaceNode(match.root, newRoot, graph)
         }
