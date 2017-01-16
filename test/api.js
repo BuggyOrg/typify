@@ -66,14 +66,27 @@ function createSimpleGraph2 () {
 }
 
 function createIssueGraph () {
-  return Graph.flow(
+  let compound = Graph.flow(
+    Graph.addNode({
+      name: 'M',
+      ports: [
+        { port: 'p', kind: 'output', type: 'apples' }
+      ]
+    }),
     Graph.addNode({
       name: 'N',
       ports: [
-        { port: 'p', kind: 'output', type: 'generic' }
+        { port: 'p', kind: 'input', type: 'generic' }
       ]
-    })
-  )()
+    }),
+    Graph.addEdge({ from: 'M@p', to: 'N@p' })
+  )(Graph.compound({
+    name: 'R',
+    atomic: false,
+    componentId: '',
+    ports: []
+  }))
+  return Graph.addNode(compound, Graph.empty())
 }
 
 function createFactorialGraph () {
@@ -237,8 +250,8 @@ function createBinomialGraph () {
 
 describe('API tests', () => {
   it('can apply basic rules I', () => {
-    var graph1 = createSimpleGraph1()
-    var graph2 = API.TypifyAll(graph1)
+    let graph1 = createSimpleGraph1()
+    let graph2 = API.TypifyAll(graph1)
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
     expect(_.every(Graph.nodes(graph2), node => {
       return _.every(Graph.Node.ports(node), (port) => {
@@ -247,8 +260,8 @@ describe('API tests', () => {
     })).to.be.true
   })
   it('can apply basic rules II', () => {
-    var graph1 = createSimpleGraph2()
-    var graph2 = API.TypifyAll(graph1)
+    let graph1 = createSimpleGraph2()
+    let graph2 = API.TypifyAll(graph1)
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
     expect(_.every(Graph.nodes(graph2), node => {
       return _.every(Graph.Node.ports(node), (port) => {
@@ -256,22 +269,21 @@ describe('API tests', () => {
       })
     })).to.be.true
   })
-  it('can modify ports without deleting edges', () => {
-    console.error(JSON.stringify(createFactorialGraph(), null, 2))
-    var graph1 = createIssueGraph()
-    var node = Graph.node('N', graph1)
-    var port = Graph.port('N@p', graph1)
-    var newPort = _.assign(_.cloneDeep(port), {
+  it('can modify ports without deleting edges (seems to be fixed now)', () => {
+    let graph1 = createIssueGraph()
+    let graph2 = API.TypifyAll(graph1)
+    let root = Graph.node('R', graph1)
+    let port = Graph.port('N@p', root)
+    let newPort = _.assign(_.cloneDeep(port), {
       type: 'oranges'
     })
-    var graph2 = Rewrite.replacePort(node, port, newPort, graph1)
+    graph2 = Rewrite.replacePort(Graph.node('N', root), port, newPort, graph1)
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
-    console.log(Graph.port('N@p', graph1).type)
-    expect(Graph.port('N@p', graph1).type === 'oranges').to.be.true
+    expect(Graph.port('N@p', Graph.node('R', graph2)).type === 'oranges').to.be.true
   })
   it('can typify recursive function (factorial)', () => {
-    var graph1 = createFactorialGraph()
-    var graph2 = API.TypifyAll(graph1)
+    let graph1 = createFactorialGraph()
+    let graph2 = API.TypifyAll(graph1)
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
     expect(_.every(Graph.nodes(graph2), node => {
       return _.every(Graph.Node.ports(node), (port) => {
@@ -280,8 +292,8 @@ describe('API tests', () => {
     })).to.be.true
   })
   it('can typify recursive function (binomial)', () => {
-    var graph1 = createBinomialGraph()
-    var graph2 = API.TypifyAll(graph1)
+    let graph1 = createBinomialGraph()
+    let graph2 = API.TypifyAll(graph1)
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
     expect(_.every(Graph.nodes(graph2), node => {
       return _.every(Graph.Node.ports(node), (port) => {
