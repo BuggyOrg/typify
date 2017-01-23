@@ -4,6 +4,7 @@
 import * as Graph from '@buggyorg/graphtools'
 import * as Rewrite from '@buggyorg/rewrite'
 import * as API from '../src/api'
+const fs = require('fs')
 
 import _ from 'lodash'
 import chai from 'chai'
@@ -280,6 +281,11 @@ describe('API tests', () => {
     graph2 = Rewrite.replacePort(Graph.node('N', root), port, newPort, graph1)
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
     expect(Graph.port('N@p', Graph.node('R', graph2)).type === 'oranges').to.be.true
+  })
+  it('can typify Maxs recursion', () => {
+    let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/fac.json', 'utf-8'))
+    let graph2 = API.TypifyAll(graph1)
+    expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
   })
   it('can typify recursive function (factorial)', () => {
     let graph1 = createFactorialGraph()
