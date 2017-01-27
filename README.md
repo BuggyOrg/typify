@@ -1,4 +1,4 @@
-# **typify**
+# <h1>typify</h1>
 Applies a type scheme to a weakly typed buggy graph.
 Typify offers six rules that can be applied selectively or all at once
 Uses rewrite library to iteratively search for candidates and apply the rules.
