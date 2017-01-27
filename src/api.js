@@ -105,14 +105,18 @@ export function TypifyCollectingNode () {
         const ports = Graph.Node.inputPorts(node, true)
         const genericPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p))
         const specificPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p) === false)
-        if (genericPorts.length === 0) {
+        if (genericPorts.length === 0) { // nothing to typify
           return false
-        } else if (specificPorts.length === 0) {
+        } else if (specificPorts.length === 0) { // nothing to typify from
           return false
         }
-        var type = specificPorts[0].type
-        if (_.every(specificPorts, (p) => p.type === type) === false) {
-          return false
+        const type = specificPorts[0].type
+        for (const p of specificPorts) {
+          if (p.type !== specificPorts[0].type) {
+            throw new Error('conflicting types at node ' +
+              (node.name || node.id || 'N/A') + ' between ports' +
+              specificPorts[0] + ' and ' + p)
+          }
         }
         return {
           node: node,
@@ -151,14 +155,18 @@ export function TypifyDistributingNode () {
         var ports = Graph.Node.outputPorts(node, true)
         var genericPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p))
         var specificPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p) === false)
-        if (genericPorts.length === 0) {
+        if (genericPorts.length === 0) { // nothing to typify
           return false
-        } else if (specificPorts.length === 0) {
+        } else if (specificPorts.length === 0) { // nothing to typify from
           return false
         }
-        var type = specificPorts[0].type
-        if (_.every(specificPorts, (p) => p.type === type) === false) {
-          return false
+        const type = specificPorts[0].type
+        for (const p of specificPorts) {
+          if (p.type !== specificPorts[0].type) {
+            throw new Error('conflicting types at node ' +
+              (node.name || node.id || 'N/A') + ' between ports' +
+              specificPorts[0] + ' and ' + p)
+          }
         }
         return {
           node: node,
@@ -202,9 +210,13 @@ export function TypifyAtomicNode () {
         } else if (specificPorts.length === 0) {
           return false
         }
-        var type = specificPorts[0].type
-        if (_.every(specificPorts, (p) => p.type === type) === false) {
-          return false
+        const type = specificPorts[0].type
+        for (const p of specificPorts) {
+          if (p.type !== specificPorts[0].type) {
+            throw new Error('conflicting types at node ' +
+              (node.name || node.id || 'N/A') + ' between ports' +
+              specificPorts[0] + ' and ' + p)
+          }
         }
         return {
           node: node,
