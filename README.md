@@ -1,32 +1,37 @@
-# <h1>typify</h1>
-Applies a type scheme to a weakly typed buggy graph.<br/>
-Typify offers six rules that can be applied selectively or all at once<br/>
-Uses rewrite library to iteratively search for candidates and apply the rules.<br/>
+# Typify
+Applies a type scheme to a weakly typed buggy graph.
+Typify offers six rules that can be applied selectively or all at once.
+Uses rewrite library to iteratively search for candidates and apply the rules.
 
-# <h1>Usage</h1>
+# Usage
 
 To typify the graph completely, use<br/>
 
-<p>
-<code>
-const g1 = CreateGraph()<br/>
-const g2 = API.TypifyAll(g1, maxIterations)<br/>
-</code>
-</p>
+<pre><code>
+g1 = API.TypifyAll(g, maxIterations)
+</code></pre>
 
-where maxIterations is optional (default: Infinity)<br/>
-To apply single rules, use<br/>
+where maxIterations is optional (default: Infinity)
+To apply single rules, use
 
-<p>
-<code>
-const g1 = CreateGraph()
-const g2 = API.TypifySpecializingEdge()(g1) // typify edges of type generic > specific<br/>
-const g3 = API.TypifyGeneralizingEdge()(g1) // typify edges of type specific > generic<br/>
-const g4 = API.TypifyAtomicNode()(g1) // typify in- and out-ports of atomic nodes together<br/>
-const g5 = API.TypifyCollectingNode()(g1) // typify in-ports of non-atomic nodes<br/>
-const g6 = API.TypifyDistributingNode()(g1) // typify out-ports of non-atomic nodes<br/>
-const g7 = API.TypifyRecursiveNode()(g1) // match ports of recursion nodes with parent<br/>
-</code>
-</p>
+<pre><code>
+g1 = API.TypifySpecializingEdge()(g)
+g2 = API.TypifyGeneralizingEdge()(g)
+g3 = API.TypifyAtomicNode()(g)
+g4 = API.TypifyCollectingNode()(g)
+g5 = API.TypifyDistributingNode()(g)
+g6 = API.TypifyRecursiveNode()(g)
+</code></pre>
 
-(note additional brackets)
+where
+
+<ul>
+<li><code>TypifySpecializingEdge</code> typifies all edges from generic to nongeneric ports</li>
+<li><code>TypifyGeneralizingEdge</code> typifies all edges from nongeneric to generic ports</li>
+<li><code>TypifyAtomicNode</code> typifies all atomic nodes with mixed nongeneric and generic ports typified</li>
+<li><code>TypifyCollectingNode</code> typifies all nodes with mixed nongeneric and generic input ports</li>
+<li><code>TypifyDistributingNode</code> typifies all nodes with mixed nongeneric and generic output ports</li>
+<li><code>TypifyRecursiveNode</code> typifies all recursive</li>
+</ul>
+
+> Written with [StackEdit](https://stackedit.io/).
