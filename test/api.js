@@ -282,7 +282,7 @@ describe('API tests', () => {
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
     expect(Graph.port('N@p', Graph.node('R', graph2)).type === 'oranges').to.be.true
   })
-  it('can typify Maxs recursion', () => {
+  xit('can typify Maxs recursion', () => {
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/fac.json', 'utf-8'))
     let graph2 = API.TypifyAll(graph1)
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
@@ -299,12 +299,25 @@ describe('API tests', () => {
   })
   it('can typify recursive function (binomial)', () => {
     let graph1 = createBinomialGraph()
+    //let graph2 = API.TypifyAtomicNode()(graph1)
     let graph2 = API.TypifyAll(graph1)
+    console.log(JSON.stringify(graph2, null, 2))
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
     expect(_.every(Graph.nodes(graph2), node => {
       return _.every(Graph.Node.ports(node), (port) => {
         return Rewrite.isGenericPort(port) === false
       })
     })).to.be.true
+  })
+  it('can check type assignability', () => {
+    var t1 = {
+      data: ['a', 'Number'],
+      name: 'Pair'
+    }
+    var t2 = {
+      data: ['String', 'b'],
+      name: 'Pair'
+    }
+    expect(API.UnifyTypes(t1, t2)).not.to.throw
   })
 })

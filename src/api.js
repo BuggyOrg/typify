@@ -7,7 +7,7 @@ import debug from 'debug'
 
 function Log (line) {
   debug('[typify]', line)
-  //console.log(line)
+  console.log(line)
 }
 
 /**
@@ -20,10 +20,69 @@ export function TypifyAll (graph, iterations = Infinity) {
     TypifyAtomicNode(),
     TypifySpecializingEdge(),
     TypifyGeneralizingEdge(),
-    TypifyCollectingNode(),
-    TypifyDistributingNode(),
+    //TypifyCollectingNode(),
+    //TypifyDistributingNode(),
     TypifyRecursiveNode()
   ], iterations)(graph)
+}
+
+export function IsGenericType (t) {
+  if (!t) return false
+  else if (typeof t === 'string') return IsLowerCase(t.charAt(0))
+  else if (IsTypeObject(t)) return IsLowerCase(t.name.charAt(0))
+  else return false
+}
+
+function IsLowerCase (c) {
+  return c === c.toLowerCase()
+}
+
+export function UnifyTypes (t1, t2, assignment = {}) {
+  t1 = CheckType(t1)
+  t2 = CheckType(t2)
+  if (!IsGenericType(t1) && !IsGenericType(t2)) {
+    if (t1.name !== t2.name) throw new Error('type unification error: ' + t1.name + ' has a different name than ' + t2.name)
+    const f1 = t1.data.sort(t => t.name || t)
+    const f2 = t2.data.sort(t => t.name || t)
+    if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
+    for (var i = 0; i < f1.length; ++i) {
+      UnifyTypes(f1[i], f2[i], assignment)
+    }
+  }
+  if (IsGenericType(t2) && !IsGenericType(t1)) {
+    assignment[t2.name] = _.cloneDeep(t1)
+  }
+  if (IsGenericType(t1) && !IsGenericType(t2)) {
+    assignment[t1.name] = _.cloneDeep(t2)
+  }
+  t1.assignment = _.cloneDeep(assignment)
+  t2.assignment = _.cloneDeep(assignment)
+}
+
+export function TryUnifyTypes (t1, t2, assignment = {}) {
+  try {
+    UnifyTypes(t1, t2, assignment)
+  } catch (error) {
+    return false
+  }
+  return true
+}
+
+function CheckType (t) {
+  if (!t) throw new Error('missing type definition')
+  else if (typeof t === 'string') return MakeTypeObject(t)
+  else if (!IsTypeObject(t)) throw new Error('invalid type definition')
+  else return t
+}
+
+function IsTypeObject (t) {
+  return t &&
+  t.data &&
+  t.name
+}
+
+function MakeTypeObject (t) {
+  return { name: t, data: [] }
 }
 
 /**
@@ -99,9 +158,6 @@ export function TypifyGeneralizingEdge () {
 export function TypifyCollectingNode () {
   return Rewrite.applyNode(
       (node, graph) => {
-        if (Graph.Node.isAtomic(node)) {
-          return false // atomic nodes are typified seperately
-        }
         const ports = Graph.Node.inputPorts(node, true)
         const genericPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p))
         const specificPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p) === false)
@@ -112,7 +168,8 @@ export function TypifyCollectingNode () {
         }
         const type = specificPorts[0].type
         for (const p of specificPorts) {
-          if (p.type !== specificPorts[0].type) {
+          if (!TryUnifyTypes(p.type, specificPorts[0].type)) {
+          //if (p.type !== specificPorts[0].type) {
             throw new Error('conflicting types at node ' +
               (node.name || node.id || 'N/A') + ' between ports' +
               specificPorts[0] + ' and ' + p)
@@ -149,9 +206,6 @@ export function TypifyCollectingNode () {
 export function TypifyDistributingNode () {
   return Rewrite.applyNode(
       (node, graph) => {
-        if (Graph.Node.isAtomic(node)) {
-          return false // atomic nodes are typified seperately
-        }
         var ports = Graph.Node.outputPorts(node, true)
         var genericPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p))
         var specificPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p) === false)
@@ -162,7 +216,8 @@ export function TypifyDistributingNode () {
         }
         const type = specificPorts[0].type
         for (const p of specificPorts) {
-          if (p.type !== specificPorts[0].type) {
+          if (!TryUnifyTypes(p.type, specificPorts[0].type)) {
+          //if (p.type !== specificPorts[0].type) {
             throw new Error('conflicting types at node ' +
               (node.name || node.id || 'N/A') + ' between ports' +
               specificPorts[0] + ' and ' + p)
@@ -199,20 +254,18 @@ export function TypifyDistributingNode () {
 export function TypifyAtomicNode () {
   return Rewrite.applyNode(
       (node, graph) => {
-        if (Graph.Node.isAtomic(node) === false) {
-          return false
-        }
         var ports = Graph.Node.ports(node, true)
         var genericPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p))
         var specificPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p) === false)
-        if (genericPorts.length === 0) {
+        if (genericPorts.length === 0) { // nothing to typify
           return false
-        } else if (specificPorts.length === 0) {
+        } else if (specificPorts.length === 0) { // nothing to typify from
           return false
         }
         const type = specificPorts[0].type
         for (const p of specificPorts) {
-          if (p.type !== specificPorts[0].type) {
+          if (!TryUnifyTypes(p.type, specificPorts[0].type)) {
+          //if (p.type !== specificPorts[0].type) {
             throw new Error('conflicting types at node ' +
               (node.name || node.id || 'N/A') + ' between ports' +
               specificPorts[0] + ' and ' + p)
@@ -285,7 +338,7 @@ export function TypifyRecursiveNode () {
           ports: _.map(match.ref.ports, (p) => {
             var matchPort = _.find(match.ports, (p2) => p2.port === p.port)
             if (!matchPort) return p
-            return _.assign(p, { type: matchPort.type })
+            return _.assign(p, { type: _.cloneDeep(matchPort.type) })
           })
         })
         var newRoot = _.assign(_.cloneDeep(match.root), {
@@ -298,43 +351,5 @@ export function TypifyRecursiveNode () {
         return Graph
         .replaceNode(match.ref, newRef, graph)
         .replaceNode(match.root, newRoot, graph)
-      })
-}
-
-export function TypifyRecursiveNode2 () {
-  return Rewrite.applyNode(
-      (node, graph) => {
-        if (node.isRecursive === false) {
-          return false
-        }
-        var edges = Graph.edges(graph)
-        edges = _.filter(edges, (e) => e.layer === 'recursion')
-        edges = _.map(edges, (e) => {
-          var src = Graph.node(e.from, graph)
-          var dst = Graph.node(e.to, graph)
-          var ref = _.find([src, dst], (n) => n.isRecursiveRoot === false)
-          var root = _.find([src, dst], (n) => n.isRecursiveRoot)
-          return {
-            ref: ref,
-            root: root
-          }
-        })
-        return _.find(edges, (e) => !!e) || false
-      },
-      (match, graph) => {
-        var line = 'typifying recursion edge from ' + match.ref.name + ' to ' + match.root.name
-        Log(line)
-        if (match.ref.type === 'generic') {
-          var newRef = _.assign(_.cloneDeep(match.ref), {
-            type: match.root.type
-          })
-          return Graph.replaceNode(match.ref, newRef, graph)
-        } else if (match.root.type === 'generic') {
-          var newRoot = _.assign(_.cloneDeep(match.root), {
-            type: _.cloneDeep(match.ref.type)
-          })
-          return Graph.replaceNode(match.root, newRoot, graph)
-        }
-        return graph
       })
 }
