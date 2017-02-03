@@ -11,7 +11,7 @@ To typify the graph completely, use<br/>
 g1 = API.TypifyAll(g, maxIterations)
 </code></pre>
 
-where maxIterations is optional (default: Infinity)
+where <code>maxIterations</code> is optional (default: Infinity)
 To apply single rules, use
 
 <pre><code>

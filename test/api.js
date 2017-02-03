@@ -16,7 +16,7 @@ function createSimpleGraph1 () {
     Graph.addNode({
       name: 'a',
       ports: [
-        { port: 'p1', kind: 'output', type: 'number' },
+        { port: 'p1', kind: 'output', type: 'Number' },
         { port: 'p2', kind: 'output', type: 'generic' }
       ]
     }),
@@ -57,7 +57,7 @@ function createSimpleGraph2 () {
     Graph.addNode({
       name: 'D',
       ports: [
-        { port: 'p6', kind: 'input', type: 'string' }
+        { port: 'p6', kind: 'input', type: 'String' }
       ]
     }),
     Graph.addEdge({ from: 'A@p1', to: 'B@p3' }),
@@ -71,7 +71,7 @@ function createIssueGraph () {
     Graph.addNode({
       name: 'M',
       ports: [
-        { port: 'p', kind: 'output', type: 'apples' }
+        { port: 'p', kind: 'output', type: 'Apples' }
       ]
     }),
     Graph.addNode({
@@ -97,7 +97,7 @@ function createFactorialGraph () {
       atomic: true,
       componentId: 'math/const',
       ports: [
-        { port: 'out', kind: 'output', type: 'number' }
+        { port: 'out', kind: 'output', type: 'Number' }
       ]
     }),
     Graph.addNode({
@@ -166,7 +166,7 @@ function createBinomialGraph () {
       atomic: true,
       componentId: 'math/const',
       ports: [
-        { port: 'out', kind: 'output', type: 'number' }
+        { port: 'out', kind: 'output', type: 'Number' }
       ]
     }),
     Graph.addNode({
@@ -276,11 +276,11 @@ describe('API tests', () => {
     let root = Graph.node('R', graph1)
     let port = Graph.port('N@p', root)
     let newPort = _.assign(_.cloneDeep(port), {
-      type: 'oranges'
+      type: 'Oranges'
     })
     graph2 = Rewrite.replacePort(Graph.node('N', root), port, newPort, graph1)
+    expect(Graph.port('N@p', Graph.node('R', graph2)).type === 'Oranges').to.be.true
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
-    expect(Graph.port('N@p', Graph.node('R', graph2)).type === 'oranges').to.be.true
   })
   xit('can typify Maxs recursion', () => {
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/fac.json', 'utf-8'))
@@ -301,7 +301,6 @@ describe('API tests', () => {
     let graph1 = createBinomialGraph()
     //let graph2 = API.TypifyAtomicNode()(graph1)
     let graph2 = API.TypifyAll(graph1)
-    console.log(JSON.stringify(graph2, null, 2))
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
     expect(_.every(Graph.nodes(graph2), node => {
       return _.every(Graph.Node.ports(node), (port) => {
@@ -319,5 +318,7 @@ describe('API tests', () => {
       name: 'Pair'
     }
     expect(API.UnifyTypes(t1, t2)).not.to.throw
+    //console.log(JSON.stringify(t1, null, 2))
+    //console.log(JSON.stringify(t2, null, 2))
   })
 })

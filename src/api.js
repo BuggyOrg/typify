@@ -7,7 +7,7 @@ import debug from 'debug'
 
 function Log (line) {
   debug('[typify]', line)
-  console.log(line)
+  //console.log(line)
 }
 
 /**
@@ -20,43 +20,48 @@ export function TypifyAll (graph, iterations = Infinity) {
     TypifyAtomicNode(),
     TypifySpecializingEdge(),
     TypifyGeneralizingEdge(),
-    //TypifyCollectingNode(),
-    //TypifyDistributingNode(),
     TypifyRecursiveNode()
   ], iterations)(graph)
 }
 
-export function IsGenericType (t) {
+function IsValidType (t) {
   if (!t) return false
-  else if (typeof t === 'string') return IsLowerCase(t.charAt(0))
-  else if (IsTypeObject(t)) return IsLowerCase(t.name.charAt(0))
-  else return false
+  if (typeof t === 'string') return true
+  if (!t.data) return false
+  return true
+}
+
+export function IsGenericType (t) {
+  if (!IsValidType(t)) return false
+  return IsLowerCase((t.name || t).charAt(0))
 }
 
 function IsLowerCase (c) {
   return c === c.toLowerCase()
 }
 
-export function UnifyTypes (t1, t2, assignment = {}) {
-  t1 = CheckType(t1)
-  t2 = CheckType(t2)
-  if (!IsGenericType(t1) && !IsGenericType(t2)) {
+export function UnifyTypes (t1, t2, assignments = []) {
+  if (!IsValidType(t1)) throw new Error('invalid type t1: ' + JSON.stringify(t1))
+  if (!IsValidType(t2)) throw new Error('invalid type t2: ' + JSON.stringify(t2))
+  const g1 = IsGenericType(t1)
+  const g2 = IsGenericType(t2)
+  if (!g1 && !g2) {
+    if (typeof t1 === 'string' && typeof t2 === 'string') {
+      return t1 === t2
+    }
     if (t1.name !== t2.name) throw new Error('type unification error: ' + t1.name + ' has a different name than ' + t2.name)
     const f1 = t1.data.sort(t => t.name || t)
     const f2 = t2.data.sort(t => t.name || t)
     if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
     for (var i = 0; i < f1.length; ++i) {
-      UnifyTypes(f1[i], f2[i], assignment)
+      UnifyTypes(f1[i], f2[i], assignments)
     }
+  } else {
+    if (g1) assignments.push({ key: t1.name || t1, value: _.cloneDeep(t2) })
+    if (g2) assignments.push({ key: t2.name || t2, value: _.cloneDeep(t1) })
   }
-  if (IsGenericType(t2) && !IsGenericType(t1)) {
-    assignment[t2.name] = _.cloneDeep(t1)
-  }
-  if (IsGenericType(t1) && !IsGenericType(t2)) {
-    assignment[t1.name] = _.cloneDeep(t2)
-  }
-  t1.assignment = _.cloneDeep(assignment)
-  t2.assignment = _.cloneDeep(assignment)
+  if (typeof t1 !== 'string') t1.assignments = _.merge(t1.assignment, assignments)
+  if (typeof t2 !== 'string') t2.assignments = _.merge(t2.assignment, assignments)
 }
 
 export function TryUnifyTypes (t1, t2, assignment = {}) {
@@ -66,23 +71,6 @@ export function TryUnifyTypes (t1, t2, assignment = {}) {
     return false
   }
   return true
-}
-
-function CheckType (t) {
-  if (!t) throw new Error('missing type definition')
-  else if (typeof t === 'string') return MakeTypeObject(t)
-  else if (!IsTypeObject(t)) throw new Error('invalid type definition')
-  else return t
-}
-
-function IsTypeObject (t) {
-  return t &&
-  t.data &&
-  t.name
-}
-
-function MakeTypeObject (t) {
-  return { name: t, data: [] }
 }
 
 /**
@@ -152,102 +140,6 @@ export function TypifyGeneralizingEdge () {
 }
 
 /**
- * Generates a graph rewriter that typifies all collecting nodes (ie. nodes with mixed generic and specific inputs)
- * @return {Func} a rewrite function that takes a graph and returns a new one
- */
-export function TypifyCollectingNode () {
-  return Rewrite.applyNode(
-      (node, graph) => {
-        const ports = Graph.Node.inputPorts(node, true)
-        const genericPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p))
-        const specificPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p) === false)
-        if (genericPorts.length === 0) { // nothing to typify
-          return false
-        } else if (specificPorts.length === 0) { // nothing to typify from
-          return false
-        }
-        const type = specificPorts[0].type
-        for (const p of specificPorts) {
-          if (!TryUnifyTypes(p.type, specificPorts[0].type)) {
-          //if (p.type !== specificPorts[0].type) {
-            throw new Error('conflicting types at node ' +
-              (node.name || node.id || 'N/A') + ' between ports' +
-              specificPorts[0] + ' and ' + p)
-          }
-        }
-        return {
-          node: node,
-          type: _.cloneDeep(type)
-        }
-      },
-      (match, graph) => {
-        var line = 'typifying collecting node ' + match.node.name
-        Log(line)
-        // copy specific type to generic ports
-        var newNode = _.assign(_.cloneDeep(match.node), {
-          ports: _.map((match.node.ports), (p) => {
-            if (Graph.Port.isOutputPort(p)) {
-              return p
-            } else {
-              return _.assign(_.cloneDeep(p), {
-                type: _.cloneDeep(match.type)
-              })
-            }
-          })
-        })
-        return Graph.replaceNode(match.node, newNode, graph)
-      })
-}
-
-/**
- * Generates a graph rewriter that typifies all collecting nodes (ie. nodes with mixed generic and specific outputs)
- * @return {Func} a rewrite function that takes a graph and returns a new one
- */
-export function TypifyDistributingNode () {
-  return Rewrite.applyNode(
-      (node, graph) => {
-        var ports = Graph.Node.outputPorts(node, true)
-        var genericPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p))
-        var specificPorts = _.filter(ports, (p) => Rewrite.isGenericPort(p) === false)
-        if (genericPorts.length === 0) { // nothing to typify
-          return false
-        } else if (specificPorts.length === 0) { // nothing to typify from
-          return false
-        }
-        const type = specificPorts[0].type
-        for (const p of specificPorts) {
-          if (!TryUnifyTypes(p.type, specificPorts[0].type)) {
-          //if (p.type !== specificPorts[0].type) {
-            throw new Error('conflicting types at node ' +
-              (node.name || node.id || 'N/A') + ' between ports' +
-              specificPorts[0] + ' and ' + p)
-          }
-        }
-        return {
-          node: node,
-          type: _.cloneDeep(type)
-        }
-      },
-      (match, graph) => {
-        var line = 'typifying distributing node ' + match.node.name
-        Log(line)
-        // copy specific type to generic ports
-        var newNode = _.assign(_.cloneDeep(match.node), {
-          ports: _.map((match.node.ports), (p) => {
-            if (Graph.Port.isInputPort(p)) {
-              return p
-            } else {
-              return _.assign(_.cloneDeep(p), {
-                type: _.cloneDeep(match.type)
-              })
-            }
-          })
-        })
-        return Graph.replaceNode(match.node, newNode, graph)
-      })
-}
-
-/**
  * Generates a graph rewriter that typifies all atomic nodes (ie. make all input and outputs of the same type)
  * @return {Func} a rewrite function that takes a graph and returns a new one
  */
@@ -265,7 +157,6 @@ export function TypifyAtomicNode () {
         const type = specificPorts[0].type
         for (const p of specificPorts) {
           if (!TryUnifyTypes(p.type, specificPorts[0].type)) {
-          //if (p.type !== specificPorts[0].type) {
             throw new Error('conflicting types at node ' +
               (node.name || node.id || 'N/A') + ' between ports' +
               specificPorts[0] + ' and ' + p)
