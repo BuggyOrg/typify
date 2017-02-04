@@ -1,4 +1,3 @@
-
 /* global describe, it, xit */
 
 import * as Graph from '@buggyorg/graphtools'
@@ -270,22 +269,16 @@ describe('API tests', () => {
       })
     })).to.be.true
   })
-  it('can modify ports without deleting edges (seems to be fixed now)', () => {
-    let graph1 = createIssueGraph()
+  it('can typify loop problem case', () => {
+    let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/problem.json', 'utf-8'))
     let graph2 = API.TypifyAll(graph1)
-    let root = Graph.node('R', graph1)
-    let port = Graph.port('N@p', root)
-    let newPort = _.assign(_.cloneDeep(port), {
-      type: 'Oranges'
-    })
-    graph2 = Rewrite.replacePort(Graph.node('N', root), port, newPort, graph1)
-    expect(Graph.port('N@p', Graph.node('R', graph2)).type === 'Oranges').to.be.true
+    fs.writeFileSync('./test/fixtures/problem_typified.json', JSON.stringify(graph2, null, 2))
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
-  })
-  xit('can typify Maxs recursion', () => {
-    let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/fac.json', 'utf-8'))
-    let graph2 = API.TypifyAll(graph1)
-    expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
+    expect(_.every(Graph.nodes(graph2), node => {
+      return _.every(Graph.Node.ports(node), (port) => {
+        return Rewrite.isGenericPort(port) === false
+      })
+    })).to.be.true
   })
   it('can typify recursive function (factorial)', () => {
     let graph1 = createFactorialGraph()
@@ -299,7 +292,6 @@ describe('API tests', () => {
   })
   it('can typify recursive function (binomial)', () => {
     let graph1 = createBinomialGraph()
-    //let graph2 = API.TypifyAtomicNode()(graph1)
     let graph2 = API.TypifyAll(graph1)
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
     expect(_.every(Graph.nodes(graph2), node => {
@@ -309,16 +301,19 @@ describe('API tests', () => {
     })).to.be.true
   })
   it('can check type assignability', () => {
-    var t1 = {
+    let t1 = {
       data: ['a', 'Number'],
       name: 'Pair'
     }
-    var t2 = {
+    let t2 = {
       data: ['String', 'b'],
       name: 'Pair'
     }
     expect(API.UnifyTypes(t1, t2)).not.to.throw
-    //console.log(JSON.stringify(t1, null, 2))
-    //console.log(JSON.stringify(t2, null, 2))
+    for (const t of [t1, t2]) {
+      expect(t.assignments).to.exist
+      expect(t.assignments[0]).to.deep.equal({key: 'a', value: 'String'})
+      expect(t.assignments[1]).to.deep.equal({key: 'b', value: 'Number'})
+    }
   })
 })

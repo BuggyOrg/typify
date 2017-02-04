@@ -98,8 +98,8 @@ export function TypifySpecializingEdge () {
         edge.target.name + '@' + edge.targetPort.port
         Log(line)
         // construct new port with type from source
-        const node = Graph.node(edge.source, graph)
-        const port = _.assign(_.cloneDeep(edge.sourcePort), {
+        var node = Graph.node(edge.source, graph)
+        var port = _.assign(_.cloneDeep(edge.sourcePort), {
           type: _.cloneDeep(edge.targetPort.type)
         })
         return Rewrite.replacePort(node, edge.sourcePort, port, graph)
@@ -131,8 +131,8 @@ export function TypifyGeneralizingEdge () {
         edge.target.name + '@' + edge.targetPort.port
         Log(line)
         // construct new port with type from source
-        const node = Graph.node(edge.target, graph)
-        const port = _.assign(_.cloneDeep(edge.targetPort), {
+        var node = Graph.node(edge.target, graph)
+        var port = _.assign(_.cloneDeep(edge.targetPort), {
           type: _.cloneDeep(edge.sourcePort.type)
         })
         return Rewrite.replacePort(node, edge.targetPort, port, graph)

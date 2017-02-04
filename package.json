@@ -1,13 +1,13 @@
 {
   "name": "@buggyorg/typify",
-  "version": "0.1.6-pre.1",
+  "version": "0.1.6-pre.2",
   "description": "Applies a type scheme to a weakly typed buggy graph.",
   "main": "lib/api.js",
   "bin": {
     "buggy-typify": "lib/cli.js"
   },
   "scripts": {
-    "test": "mocha --compilers js:babel-register && standard src/**/*.js",
+    "test": "mocha --timeout 10000 --compilers js:babel-register",
     "build": "babel src -d lib && babel test -d test/lib",
     "prepublish": "babel src -d lib"
   },
@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@buggyorg/graphtools": "^0.4.0-pre.15",
+    "@buggyorg/rewrite": "^0.2.4",
     "cli-ext": "^1.1.0",
     "debug": "^2.6.0",
     "graphlib": "^2.1.0",
