@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "mocha --timeout 10000 --compilers js:babel-register",
-    "build": "babel src -d lib && babel test -d test/lib",
+    "build": "babel src -d lib",
     "prepublish": "babel src -d lib"
   },
   "author": "Maximilian Klein",
@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@buggyorg/graphtools": "^0.4.0-pre.15",
+    "@buggyorg/rewrite": "^0.2.6",
     "cli-ext": "^1.1.0",
     "debug": "^2.6.0",
     "graphlib": "^2.1.0",
