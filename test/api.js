@@ -300,7 +300,7 @@ describe('API tests', () => {
       })
     })).to.be.true
   })
-  it('can check type assignability', () => {
+  it('can unify simple types', () => {
     let t1 = {
       data: ['a', 'Number'],
       name: 'Pair'
@@ -314,6 +314,30 @@ describe('API tests', () => {
       expect(t.assignments).to.exist
       expect(t.assignments[0]).to.deep.equal({key: 'a', value: 'String'})
       expect(t.assignments[1]).to.deep.equal({key: 'b', value: 'Number'})
+    }
+  })
+  it('can unify function types', () => {
+    let genArray = {
+      name: 'Function',
+      arguments: [
+        'Number'
+      ],
+      returnValues: [
+        'elementType'
+      ]
+    }
+    let genFunc = {
+      name: 'Function',
+      arguments: [
+        'a'
+      ],
+      returnValues: [
+        'elementType'
+      ]
+    }
+    expect(API.UnifyTypes(genArray, genFunc)).not.to.throw
+    for (const t of [genArray, genFunc]) {
+      expect(t.assignments).to.exist
     }
   })
 })
