@@ -3,7 +3,6 @@ import * as Graph from '@buggyorg/graphtools'
 
 import * as Rewrite from '@buggyorg/rewrite'
 import _ from 'lodash'
-import debug from 'debug'
 
 const API = require('./api.js')
 const Utils = require('./utils.js')
@@ -18,34 +17,38 @@ export function TypifyEdge () {
         if (!edge.sourcePort) return false
         if (!edge.targetPort) return false
         // check wether edge goes from generic to specific
-        var a1 = [], a2 = []
-        if (API.TryUnifyTypes(edge.sourcePort.type, edge.targetPort.type, a1, a2) === false) {
+        var a1 = {}
+        var a2 = {}
+        var unifies = API.TryUnifyTypes(edge.sourcePort.type, edge.targetPort.type, a1, a2)
+        a1 = _.omit(a1, _.keys(edge.sourcePort.assignments))
+        a2 = _.omit(a2, _.keys(edge.targetPort.assignments))
+        if (!unifies) {
           return false
-        } else if (!a1[0] && !a2[0]) {
+        } else if (_.keys(a1).length === 0 && _.keys(a2).length === 0) {
           return false
         } else {
           return [edge, a1, a2]
         }
       },
       (match, graph) => {
-        const edge = match[0]
-        const a1 = match[1]
-        const a2 = match[2]
+        var edge = match[0]
+        var a1 = match[1]
+        var a2 = match[2]
         const line = 'typifying edge from ' +
         edge.source.name + '@' + edge.sourcePort.port +
         ' to ' +
-        edge.target.name + '@' + edge.targetPort.port + 
-        ' with ' + 
+        edge.target.name + '@' + edge.targetPort.port +
+        ' with ' +
         JSON.stringify(a1) +
-        ' and ' + 
+        ' and ' +
         JSON.stringify(a2)
         Utils.Log(line)
         // replace source type with target type
         var newSourcePort = _.assign(_.cloneDeep(edge.sourcePort), {
-            assignments: a1.concat(edge.sourcePort.assignments)
+          assignments: _.assign(a1, edge.source.assignments)
         })
         var newTargetPort = _.assign(_.cloneDeep(edge.targetPort), {
-            assignments: a2.concat(edge.targetPort.assignments)
+          assignments: _.assign(a2, edge.targetPort.assignments)
         })
         graph = Rewrite.replacePort(edge.source, edge.sourcePort, newSourcePort, graph)
         graph = Rewrite.replacePort(edge.target, edge.targetPort, newTargetPort, graph)
@@ -60,32 +63,42 @@ export function TypifyEdge () {
 export function TypifyNode () {
   return Rewrite.applyNode(
       (node, graph) => {
-        if (!Graph.Node.isAtomic(node)) return false
+        // if (!Graph.Node.isAtomic(node)) return false
         var ports = Graph.Node.ports(node, true)
         for (const p1 of ports) {
-            for (const p2 of ports) {
-                if (p1 === p2) continue
-                var a1 = [], a2 = []
-                if (API.TryUnifyTypes(p1.type, p2.type, a1, a2) && (!!a1[0] || !!a2[0])) {
-                    return [node, p1, p2, a1, a2]
-                } 
+          for (const p2 of ports) {
+            if (p1 === p2) continue
+            var a1 = []
+            var a2 = []
+            var unifies = API.TryUnifyTypes(p1.type, p2.type, a1, a2)
+            a1 = _.omit(a1, _.keys(p1.assignments))
+            a2 = _.omit(a2, _.keys(p2.assignments))
+            Utils.Log(JSON.stringify(a1) + JSON.stringify(a2))
+            if (!unifies) {
+              return false
+            } else if (_.keys(a1).length === 0 && _.keys(a2).length === 0) {
+              return false
+            } else {
+              return [node, p1, p2, a1, a2]
             }
+          }
         }
         return false
       },
       (match, graph) => {
-        console.log(JSON.stringify(match))
         const node = match[0]
         const p1 = match[1]
         const p2 = match[2]
         const a1 = match[3]
         const a2 = match[4]
-        // var line = 'typifying atomic node ' + match.node.name
-        // Log(line)
-        var newP1 = _.cloneDeep(p1)
-        newP1.assignments = a1.concat(p1.assignments)
-        var newP2 = _.cloneDeep(p2)
-        newP2.assignments = a2.concat(p2.assignments)
+        var line = 'typifying atomic node ' + node.id
+        Utils.Log(line)
+        let newP1 = _.assign(_.cloneDeep(p1), {
+          assignments: a1
+        })
+        let newP2 = _.assign(_.cloneDeep(p2), {
+          assignments: a2
+        })
         graph = Rewrite.replacePort(node, p1, newP1, graph)
         graph = Rewrite.replacePort(node, p2, newP2, graph)
         return graph

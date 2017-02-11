@@ -7,12 +7,16 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceRoot}/lib/debug.js",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Mocha Tests",
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "windows": {
-                "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha.cmd"
-            },
             "args": [
                 "--recursive",
                 "--no-timeouts",

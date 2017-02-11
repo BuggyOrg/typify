@@ -1,11 +1,10 @@
 
 import * as Graph from '@buggyorg/graphtools'
-
 import * as Rewrite from '@buggyorg/rewrite'
 import _ from 'lodash'
-import debug from 'debug'
 
 const Rewrites = require('./rewrites.js')
+const Utils = require('./utils.js')
 
 /**
  * Generates a graph rewriter using all six default rules
@@ -13,11 +12,41 @@ const Rewrites = require('./rewrites.js')
  */
 export function TypifyAll (graph, iterations = Infinity) {
   if (!graph) throw new Error('no graph')
-  return Rewrite.rewrite([
+  for (let node of Graph.nodesDeep(graph)) {
+    const ports = _.filter(Graph.Node.ports(node), Utils.IsGenericPort)
+    for (const port of ports) {
+      let newPort = _.assign(_.cloneDeep(port), {
+        type: port.type + '.' + node.id + '.' + port.port
+      })
+      graph = Rewrite.replacePort(node, port, newPort, graph)
+      node = Graph.node(node.id, graph)
+    }
+  }
+  graph = Rewrite.rewrite([
     Rewrites.TypifyNode(),
-    Rewrites.TypifyEdge(),
-    Rewrites.TypifyRecursion()
+    Rewrites.TypifyEdge()
+    // Rewrites.TypifyRecursion()
   ], iterations)(graph)
+  graph = applyAssignments(graph)
+  return graph
+}
+
+function applyAssignments (graph) {
+  if (!graph) throw new Error('no graph')
+  for (const node of Graph.nodesDeep(graph)) {
+    for (const port of Graph.Node.ports(node)) {
+      if (IsGenericType(port.type)) {
+        if (!port.assignments) continue
+        var assignedType = port.assignments[port.type]
+        if (!assignedType) continue
+        var newPort = _.assign(_.cloneDeep(port), {
+          type: _.cloneDeep(assignedType)
+        })
+        graph = Rewrite.replacePort(node, port, newPort, graph)
+      }
+    }
+  }
+  return graph
 }
 
 function IsValidType (t) {
@@ -36,12 +65,12 @@ function IsLowerCase (c) {
   return c === c.toLowerCase()
 }
 
-export function UnifyTypes (t1, t2, a1 = [], a2 = []) {
+export function UnifyTypes (t1, t2, a1 = {}, a2 = {}) {
   if (!IsValidType(t1)) throw new Error('invalid type t1: ' + JSON.stringify(t1))
   if (!IsValidType(t2)) throw new Error('invalid type t2: ' + JSON.stringify(t2))
   const g1 = IsGenericType(t1)
   const g2 = IsGenericType(t2)
-  console.log('unifying ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+  Utils.Log('testing if ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2) + ' unify')
   if (!g1 && !g2) {
     if (typeof t1 === 'string' && typeof t2 === 'string') {
       return t1 === t2
@@ -53,12 +82,13 @@ export function UnifyTypes (t1, t2, a1 = [], a2 = []) {
     for (var i = 0; i < f1.length; ++i) {
       UnifyTypes(f1[i], f2[i], a1, a2)
     }
-  // } else if (g1 && g2) {
-  //   return false
+  } else if (g1 && g2) {
+    return false
   } else {
-    if (g1) a1.push({ key: t1.name || t1, value: _.cloneDeep(t2) })
-    if (g2) a2.push({ key: t2.name || t2, value: _.cloneDeep(t1) })
+    if (g1) a1[t1.name || t1] = _.cloneDeep(t2)
+    if (g2) a2[t2.name || t2] = _.cloneDeep(t1)
   }
+  return true
   // if (typeof t1 !== 'string') t1.assignments = assignments.concat(t1.assignment)
   // if (typeof t2 !== 'string') t2.assignments = assignments.concat(t2.assignment)
 }
