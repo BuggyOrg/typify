@@ -80,15 +80,16 @@ export function UnifyTypes (t1, t2, a1 = {}, a2 = {}) {
     const f2 = t2.data.sort(t => t.name || t)
     if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
     for (var i = 0; i < f1.length; ++i) {
-      UnifyTypes(f1[i], f2[i], a1, a2)
+      if (!UnifyTypes(f1[i], f2[i], a1, a2)) return false
     }
+    return true
   } else if (g1 && g2) {
     return false
   } else {
     if (g1) a1[t1.name || t1] = _.cloneDeep(t2)
     if (g2) a2[t2.name || t2] = _.cloneDeep(t1)
+    return true
   }
-  return true
   // if (typeof t1 !== 'string') t1.assignments = assignments.concat(t1.assignment)
   // if (typeof t2 !== 'string') t2.assignments = assignments.concat(t2.assignment)
 }

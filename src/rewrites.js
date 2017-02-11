@@ -73,7 +73,6 @@ export function TypifyNode () {
             var unifies = API.TryUnifyTypes(p1.type, p2.type, a1, a2)
             a1 = _.omit(a1, _.keys(p1.assignments))
             a2 = _.omit(a2, _.keys(p2.assignments))
-            Utils.Log(JSON.stringify(a1) + JSON.stringify(a2))
             if (!unifies) {
               return false
             } else if (_.keys(a1).length === 0 && _.keys(a2).length === 0) {
