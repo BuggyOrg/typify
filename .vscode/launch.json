@@ -9,20 +9,23 @@
             "request": "launch",
             "name": "Mocha Tests",
             "cwd": "${workspaceRoot}",
-            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "windows": {
-                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha.cmd"
+                "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha.cmd"
             },
-            "runtimeArgs": [
-                "--timeout", "10000",
+            "args": [
+                "--recursive",
+                "--no-timeouts",
                 "--colors",
-                "--debug-brk",
-                "--compilers", "js:babel-register",
-                "${workspaceRoot}/test"
+                "--compilers",
+                "js:babel-register"
             ],
-            "stopOnEntry": false,
-            "internalConsoleOptions": "openOnSessionStart",
-            "sourceMaps": false
+            "console": "internalConsole",
+            "sourceMaps": true,
+            "smartStep": false,
+            "outFiles": [
+                "${workspaceRoot}/lib/**/*.js"
+            ]
         }
     ]
 }

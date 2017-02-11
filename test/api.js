@@ -318,26 +318,29 @@ describe('API tests', () => {
   })
   it('can unify function types', () => {
     let genArray = {
-      name: 'Function',
+      name: 'Generic Array',
+      base: 'Function',
       arguments: [
-        'Number'
+        'N'
       ],
-      returnValues: [
-        'elementType'
+      data: [
+        'e'
       ]
     }
     let genFunc = {
-      name: 'Function',
+      name: 'Generic Function',
+      base: 'Function',
       arguments: [
         'a'
       ],
-      returnValues: [
-        'elementType'
+      data: [
+        'e'
       ]
     }
     expect(API.UnifyTypes(genArray, genFunc)).not.to.throw
     for (const t of [genArray, genFunc]) {
-      expect(t.assignments).to.exist
+      console.log(JSON.stringify(t))
+      expect(t.assignment).to.exist
     }
   })
 })

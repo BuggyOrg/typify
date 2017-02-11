@@ -3,34 +3,6 @@
     {
       "ports": [
         {
-          "port": "text",
-          "kind": "input",
-          "type": "String"
-        },
-        {
-          "port": "IO_in",
-          "kind": "input",
-          "type": "IO"
-        },
-        {
-          "port": "IO_out",
-          "kind": "output",
-          "type": "IO"
-        }
-      ],
-      "settings": {},
-      "componentId": "print",
-      "version": "1.0.0",
-      "atomic": true,
-      "id": "#ciyqcnzcr0002uxg2ba6ms64t",
-      "path": [
-        "#ciyqcnzcr0002uxg2ba6ms64t"
-      ],
-      "edges": []
-    },
-    {
-      "ports": [
-        {
           "port": "in",
           "kind": "input",
           "type": "SPair"
@@ -77,6 +49,85 @@
     {
       "ports": [
         {
+          "node": "#ciyqcnzcr0002uxg2ba6ms64t",
+          "port": "text",
+          "kind": "input",
+          "type": "String"
+        },
+        {
+          "port": "IO_in",
+          "kind": "input",
+          "type": "IO"
+        },
+        {
+          "node": "#ciyqcnzcr0002uxg2ba6ms64t",
+          "port": "IO_out",
+          "kind": "output",
+          "type": "IO"
+        }
+      ],
+      "settings": {},
+      "componentId": "print",
+      "version": "1.0.0",
+      "atomic": true,
+      "edges": [],
+      "id": "#ciyqcnzcr0002uxg2ba6ms64t",
+      "path": [
+        "#ciyqcnzcr0002uxg2ba6ms64t"
+      ]
+    },
+    {
+      "metaInformation": {
+        "parameters": {
+          "type": "string",
+          "value": "a"
+        }
+      },
+      "settings": {},
+      "ports": [
+        {
+          "port": "const",
+          "kind": "output",
+          "type": "generic"
+        }
+      ],
+      "componentId": "std/const",
+      "version": "1.0.0",
+      "atomic": true,
+      "edges": [],
+      "id": "#ciyqcnzcy0005uxg2bs37q2mp",
+      "path": [
+        "#ciyqcnzcy0005uxg2bs37q2mp"
+      ]
+    },
+    {
+      "metaInformation": {
+        "parameters": {
+          "type": "string",
+          "value": "b"
+        }
+      },
+      "settings": {},
+      "ports": [
+        {
+          "port": "const",
+          "kind": "output",
+          "type": "generic"
+        }
+      ],
+      "componentId": "std/const",
+      "version": "1.0.0",
+      "atomic": true,
+      "edges": [],
+      "id": "#ciyqcnzdv0006uxg2ve3otyyo",
+      "path": [
+        "#ciyqcnzdv0006uxg2ve3otyyo"
+      ]
+    },
+    {
+      "ports": [
+        {
+          "node": "#ciyqcnzcw0004uxg2u7cc1ldt",
           "port": "0",
           "kind": "input",
           "type": "String"
@@ -87,6 +138,7 @@
           "type": "String"
         },
         {
+          "node": "#ciyqcnzcw0004uxg2u7cc1ldt",
           "port": "output",
           "kind": "output",
           "type": "SPair"
@@ -118,58 +170,10 @@
           }
         }
       },
+      "edges": [],
       "id": "#ciyqcnzcw0004uxg2u7cc1ldt",
       "path": [
         "#ciyqcnzcw0004uxg2u7cc1ldt"
-      ],
-      "edges": []
-    },
-    {
-      "metaInformation": {
-        "parameters": {
-          "type": "string",
-          "value": "a"
-        }
-      },
-      "settings": {},
-      "ports": [
-        {
-          "port": "const",
-          "kind": "output",
-          "type": "String"
-        }
-      ],
-      "componentId": "std/const",
-      "version": "1.0.0",
-      "atomic": true,
-      "edges": [],
-      "id": "#ciyqcnzcy0005uxg2bs37q2mp",
-      "path": [
-        "#ciyqcnzcy0005uxg2bs37q2mp"
-      ]
-    },
-    {
-      "metaInformation": {
-        "parameters": {
-          "type": "string",
-          "value": "b"
-        }
-      },
-      "settings": {},
-      "ports": [
-        {
-          "port": "const",
-          "kind": "output",
-          "type": "String"
-        }
-      ],
-      "componentId": "std/const",
-      "version": "1.0.0",
-      "atomic": true,
-      "edges": [],
-      "id": "#ciyqcnzdv0006uxg2ve3otyyo",
-      "path": [
-        "#ciyqcnzdv0006uxg2ve3otyyo"
       ]
     }
   ],
@@ -459,14 +463,16 @@
   "path": [],
   "ports": [
     {
+      "node": "#ciyqcnzcn0001uxg27v1fph5x",
       "port": "IO",
       "kind": "input",
-      "type": "IO"
+      "type": "generic"
     },
     {
+      "node": "#ciyqcnzcn0001uxg27v1fph5x",
       "port": "value",
       "kind": "output",
-      "type": "IO"
+      "type": "generic"
     }
   ],
   "atomic": false,
