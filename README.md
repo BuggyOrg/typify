@@ -15,17 +15,17 @@ where <code>maxIterations</code> is optional (default: Infinity)
 To apply single rules, use
 
 <pre><code>
-g1 = Typify.TypifySpecializingEdge()(g)
-g2 = Typify.TypifyGeneralizingEdge()(g)
+g1 = Typify.TypifyEdge()(g)
 g3 = Typify.TypifyAtomicNode()(g)
-g4 = Typify.TypifyRecursiveNode()(g)
+g4 = Typify.TypifyRecursion()(g)
 </code></pre>
 
 where
 
 <ul>
-<li><code>TypifySpecializingEdge</code> typifies an edge from a generic to a nongeneric ports</li>
-<li><code>TypifyGeneralizingEdge</code> typifies an edge from a nongeneric to a generic ports</li>
-<li><code>TypifyAtomicNode</code> typifies an atomic node with mixed nongeneric and generic ports</li>
-<li><code>TypifyRecursiveNode</code> typifies a recursive node</li>
+<li><code>TypifyEdge</code> typifies a edge from mixed generic/nongeneric source/target</li>
+<li><code>TypifyNode</code> typifies a node with mixed generic/nongeneric ports</li>
+<li><code>TypifyRecursion</code> typifies a recursion node</li>
 </ul>
+
+generic types are indicated by a lower case first character (ie 'generic' and 'a' are considered generic, 'Number' and 'A' aren't)

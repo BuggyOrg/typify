@@ -326,7 +326,6 @@ describe('API tests', () => {
   it('can unify function types', () => {
     let genArray = {
       name: 'Generic Array',
-      base: 'Function',
       args: [
         'N'
       ],
@@ -336,7 +335,6 @@ describe('API tests', () => {
     }
     let genFunc = {
       name: 'Generic Function',
-      base: 'Function',
       args: [
         'a'
       ],

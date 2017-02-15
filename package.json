@@ -1,13 +1,13 @@
 {
   "name": "@buggyorg/typify",
-  "version": "0.1.6-pre.2",
+  "version": "0.1.6",
   "description": "Applies a type scheme to a weakly typed buggy graph.",
   "main": "lib/api.js",
   "bin": {
     "buggy-typify": "lib/cli.js"
   },
   "scripts": {
-    "test": "mocha --timeout 10000 --compilers js:babel-register",
+    "test": "mocha --no-timeouts --compilers js:babel-register",
     "build": "babel src -d lib",
     "prepublish": "babel src -d lib"
   },

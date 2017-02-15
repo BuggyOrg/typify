@@ -78,14 +78,16 @@ export function UnifyTypes (t1, t2, assignments = {}) {
       return t1 === t2
     }
     // if (t1.name !== t2.name) throw new Error('type unification error: ' + t1.name + ' has a different name than ' + t2.name)
-    let f1 = t1.data.sort(t => t.name || t)
-    let f2 = t2.data.sort(t => t.name || t)
+    let f1 = t1.data
+    let f2 = t2.data
     if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
     for (let i = 0; i < f1.length; ++i) {
       if (!UnifyTypes(f1[i], f2[i], assignments)) return false
     }
-    f1 = (t1.args || []).sort(t => t.name || t)
-    f2 = (t2.args || []).sort(t => t.name || t)
+    if (!t1.args && !t2.args) return true
+    if (!t1.args || !t2.args) return false
+    f1 = t1.args
+    f2 = t2.args
     if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
     for (let i = 0; i < f1.length; ++i) {
       if (!UnifyTypes(f1[i], f2[i], assignments)) return false
