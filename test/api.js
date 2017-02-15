@@ -316,19 +316,18 @@ describe('API tests', () => {
       data: ['String', 'b'],
       name: 'Pair'
     }
-    var a1 = []
-    var a2 = []
-    expect(API.UnifyTypes(t1, t2, a1, a2)).not.to.throw
-    expect(a1).to.have.length(1)
-    expect(a2).to.have.length(1)
-    expect(a1[0]).to.deep.equal({key: 'a', value: 'String'})
-    expect(a2[0]).to.deep.equal({key: 'b', value: 'Number'})
+    var assignments = { }
+    expect(API.UnifyTypes(t1, t2, assignments)).to.be.true
+    expect(assignments).to.deep.equal({
+      'a': 'String',
+      'b': 'Number'
+    })
   })
   it('can unify function types', () => {
     let genArray = {
       name: 'Generic Array',
       base: 'Function',
-      arguments: [
+      args: [
         'N'
       ],
       data: [
@@ -338,16 +337,17 @@ describe('API tests', () => {
     let genFunc = {
       name: 'Generic Function',
       base: 'Function',
-      arguments: [
+      args: [
         'a'
       ],
       data: [
         'e'
       ]
     }
-    expect(API.UnifyTypes(genArray, genFunc)).not.to.throw
-    for (const t of [genArray, genFunc]) {
-      expect(t.assignment).to.exist
-    }
+    var assignments = { }
+    expect(API.UnifyTypes(genArray, genFunc, assignments)).to.be.true
+    expect(assignments).to.deep.equal({
+      'a': 'N'
+    })
   })
 })

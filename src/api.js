@@ -16,7 +16,7 @@ export function TypifyAll (graph, iterations = Infinity) {
     const ports = _.filter(Graph.Node.ports(node), Utils.IsGenericPort)
     for (const port of ports) {
       let newPort = _.assign(_.cloneDeep(port), {
-        type: port.type + '.' + node.id + '.' + port.port
+        type: port.type + '.' + node.id
       })
       graph = Rewrite.replacePort(node, port, newPort, graph)
       node = Graph.node(node.id, graph)
@@ -33,16 +33,17 @@ export function TypifyAll (graph, iterations = Infinity) {
 
 function applyAssignments (graph) {
   if (!graph) throw new Error('no graph')
-  for (const node of Graph.nodesDeep(graph)) {
-    for (const port of Graph.Node.ports(node)) {
+  if (!graph.assignments) return // nothing to apply
+  for (let node of Graph.nodesDeep(graph)) {
+    for (let port of Graph.Node.ports(node)) {
       if (IsGenericType(port.type)) {
-        if (!port.assignments) continue
-        var assignedType = port.assignments[port.type]
-        if (!assignedType) continue
+        var assignedType = graph.assignments[port.type]
+        if (!assignedType) continue // nothing to apply here
         var newPort = _.assign(_.cloneDeep(port), {
           type: _.cloneDeep(assignedType)
         })
         graph = Rewrite.replacePort(node, port, newPort, graph)
+        node = Graph.node(node.id, graph)
       }
     }
   }
@@ -65,41 +66,47 @@ function IsLowerCase (c) {
   return c === c.toLowerCase()
 }
 
-export function UnifyTypes (t1, t2, a1 = {}, a2 = {}) {
+export function UnifyTypes (t1, t2, assignments = {}) {
   if (!IsValidType(t1)) throw new Error('invalid type t1: ' + JSON.stringify(t1))
   if (!IsValidType(t2)) throw new Error('invalid type t2: ' + JSON.stringify(t2))
+  if ((t1.name || t1) in assignments) t1 = assignments[t1.name || t1]
+  if ((t2.name || t2) in assignments) t2 = assignments[t2.name || t2]
   const g1 = IsGenericType(t1)
   const g2 = IsGenericType(t2)
-  Utils.Log('testing if ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2) + ' unify')
   if (!g1 && !g2) {
     if (typeof t1 === 'string' && typeof t2 === 'string') {
       return t1 === t2
     }
     // if (t1.name !== t2.name) throw new Error('type unification error: ' + t1.name + ' has a different name than ' + t2.name)
-    const f1 = t1.data.sort(t => t.name || t)
-    const f2 = t2.data.sort(t => t.name || t)
+    let f1 = t1.data.sort(t => t.name || t)
+    let f2 = t2.data.sort(t => t.name || t)
     if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
-    for (var i = 0; i < f1.length; ++i) {
-      if (!UnifyTypes(f1[i], f2[i], a1, a2)) return false
+    for (let i = 0; i < f1.length; ++i) {
+      if (!UnifyTypes(f1[i], f2[i], assignments)) return false
+    }
+    f1 = (t1.args || []).sort(t => t.name || t)
+    f2 = (t2.args || []).sort(t => t.name || t)
+    if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
+    for (let i = 0; i < f1.length; ++i) {
+      if (!UnifyTypes(f1[i], f2[i], assignments)) return false
     }
     return true
   } else if (g1 && g2) {
-    return false
+    return t1 === t2
   } else {
-    if (g1) a1[t1.name || t1] = _.cloneDeep(t2)
-    if (g2) a2[t2.name || t2] = _.cloneDeep(t1)
+    if (g1) assignments[t1.name || t1] = _.cloneDeep(t2)
+    if (g2) assignments[t2.name || t2] = _.cloneDeep(t1)
     return true
   }
   // if (typeof t1 !== 'string') t1.assignments = assignments.concat(t1.assignment)
   // if (typeof t2 !== 'string') t2.assignments = assignments.concat(t2.assignment)
 }
 
-export function TryUnifyTypes (t1, t2, a1, a2) {
+export function TryUnifyTypes (t1, t2, assignments) {
   try {
-    UnifyTypes(t1, t2, a1, a2)
+    return UnifyTypes(t1, t2, assignments)
   } catch (error) {
     return false
   }
-  return true
 }
 

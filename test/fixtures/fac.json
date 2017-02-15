@@ -1,0 +1,1032 @@
+{
+  "nodes": [
+    {
+      "metaInformation": {
+        "type": "Number",
+        "value": 10
+      },
+      "settings": {},
+      "ports": [
+        {
+          "port": "const",
+          "kind": "output",
+          "type": "Number"
+        }
+      ],
+      "componentId": "std/const",
+      "version": "1.0.0",
+      "atomic": true,
+      "id": "#cixxo0rw3000cvfg2gq7n83up",
+      "path": [
+        "#cixxo0rw3000cvfg2gq7n83up"
+      ],
+      "edges": []
+    },
+    {
+      "ports": [
+        {
+          "port": "n",
+          "kind": "input",
+          "type": "Number"
+        },
+        {
+          "port": "value",
+          "kind": "output",
+          "type": "Number"
+        }
+      ],
+      "settings": {
+        "recursiveRoot": true,
+        "isRecursive": true
+      },
+      "nodes": [
+        {
+          "ports": [
+            {
+              "port": "inTrue",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "port": "inFalse",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "port": "condition",
+              "type": "Bool",
+              "kind": "input"
+            },
+            {
+              "port": "choice",
+              "type": "Number",
+              "kind": "output"
+            }
+          ],
+          "settings": {},
+          "atomic": true,
+          "componentId": "if",
+          "version": "1.0.0",
+          "id": "#cixxo0si40000vmg20pif65a9",
+          "path": [
+            "#cixxo0rw2000bvfg2lfwq9rb7",
+            "#cixxo0si40000vmg20pif65a9"
+          ],
+          "edges": []
+        },
+        {
+          "ports": [
+            {
+              "port": "lesser",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "port": "bigger",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "port": "isLess",
+              "type": "Bool",
+              "kind": "output"
+            }
+          ],
+          "settings": {},
+          "atomic": true,
+          "componentId": "math/less",
+          "version": "1.0.0",
+          "id": "#cixxo0si60001vmg2lpa3zf65",
+          "path": [
+            "#cixxo0rw2000bvfg2lfwq9rb7",
+            "#cixxo0si60001vmg2lpa3zf65"
+          ],
+          "edges": []
+        },
+        {
+          "metaInformation": {
+            "type": "Number",
+            "value": 1
+          },
+          "settings": {},
+          "ports": [
+            {
+              "port": "const",
+              "kind": "output",
+              "type": "Number"
+            }
+          ],
+          "componentId": "std/const",
+          "version": "1.0.0",
+          "atomic": true,
+          "id": "#cixxo0si70002vmg26jgmzhn3",
+          "path": [
+            "#cixxo0rw2000bvfg2lfwq9rb7",
+            "#cixxo0si70002vmg26jgmzhn3"
+          ],
+          "edges": []
+        },
+        {
+          "metaInformation": {
+            "type": "Number",
+            "value": 1
+          },
+          "settings": {},
+          "ports": [
+            {
+              "port": "const",
+              "kind": "output",
+              "type": "Number"
+            }
+          ],
+          "componentId": "std/const",
+          "version": "1.0.0",
+          "atomic": true,
+          "id": "#cixxo0sia0003vmg20djrnpd8",
+          "path": [
+            "#cixxo0rw2000bvfg2lfwq9rb7",
+            "#cixxo0sia0003vmg20djrnpd8"
+          ],
+          "edges": []
+        },
+        {
+          "ports": [
+            {
+              "port": "summand1",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "port": "summand2",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "port": "sum",
+              "type": "Number",
+              "kind": "output"
+            }
+          ],
+          "settings": {},
+          "atomic": true,
+          "componentId": "math/add",
+          "version": "1.0.0",
+          "id": "#cixxo0sia0004vmg2yq6yadkj",
+          "path": [
+            "#cixxo0rw2000bvfg2lfwq9rb7",
+            "#cixxo0sia0004vmg2yq6yadkj"
+          ],
+          "edges": []
+        },
+        {
+          "ports": [
+            {
+              "port": "n",
+              "kind": "input",
+              "type": "Number"
+            },
+            {
+              "port": "value",
+              "kind": "output",
+              "type": "Number"
+            }
+          ],
+          "settings": {
+            "isRecursive": true
+          },
+          "nodes": [
+            {
+              "ref": "if",
+              "ports": [],
+              "id": "#cixxo0rso0002vfg2j0y42j84",
+              "settings": {},
+              "path": [
+                "#cixxo0rso0002vfg2j0y42j84"
+              ]
+            },
+            {
+              "ref": "math/less",
+              "ports": [],
+              "id": "#cixxo0rsr0003vfg2g3cus09s",
+              "settings": {},
+              "path": [
+                "#cixxo0rsr0003vfg2g3cus09s"
+              ]
+            },
+            {
+              "ref": "std/const",
+              "metaInformation": {
+                "type": "Number",
+                "value": 1
+              },
+              "id": "#cixxo0rte0004vfg2kik5oh1x",
+              "settings": {},
+              "ports": [],
+              "path": [
+                "#cixxo0rte0004vfg2kik5oh1x"
+              ]
+            },
+            {
+              "ref": "std/const",
+              "metaInformation": {
+                "type": "Number",
+                "value": 1
+              },
+              "id": "#cixxo0ru10005vfg20580m47j",
+              "settings": {},
+              "ports": [],
+              "path": [
+                "#cixxo0ru10005vfg20580m47j"
+              ]
+            },
+            {
+              "ref": "math/add",
+              "ports": [],
+              "id": "#cixxo0ruk0006vfg27v21pwr4",
+              "settings": {},
+              "path": [
+                "#cixxo0ruk0006vfg27v21pwr4"
+              ]
+            },
+            {
+              "ref": "fac",
+              "ports": [],
+              "id": "#cixxo0rum0007vfg2v5cmf6yj",
+              "settings": {},
+              "path": [
+                "#cixxo0rum0007vfg2v5cmf6yj"
+              ]
+            },
+            {
+              "ref": "math/add",
+              "ports": [],
+              "id": "#cixxo0rus0008vfg2rpa96qqf",
+              "settings": {},
+              "path": [
+                "#cixxo0rus0008vfg2rpa96qqf"
+              ]
+            },
+            {
+              "ref": "std/const",
+              "metaInformation": {
+                "type": "Number",
+                "value": -1
+              },
+              "id": "#cixxo0ruz0009vfg2q5vrhx83",
+              "settings": {},
+              "ports": [],
+              "path": [
+                "#cixxo0ruz0009vfg2q5vrhx83"
+              ]
+            }
+          ],
+          "metaInformation": {},
+          "edges": [
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cixxo0rsk0001vfg2fruq4qat",
+                "port": "n"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cixxo0rsr0003vfg2g3cus09s",
+                "port": "0"
+              },
+              "layer": "dataflow",
+              "innerCompoundOutput": true
+            },
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cixxo0rte0004vfg2kik5oh1x",
+                "port": "0"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cixxo0rsr0003vfg2g3cus09s",
+                "port": "1"
+              },
+              "layer": "dataflow"
+            },
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cixxo0rsr0003vfg2g3cus09s",
+                "port": "0"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cixxo0rso0002vfg2j0y42j84",
+                "port": "0"
+              },
+              "layer": "dataflow"
+            },
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cixxo0ru10005vfg20580m47j",
+                "port": "0"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cixxo0rso0002vfg2j0y42j84",
+                "port": "1"
+              },
+              "layer": "dataflow"
+            },
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cixxo0rsk0001vfg2fruq4qat",
+                "port": "n"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cixxo0rus0008vfg2rpa96qqf",
+                "port": "0"
+              },
+              "layer": "dataflow",
+              "innerCompoundOutput": true
+            },
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cixxo0ruz0009vfg2q5vrhx83",
+                "port": "0"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cixxo0rus0008vfg2rpa96qqf",
+                "port": "1"
+              },
+              "layer": "dataflow"
+            },
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cixxo0rus0008vfg2rpa96qqf",
+                "port": "0"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cixxo0rum0007vfg2v5cmf6yj",
+                "port": "0"
+              },
+              "layer": "dataflow"
+            },
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cixxo0rum0007vfg2v5cmf6yj",
+                "port": "0"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cixxo0ruk0006vfg27v21pwr4",
+                "port": "0"
+              },
+              "layer": "dataflow"
+            },
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cixxo0ruk0006vfg27v21pwr4",
+                "port": "0"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cixxo0rso0002vfg2j0y42j84",
+                "port": "2"
+              },
+              "layer": "dataflow"
+            },
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cixxo0rso0002vfg2j0y42j84",
+                "port": "0"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cixxo0rsk0001vfg2fruq4qat",
+                "port": "value"
+              },
+              "layer": "dataflow",
+              "innerCompoundInput": true
+            }
+          ],
+          "components": [],
+          "atomic": true,
+          "version": "0.0.0",
+          "componentId": "fac",
+          "id": "#cixxo0sia0005vmg2zp0bsc7e",
+          "path": [
+            "#cixxo0rw2000bvfg2lfwq9rb7",
+            "#cixxo0sia0005vmg2zp0bsc7e"
+          ]
+        },
+        {
+          "ports": [
+            {
+              "port": "summand1",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "port": "summand2",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "port": "sum",
+              "type": "Number",
+              "kind": "output"
+            }
+          ],
+          "settings": {},
+          "atomic": true,
+          "componentId": "math/add",
+          "version": "1.0.0",
+          "id": "#cixxo0sia0006vmg25nyon5az",
+          "path": [
+            "#cixxo0rw2000bvfg2lfwq9rb7",
+            "#cixxo0sia0006vmg25nyon5az"
+          ],
+          "edges": []
+        },
+        {
+          "metaInformation": {
+            "type": "Number",
+            "value": -1
+          },
+          "settings": {},
+          "ports": [
+            {
+              "port": "const",
+              "kind": "output",
+              "type": "Number"
+            }
+          ],
+          "componentId": "std/const",
+          "version": "1.0.0",
+          "atomic": true,
+          "id": "#cixxo0sib0007vmg2lstzk20d",
+          "path": [
+            "#cixxo0rw2000bvfg2lfwq9rb7",
+            "#cixxo0sib0007vmg2lstzk20d"
+          ],
+          "edges": []
+        }
+      ],
+      "metaInformation": {},
+      "edges": [
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0rw2000bvfg2lfwq9rb7",
+            "port": "n"
+          },
+          "to": {
+            "type": "Number",
+            "node": "#cixxo0si60001vmg2lpa3zf65",
+            "port": "lesser",
+            "kind": "input"
+          },
+          "layer": "dataflow",
+          "innerCompoundOutput": true
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0si70002vmg26jgmzhn3",
+            "port": "const",
+            "kind": "output"
+          },
+          "to": {
+            "type": "Number",
+            "node": "#cixxo0si60001vmg2lpa3zf65",
+            "port": "bigger",
+            "kind": "input"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "Bool",
+            "node": "#cixxo0si60001vmg2lpa3zf65",
+            "port": "isLess",
+            "kind": "output"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0si40000vmg20pif65a9",
+            "port": "inTrue",
+            "kind": "input"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0sia0003vmg20djrnpd8",
+            "port": "const",
+            "kind": "output"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0si40000vmg20pif65a9",
+            "port": "inFalse",
+            "kind": "input"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0rw2000bvfg2lfwq9rb7",
+            "port": "n"
+          },
+          "to": {
+            "type": "Number",
+            "node": "#cixxo0sia0006vmg25nyon5az",
+            "port": "summand1",
+            "kind": "input"
+          },
+          "layer": "dataflow",
+          "innerCompoundOutput": true
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0sib0007vmg2lstzk20d",
+            "port": "const",
+            "kind": "output"
+          },
+          "to": {
+            "type": "Number",
+            "node": "#cixxo0sia0006vmg25nyon5az",
+            "port": "summand2",
+            "kind": "input"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "Number",
+            "node": "#cixxo0sia0006vmg25nyon5az",
+            "port": "sum",
+            "kind": "output"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0sia0005vmg2zp0bsc7e",
+            "port": "n",
+            "kind": "input"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0sia0005vmg2zp0bsc7e",
+            "port": "value",
+            "kind": "output"
+          },
+          "to": {
+            "type": "Number",
+            "node": "#cixxo0sia0004vmg2yq6yadkj",
+            "port": "summand1",
+            "kind": "input"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "Number",
+            "node": "#cixxo0sia0004vmg2yq6yadkj",
+            "port": "sum",
+            "kind": "output"
+          },
+          "to": {
+            "type": "Bool",
+            "node": "#cixxo0si40000vmg20pif65a9",
+            "port": "condition",
+            "kind": "input"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0si40000vmg20pif65a9",
+            "port": "choice",
+            "kind": "output"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0rw2000bvfg2lfwq9rb7",
+            "port": "value"
+          },
+          "layer": "dataflow",
+          "innerCompoundInput": true
+        },
+        {
+          "from": "#cixxo0sia0005vmg2zp0bsc7e",
+          "to": "#cixxo0rw2000bvfg2lfwq9rb7",
+          "layer": "recursion"
+        },
+        {
+          "from": "#cixxo0rw2000bvfg2lfwq9rb7",
+          "to": "#cixxo0sia0005vmg2zp0bsc7e",
+          "layer": "recursion"
+        }
+      ],
+      "components": [],
+      "atomic": false,
+      "version": "0.0.0",
+      "componentId": "fac",
+      "id": "#cixxo0rw2000bvfg2lfwq9rb7",
+      "path": [
+        "#cixxo0rw2000bvfg2lfwq9rb7"
+      ]
+    }
+  ],
+  "metaInformation": {},
+  "edges": [
+    {
+      "from": {
+        "type": "generic",
+        "node": "#cixxo0rw3000cvfg2gq7n83up",
+        "port": "const",
+        "kind": "output"
+      },
+      "to": {
+        "type": "generic",
+        "node": "#cixxo0rw2000bvfg2lfwq9rb7",
+        "port": "n",
+        "kind": "input"
+      },
+      "layer": "dataflow"
+    },
+    {
+      "from": {
+        "type": "generic",
+        "node": "#cixxo0rw2000bvfg2lfwq9rb7",
+        "port": "n",
+        "kind": "input"
+      },
+      "to": {
+        "type": "generic",
+        "node": "#cixxo0rw1000avfg2a7zxb96x",
+        "port": "value"
+      },
+      "layer": "dataflow",
+      "innerCompoundInput": true
+    }
+  ],
+  "components": [
+    {
+      "nodes": [
+        {
+          "ref": "if",
+          "ports": [],
+          "id": "#cixxo0rso0002vfg2j0y42j84",
+          "settings": {},
+          "path": [
+            "#cixxo0rso0002vfg2j0y42j84"
+          ]
+        },
+        {
+          "ref": "math/less",
+          "ports": [],
+          "id": "#cixxo0rsr0003vfg2g3cus09s",
+          "settings": {},
+          "path": [
+            "#cixxo0rsr0003vfg2g3cus09s"
+          ]
+        },
+        {
+          "ref": "std/const",
+          "metaInformation": {
+            "type": "Number",
+            "value": 1
+          },
+          "id": "#cixxo0rte0004vfg2kik5oh1x",
+          "settings": {},
+          "ports": [],
+          "path": [
+            "#cixxo0rte0004vfg2kik5oh1x"
+          ]
+        },
+        {
+          "ref": "std/const",
+          "metaInformation": {
+            "type": "Number",
+            "value": 1
+          },
+          "id": "#cixxo0ru10005vfg20580m47j",
+          "settings": {},
+          "ports": [],
+          "path": [
+            "#cixxo0ru10005vfg20580m47j"
+          ]
+        },
+        {
+          "ref": "math/add",
+          "ports": [],
+          "id": "#cixxo0ruk0006vfg27v21pwr4",
+          "settings": {},
+          "path": [
+            "#cixxo0ruk0006vfg27v21pwr4"
+          ]
+        },
+        {
+          "ref": "fac",
+          "ports": [],
+          "id": "#cixxo0rum0007vfg2v5cmf6yj",
+          "settings": {},
+          "path": [
+            "#cixxo0rum0007vfg2v5cmf6yj"
+          ]
+        },
+        {
+          "ref": "math/add",
+          "ports": [],
+          "id": "#cixxo0rus0008vfg2rpa96qqf",
+          "settings": {},
+          "path": [
+            "#cixxo0rus0008vfg2rpa96qqf"
+          ]
+        },
+        {
+          "ref": "std/const",
+          "metaInformation": {
+            "type": "Number",
+            "value": -1
+          },
+          "id": "#cixxo0ruz0009vfg2q5vrhx83",
+          "settings": {},
+          "ports": [],
+          "path": [
+            "#cixxo0ruz0009vfg2q5vrhx83"
+          ]
+        }
+      ],
+      "metaInformation": {},
+      "edges": [
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0rsk0001vfg2fruq4qat",
+            "port": "n"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0rsr0003vfg2g3cus09s",
+            "port": "0"
+          },
+          "layer": "dataflow",
+          "innerCompoundOutput": true
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0rte0004vfg2kik5oh1x",
+            "port": "0"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0rsr0003vfg2g3cus09s",
+            "port": "1"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0rsr0003vfg2g3cus09s",
+            "port": "0"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0rso0002vfg2j0y42j84",
+            "port": "0"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0ru10005vfg20580m47j",
+            "port": "0"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0rso0002vfg2j0y42j84",
+            "port": "1"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0rsk0001vfg2fruq4qat",
+            "port": "n"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0rus0008vfg2rpa96qqf",
+            "port": "0"
+          },
+          "layer": "dataflow",
+          "innerCompoundOutput": true
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0ruz0009vfg2q5vrhx83",
+            "port": "0"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0rus0008vfg2rpa96qqf",
+            "port": "1"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0rus0008vfg2rpa96qqf",
+            "port": "0"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0rum0007vfg2v5cmf6yj",
+            "port": "0"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0rum0007vfg2v5cmf6yj",
+            "port": "0"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0ruk0006vfg27v21pwr4",
+            "port": "0"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0ruk0006vfg27v21pwr4",
+            "port": "0"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0rso0002vfg2j0y42j84",
+            "port": "2"
+          },
+          "layer": "dataflow"
+        },
+        {
+          "from": {
+            "type": "generic",
+            "node": "#cixxo0rso0002vfg2j0y42j84",
+            "port": "0"
+          },
+          "to": {
+            "type": "generic",
+            "node": "#cixxo0rsk0001vfg2fruq4qat",
+            "port": "value"
+          },
+          "layer": "dataflow",
+          "innerCompoundInput": true
+        }
+      ],
+      "components": [],
+      "path": [],
+      "ports": [
+        {
+          "port": "n",
+          "kind": "input",
+          "type": "generic"
+        },
+        {
+          "port": "value",
+          "kind": "output",
+          "type": "generic"
+        }
+      ],
+      "atomic": false,
+      "id": "#cixxo0rsk0001vfg2fruq4qat",
+      "version": "0.0.0",
+      "componentId": "fac"
+    },
+    {
+      "componentId": "std/const",
+      "version": "1.0.0",
+      "atomic": true,
+      "ports": [
+        {
+          "port": "const",
+          "kind": "output",
+          "type": "generic"
+        }
+      ]
+    },
+    {
+      "atomic": true,
+      "ports": [
+        {
+          "port": "inTrue",
+          "type": "generic",
+          "kind": "input"
+        },
+        {
+          "port": "inFalse",
+          "type": "generic",
+          "kind": "input"
+        },
+        {
+          "port": "condition",
+          "type": "Bool",
+          "kind": "input"
+        },
+        {
+          "port": "choice",
+          "type": "generic",
+          "kind": "output"
+        }
+      ],
+      "componentId": "if",
+      "version": "1.0.0"
+    },
+    {
+      "atomic": true,
+      "ports": [
+        {
+          "port": "lesser",
+          "type": "Number",
+          "kind": "input"
+        },
+        {
+          "port": "bigger",
+          "type": "Number",
+          "kind": "input"
+        },
+        {
+          "port": "isLess",
+          "type": "Bool",
+          "kind": "output"
+        }
+      ],
+      "componentId": "math/less",
+      "version": "1.0.0"
+    },
+    {
+      "atomic": true,
+      "ports": [
+        {
+          "port": "summand1",
+          "type": "Number",
+          "kind": "input"
+        },
+        {
+          "port": "summand2",
+          "type": "Number",
+          "kind": "input"
+        },
+        {
+          "port": "sum",
+          "type": "Number",
+          "kind": "output"
+        }
+      ],
+      "componentId": "math/add",
+      "version": "1.0.0"
+    }
+  ],
+  "path": [],
+  "ports": [
+    {
+      "port": "IO",
+      "kind": "input",
+      "type": "generic"
+    },
+    {
+      "port": "value",
+      "kind": "output",
+      "type": "generic"
+    }
+  ],
+  "atomic": false,
+  "id": "#cixxo0rw1000avfg2a7zxb96x",
+  "version": "0.0.0",
+  "componentId": "main"
+}
