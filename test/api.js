@@ -307,6 +307,17 @@ describe('API tests', () => {
       }
     }
   })
+  it.only('can typify ackermann function', () => {
+    let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/ackermann.json', 'utf-8'))
+    let graph2 = API.TypifyAll(graph1)
+    fs.writeFileSync('./test/fixtures/ackermann_typified.json', JSON.stringify(graph2, null, 2))
+    expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
+    for (const node of Graph.nodes(graph2)) {
+      for (const port of Graph.Node.ports(node)) {
+        expect(port).to.not.satisfy(Utils.IsGenericPort)
+      }
+    }
+  })
   it('can unify simple types', () => {
     let t1 = {
       data: ['a', 'Number'],

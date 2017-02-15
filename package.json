@@ -22,7 +22,7 @@
     "standard": "^6.0.8"
   },
   "dependencies": {
-    "@buggyorg/graphtools": "^0.4.0-pre.15",
+    "@buggyorg/graphtools": "^0.4.0-pre.20",
     "@buggyorg/rewrite": "^0.2.6",
     "cli-ext": "^1.1.0",
     "debug": "^2.6.0",

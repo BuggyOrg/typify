@@ -33,7 +33,7 @@ export function TypifyAll (graph, iterations = Infinity) {
 
 function applyAssignments (graph) {
   if (!graph) throw new Error('no graph')
-  if (!graph.assignments) return // nothing to apply
+  if (!graph.assignments) return graph // nothing to apply
   for (let node of Graph.nodesDeep(graph)) {
     for (let port of Graph.Node.ports(node)) {
       if (IsGenericType(port.type)) {
