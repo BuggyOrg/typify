@@ -28,4 +28,19 @@ where
 <li><code>TypifyRecursion</code> typifies a recursion node</li>
 </ul>
 
-generic types are indicated by a lower case first character (ie 'generic' and 'a' are considered generic, 'Number' and 'A' aren't)
+generic types are indicated by a lower case first character
+(ie 'generic' and 'a' are considered generic, 'Number' and 'A' aren't)
+
+all types are strings or should follow this format:
+
+<pre><code>
+var type = {
+    name: 'Specific'
+    args: [
+        'genInput' // list of argument types / function input types
+    ],
+    data: [
+        'genOutput' // list of data types / function output types
+    ]
+}
+</code></pre>
