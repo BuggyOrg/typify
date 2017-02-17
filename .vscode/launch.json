@@ -12,7 +12,7 @@
             "cwd": "${workspaceRoot}"
         },
         {
-            "type": "node2",
+            "type": "node",
             "request": "launch",
             "name": "Mocha Tests",
             "cwd": "${workspaceRoot}",

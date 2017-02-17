@@ -3,40 +3,45 @@
     {
       "ports": [
         {
+          "node": "#ciz7385he000l3mluhubo1ifw",
           "port": "text",
           "kind": "input",
-          "type": "String"
+          "type": "Number"
         },
         {
+          "node": "#ciz7385he000l3mluhubo1ifw",
           "port": "IO_in",
           "kind": "input",
-          "type": "IO"
+          "type": "Number"
         },
         {
+          "node": "#ciz7385he000l3mluhubo1ifw",
           "port": "IO_out",
           "kind": "output",
-          "type": "IO"
+          "type": "Number"
         }
       ],
       "settings": {},
       "componentId": "print",
       "version": "1.0.0",
       "atomic": true,
+      "edges": [],
       "id": "#ciz7385he000l3mluhubo1ifw",
       "path": [
         "#ciz7385he000l3mluhubo1ifw"
-      ],
-      "edges": []
+      ]
     },
     {
       "ports": [
         {
+          "node": "#ciz7385he000m3mlu1sl0vzef",
           "type": "Number",
           "kind": "input",
           "port": "inNumber"
         },
         {
-          "type": "String",
+          "node": "#ciz7385he000m3mlu1sl0vzef",
+          "type": "Number",
           "kind": "output",
           "port": "outStr"
         }
@@ -45,11 +50,11 @@
       "atomic": true,
       "version": "1.0.0",
       "componentId": "numToStr",
+      "edges": [],
       "id": "#ciz7385he000m3mlu1sl0vzef",
       "path": [
         "#ciz7385he000m3mlu1sl0vzef"
-      ],
-      "edges": []
+      ]
     },
     {
       "metaInformation": {
@@ -59,6 +64,7 @@
       "settings": {},
       "ports": [
         {
+          "node": "#ciz7385hf000o3mlu8eedakyy",
           "port": "const",
           "kind": "output",
           "type": "Number"
@@ -81,6 +87,7 @@
       "settings": {},
       "ports": [
         {
+          "node": "#ciz7385hi000p3mluls1i7088",
           "port": "const",
           "kind": "output",
           "type": "Number"
@@ -110,6 +117,7 @@
           "type": "Number"
         },
         {
+          "node": "#ciz7385hf000n3mluncn70api",
           "port": "result",
           "kind": "output",
           "type": "Number"
@@ -142,64 +150,6 @@
           "atomic": true,
           "componentId": "math/less",
           "version": "1.0.0",
-          "id": "#ciz7385z700013tluk1onyniv",
-          "path": [
-            "#ciz7385hf000n3mluncn70api",
-            "#ciz7385z700013tluk1onyniv"
-          ],
-          "edges": []
-        },
-        {
-          "ports": [
-            {
-              "port": "summand1",
-              "type": "Number",
-              "kind": "input"
-            },
-            {
-              "port": "summand2",
-              "type": "Number",
-              "kind": "input"
-            },
-            {
-              "port": "sum",
-              "type": "Number",
-              "kind": "output"
-            }
-          ],
-          "settings": {},
-          "atomic": true,
-          "componentId": "math/add",
-          "version": "1.0.0",
-          "id": "#ciz7385z700033tlusi5an7dp",
-          "path": [
-            "#ciz7385hf000n3mluncn70api",
-            "#ciz7385z700033tlusi5an7dp"
-          ],
-          "edges": []
-        },
-        {
-          "ports": [
-            {
-              "port": "lesser",
-              "type": "Number",
-              "kind": "input"
-            },
-            {
-              "port": "bigger",
-              "type": "Number",
-              "kind": "input"
-            },
-            {
-              "port": "isLess",
-              "type": "Bool",
-              "kind": "output"
-            }
-          ],
-          "settings": {},
-          "atomic": true,
-          "componentId": "math/less",
-          "version": "1.0.0",
           "id": "#ciz7385z700063tlutgl81mfo",
           "path": [
             "#ciz7385hf000n3mluncn70api",
@@ -210,16 +160,51 @@
         {
           "ports": [
             {
+              "node": "#ciz7385z700013tluk1onyniv",
+              "port": "lesser",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "node": "#ciz7385z700013tluk1onyniv",
+              "port": "bigger",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "node": "#ciz7385z700013tluk1onyniv",
+              "port": "isLess",
+              "type": "Number",
+              "kind": "output"
+            }
+          ],
+          "settings": {},
+          "atomic": true,
+          "componentId": "math/less",
+          "version": "1.0.0",
+          "edges": [],
+          "id": "#ciz7385z700013tluk1onyniv",
+          "path": [
+            "#ciz7385hf000n3mluncn70api",
+            "#ciz7385z700013tluk1onyniv"
+          ]
+        },
+        {
+          "ports": [
+            {
+              "node": "#ciz7385z700033tlusi5an7dp",
               "port": "summand1",
               "type": "Number",
               "kind": "input"
             },
             {
+              "node": "#ciz7385z700033tlusi5an7dp",
               "port": "summand2",
               "type": "Number",
               "kind": "input"
             },
             {
+              "node": "#ciz7385z700033tlusi5an7dp",
               "port": "sum",
               "type": "Number",
               "kind": "output"
@@ -229,26 +214,61 @@
           "atomic": true,
           "componentId": "math/add",
           "version": "1.0.0",
+          "edges": [],
+          "id": "#ciz7385z700033tlusi5an7dp",
+          "path": [
+            "#ciz7385hf000n3mluncn70api",
+            "#ciz7385z700033tlusi5an7dp"
+          ]
+        },
+        {
+          "ports": [
+            {
+              "node": "#ciz7385z900093tlu896tug1y",
+              "port": "summand1",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "node": "#ciz7385z900093tlu896tug1y",
+              "port": "summand2",
+              "type": "Number",
+              "kind": "input"
+            },
+            {
+              "node": "#ciz7385z900093tlu896tug1y",
+              "port": "sum",
+              "type": "Number",
+              "kind": "output"
+            }
+          ],
+          "settings": {},
+          "atomic": true,
+          "componentId": "math/add",
+          "version": "1.0.0",
+          "edges": [],
           "id": "#ciz7385z900093tlu896tug1y",
           "path": [
             "#ciz7385hf000n3mluncn70api",
             "#ciz7385z900093tlu896tug1y"
-          ],
-          "edges": []
+          ]
         },
         {
           "ports": [
             {
+              "node": "#ciz7385za000d3tlulmcjk3p0",
               "port": "summand1",
               "type": "Number",
               "kind": "input"
             },
             {
+              "node": "#ciz7385za000d3tlulmcjk3p0",
               "port": "summand2",
               "type": "Number",
               "kind": "input"
             },
             {
+              "node": "#ciz7385za000d3tlulmcjk3p0",
               "port": "sum",
               "type": "Number",
               "kind": "output"
@@ -258,26 +278,29 @@
           "atomic": true,
           "componentId": "math/add",
           "version": "1.0.0",
+          "edges": [],
           "id": "#ciz7385za000d3tlulmcjk3p0",
           "path": [
             "#ciz7385hf000n3mluncn70api",
             "#ciz7385za000d3tlulmcjk3p0"
-          ],
-          "edges": []
+          ]
         },
         {
           "ports": [
             {
+              "node": "#ciz7385za000g3tlutrv8d9ym",
               "port": "summand1",
               "type": "Number",
               "kind": "input"
             },
             {
+              "node": "#ciz7385za000g3tlutrv8d9ym",
               "port": "summand2",
               "type": "Number",
               "kind": "input"
             },
             {
+              "node": "#ciz7385za000g3tlutrv8d9ym",
               "port": "sum",
               "type": "Number",
               "kind": "output"
@@ -287,12 +310,12 @@
           "atomic": true,
           "componentId": "math/add",
           "version": "1.0.0",
+          "edges": [],
           "id": "#ciz7385za000g3tlutrv8d9ym",
           "path": [
             "#ciz7385hf000n3mluncn70api",
             "#ciz7385za000g3tlutrv8d9ym"
-          ],
-          "edges": []
+          ]
         },
         {
           "metaInformation": {
@@ -302,6 +325,7 @@
           "settings": {},
           "ports": [
             {
+              "node": "#ciz7385z700023tlufatz4fyc",
               "port": "const",
               "kind": "output",
               "type": "Number"
@@ -325,6 +349,7 @@
           "settings": {},
           "ports": [
             {
+              "node": "#ciz7385z700043tlu9cseadb3",
               "port": "const",
               "kind": "output",
               "type": "Number"
@@ -348,6 +373,7 @@
           "settings": {},
           "ports": [
             {
+              "node": "#ciz7385z800073tlune1bqv2n",
               "port": "const",
               "kind": "output",
               "type": "Number"
@@ -371,6 +397,7 @@
           "settings": {},
           "ports": [
             {
+              "node": "#ciz7385z9000a3tluuqt9q283",
               "port": "const",
               "kind": "output",
               "type": "Number"
@@ -394,6 +421,7 @@
           "settings": {},
           "ports": [
             {
+              "node": "#ciz7385za000e3tlutg74232v",
               "port": "const",
               "kind": "output",
               "type": "Number"
@@ -417,6 +445,7 @@
           "settings": {},
           "ports": [
             {
+              "node": "#ciz7385za000h3tluebsjpnm2",
               "port": "const",
               "kind": "output",
               "type": "Number"
@@ -435,21 +464,25 @@
         {
           "ports": [
             {
+              "node": "#ciz7385z700053tlu2xahz8ne",
               "kind": "input",
               "type": "Bool",
               "port": "condition"
             },
             {
+              "node": "#ciz7385z700053tlu2xahz8ne",
               "kind": "input",
               "type": "Bool",
               "port": "inTrue"
             },
             {
+              "node": "#ciz7385z700053tlu2xahz8ne",
               "kind": "input",
               "type": "Bool",
               "port": "inFalse"
             },
             {
+              "node": "#ciz7385z700053tlu2xahz8ne",
               "kind": "output",
               "type": "Bool",
               "port": "choice"
@@ -469,6 +502,7 @@
         {
           "ports": [
             {
+              "node": "#ciz7385z900083tlu12nxnqvy",
               "port": "m",
               "kind": "input",
               "type": "Number"
@@ -505,6 +539,7 @@
         {
           "ports": [
             {
+              "node": "#ciz7385za000c3tlu4hxdvz9m",
               "port": "m",
               "kind": "input",
               "type": "Number"
@@ -547,6 +582,7 @@
               "type": "Number"
             },
             {
+              "node": "#ciz7385za000f3tlun7422rrm",
               "port": "n",
               "kind": "input",
               "type": "Number"
@@ -582,6 +618,7 @@
           "settings": {},
           "ports": [
             {
+              "node": "#ciz7385za000b3tlu0r8prfna",
               "port": "const",
               "kind": "output",
               "type": "Number"
@@ -608,7 +645,7 @@
             {
               "node": "#ciz7385z700003tluy6a5n8hp",
               "kind": "input",
-              "type": "Number",
+              "type": "Bool",
               "port": "inTrue"
             },
             {
@@ -620,7 +657,7 @@
             {
               "node": "#ciz7385z700003tluy6a5n8hp",
               "kind": "output",
-              "type": "Number",
+              "type": "Bool",
               "port": "choice"
             }
           ],
@@ -1848,5 +1885,29 @@
   "atomic": false,
   "id": "#ciz7385hd000k3mluarmhu82w",
   "version": "0.0.0",
-  "componentId": "main"
+  "componentId": "main",
+  "assignments": {
+    "generic.#ciz7385hf000n3mluncn70api": "Number",
+    "generic.#ciz7385z800073tlune1bqv2n": "Number",
+    "generic.#ciz7385z700053tlu2xahz8ne": "Bool",
+    "generic.#ciz7385z900093tlu896tug1y": "Number",
+    "generic.#ciz7385z9000a3tluuqt9q283": "Number",
+    "generic.#ciz7385z900083tlu12nxnqvy": "Number",
+    "generic.#ciz7385za000b3tlu0r8prfna": "Number",
+    "generic.#ciz7385za000d3tlulmcjk3p0": "Number",
+    "generic.#ciz7385za000e3tlutg74232v": "Number",
+    "generic.#ciz7385za000c3tlu4hxdvz9m": "Number",
+    "generic.#ciz7385za000f3tlun7422rrm": "Number",
+    "generic.#ciz7385za000g3tlutrv8d9ym": "Number",
+    "generic.#ciz7385za000h3tluebsjpnm2": "Number",
+    "generic.#ciz7385z700003tluy6a5n8hp": "Bool",
+    "generic.#ciz7385hf000o3mlu8eedakyy": "Number",
+    "generic.#ciz7385hi000p3mluls1i7088": "Number",
+    "generic.#ciz7385he000m3mlu1sl0vzef": "Number",
+    "generic.#ciz7385he000l3mluhubo1ifw": "Number",
+    "generic.#ciz7385z700013tluk1onyniv": "Number",
+    "generic.#ciz7385z700023tlufatz4fyc": "Number",
+    "generic.#ciz7385z700033tlusi5an7dp": "Number",
+    "generic.#ciz7385z700043tlu9cseadb3": "Number"
+  }
 }

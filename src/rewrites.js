@@ -32,9 +32,10 @@ export function TypifyEdge () {
         const edge = match[0]
         const assignments = match[1]
         const line = 'typifying edge from ' +
-        edge.source.name + '@' + edge.sourcePort.port +
+        (edge.source.id || edge.source.name || edge.source) +
+        '@' + edge.sourcePort.port +
         ' to ' +
-        edge.target.name + '@' + edge.targetPort.port +
+        (edge.target.id || edge.target.name || edge.target) +'@' + edge.targetPort.port +
         ' with ' +
         JSON.stringify(assignments)
         Utils.Log(line)
@@ -74,7 +75,8 @@ export function TypifyNode () {
       (match, graph) => {
         const node = match[0]
         const assignments = match[1]
-        var line = 'typifying atomic node ' + node.id
+        var line = 'typifying atomic node ' + node.id +
+        ' with ' + JSON.stringify(assignments)
         Utils.Log(line)
         return _.merge(_.cloneDeep(graph), {
           assignments: assignments

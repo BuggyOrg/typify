@@ -67,6 +67,23 @@ function createSimpleGraph2 () {
   )()
 }
 
+function Untypify (graph) {
+  const nodes = Graph.nodesDeep(graph)
+  for (let node of nodes) {
+    if (node === nodes[7]) {
+      continue
+    }
+    for (const port of Graph.Node.ports(node)) {
+      let newPort = _.assign(_.cloneDeep(port), {
+        type: 'generic'
+      })
+      graph = Rewrite.replacePort(node, port, newPort, graph)
+      node = Graph.node(node.id, graph)
+    }
+  }
+  return graph
+}
+
 function createFactorialGraph () {
   var cmp = Graph.flow(
     Graph.addNode({
@@ -307,8 +324,9 @@ describe('API tests', () => {
       }
     }
   })
-  it.only('can typify ackermann function', () => {
+  it('can typify ackermann function', () => {
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/ackermann.json', 'utf-8'))
+    graph1 = Untypify(graph1)
     let graph2 = API.TypifyAll(graph1)
     fs.writeFileSync('./test/fixtures/ackermann_typified.json', JSON.stringify(graph2, null, 2))
     expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
