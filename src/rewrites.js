@@ -6,6 +6,8 @@ import _ from 'lodash'
 
 const API = require('./api.js')
 const Utils = require('./utils.js')
+const Node = Graph.Node
+const Lambda = Graph.Lambda
 
 /**
  * Generates a graph rewriter that typifies all specializing edges (ie. from generic to specific ports)
@@ -14,9 +16,9 @@ const Utils = require('./utils.js')
 export function TypifyEdge () {
   return Rewrite.applyEdge(
       (edge, graph) => {
-        if (!Graph.Edge.isBetweenPorts(edge) || !API.areUnifyable(edge.from.type, edge.to.type)) return false
+        if (!Graph.Edge.isBetweenPorts(edge) || !API.areUnifyable(edge.from.type, edge.to.type, graph)) return false
         // check wether edge goes from generic to specific
-        const assignments = API.UnifyTypes(edge.from.type, edge.to.type)
+        const assignments = API.UnifyTypes(edge.from.type, edge.to.type, graph)
         const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
         if (diff.length === 0) {
           return false
@@ -29,15 +31,13 @@ export function TypifyEdge () {
         (edge.source.id || edge.source.name || edge.source) +
         '@' + edge.from.port +
         ' to ' +
-        (edge.target.id || edge.target.name || edge.target) +'@' + edge.to.port +
+        (edge.target.id || edge.target.name || edge.target) + '@' + edge.to.port +
         ' with ' +
         JSON.stringify(assignments)
         Utils.Log(line)
         // replace source type with target type
-        return _.merge(_.cloneDeep(graph), {
-          assignments: assignments
-        })
-      }, {checkIsomorph: false})
+        return _.merge(_.cloneDeep(graph), {assignments})
+      }, {noIsomorphCheck: true})
 }
 
 /**
@@ -52,8 +52,8 @@ export function TypifyNode () {
         for (const p1 of ports) {
           for (const p2 of ports) {
             if (p1 === p2) continue
-            if (!API.areUnifyable(p1.type, p2.type)) continue
-            const assignments = API.UnifyTypes(p1.type, p2.type)
+            if (!API.areUnifyable(p1.type, p2.type, graph)) continue
+            const assignments = API.UnifyTypes(p1.type, p2.type, graph)
             const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
             if (Object.keys(diff).length === 0) {
               return false
@@ -68,10 +68,40 @@ export function TypifyNode () {
         var line = 'typifying atomic node ' + node.id +
         ' with ' + JSON.stringify(assignments)
         Utils.Log(line)
-        return _.merge(_.cloneDeep(graph), {
-          assignments: assignments
-        })
-      }, {checkIsomorph: false})
+        return _.merge(_.cloneDeep(graph), {assignments})
+      }, {noIsomorphCheck: true})
+}
+
+export function typifyLambdaOutput () {
+  return Rewrite.applyNode(
+    (node, graph) => {
+      if (!Lambda.isValid(node)) return false
+      const out = Node.outputPorts(node)[0]
+      if (!API.IsGenericType(out.type)) return false
+      const impl = Lambda.implementation(node)
+      const implPorts = Node.outputPorts(impl)
+      const lambdaRets = Lambda.typeReturns(out.type)
+      if (implPorts.length !== lambdaRets.length) {
+        throw new Error('Function type does not match the given lambda implementation for: ' + Node.id(node))
+      }
+      const assignments = _.zip(implPorts, lambdaRets)
+        .reduce((ass, [port, type]) => {
+          if (!API.areUnifyable(port.type, type, graph)) return ass
+          return Object.assign(ass, API.UnifyTypes(port.type, type, graph))
+        }, {})
+      const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
+      if (diff.length === 0) {
+        console.log(assignments)
+        return false
+      } else {
+        return [node, assignments]
+      }
+    },
+    ([node, assignments], graph) => {
+      return _.merge(_.cloneDeep(graph), {assignments})
+    },
+    {noIsomorphCheck: true}
+  )
 }
 
 /**
@@ -135,5 +165,5 @@ export function TypifyRecursion () {
         graph = Graph.replaceNode(match.ref, newRef, graph)
         graph = Graph.replaceNode(match.root, newRoot, graph)
         return graph
-      }, {checkIsomorph: false})
+      }, {noIsomorphCheck: true})
 }

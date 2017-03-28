@@ -6,6 +6,15 @@ import _ from 'lodash'
 const Rewrites = require('./rewrites.js')
 const Utils = require('./utils.js')
 
+function postfixGenericType (type, postfix) {
+  if (typeof (type) === 'string' && isGenericTypeName(type)) {
+    return type + postfix
+  } else if (typeof (type) === 'object') {
+    return Object.assign({}, type, {data: type.data.map((t) => postfixGenericType(t, postfix))})
+  }
+  return type
+}
+
 /**
  * Generates a graph rewriter using all six default rules
  * @return {Boolean} a rewrite function that takes a graph and returns a new one
@@ -15,9 +24,7 @@ export function TypifyAll (graph, iterations = Infinity) {
   for (let node of Graph.nodesDeep(graph)) {
     const ports = _.filter(Graph.Node.ports(node), Utils.IsGenericPort)
     for (const port of ports) {
-      var newType
-      if (typeof (port.type) === 'string') newType = port.type + '.' + node.id
-      else newType = Object.assign({}, port.type, {node: node.id})
+      var newType = postfixGenericType(port.type, '.' + node.id)
       let newPort = _.assign(_.cloneDeep(port), {
         type: newType
       })
@@ -27,11 +34,22 @@ export function TypifyAll (graph, iterations = Infinity) {
   }
   graph = Rewrite.rewrite([
     Rewrites.TypifyNode(),
-    Rewrites.TypifyEdge()
+    Rewrites.TypifyEdge(),
+    Rewrites.typifyLambdaOutput()
     // Rewrites.TypifyRecursion()
   ], iterations)(graph)
   graph = applyAssignments(graph)
   return graph
+}
+
+export function assignedType (type, graph) {
+  if (isGenericTypeName(type) && type in (graph.assignments || {})) {
+    return graph.assignments[type]
+  } else if (typeof (type) === 'object') {
+    return Object.assign({}, type, {data: type.data.map((t) => assignedType(t, graph))})
+  } else {
+    return type
+  }
 }
 
 function applyAssignments (graph) {
@@ -40,10 +58,9 @@ function applyAssignments (graph) {
   for (let node of Graph.nodesDeep(graph)) {
     for (let port of Graph.Node.ports(node)) {
       if (IsGenericType(port.type)) {
-        var assignedType = graph.assignments[port.type]
-        if (!assignedType) continue // nothing to apply here
+        var assType = assignedType(port.type, graph)
         var newPort = _.assign(_.cloneDeep(port), {
-          type: _.cloneDeep(assignedType)
+          type: _.cloneDeep(assType)
         })
         graph = Graph.replacePort(port, newPort, graph)
         node = Graph.node(node.id, graph)
@@ -73,16 +90,17 @@ export function IsGenericType (t) {
 }
 
 function isGenericTypeName (t) {
-  return IsLowerCase((t.name || t).charAt(0))
+  return (typeof (t) === 'string') && IsLowerCase((t.name || t).charAt(0))
 }
 
 function IsLowerCase (c) {
   return c === c.toLowerCase()
 }
 
-export function areUnifyable (t1, t2) {
+export function areUnifyable (t1, t2, graph) {
+  if (!graph) throw new Error('[typify] areUnifyable requires a graph as the third parameter to resolve assignments.')
   try {
-    UnifyTypes(t1, t2)
+    UnifyTypes(t1, t2, graph)
     return true
   } catch (err) {
     return false
@@ -94,10 +112,14 @@ export function areUnifyable (t1, t2) {
  * its unified type. E.g. `{ a: 'Number' }` assigns the type `Number` to `a`.
  * @param {Type} t1 The first type
  * @param {Type} t2 Second type
+ * @param {Portgraph} graph The base graph
  * @returns {Assignment} The assignment for the given types
  * @throws {Error} If the types are not assignable.
  */
-export function UnifyTypes (t1, t2) {
+export function UnifyTypes (t1b, t2b, graph) {
+  if (!graph) throw new Error('[typify] UnifyTypes requires a graph as the third parameter to resolve assignments.')
+  var t1 = assignedType(t1b, graph)
+  var t2 = assignedType(t2b, graph)
   var assignments = {}
   if (!IsValidType(t1)) throw new Error('invalid type t1: ' + JSON.stringify(t1))
   if (!IsValidType(t2)) throw new Error('invalid type t2: ' + JSON.stringify(t2))
@@ -118,7 +140,7 @@ export function UnifyTypes (t1, t2) {
     let f2 = t2.data
     if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
     for (let i = 0; i < f1.length; ++i) {
-      Object.assign(assignments, UnifyTypes(f1[i], f2[i]))
+      Object.assign(assignments, UnifyTypes(f1[i], f2[i], graph))
     }
     return assignments
   } else if (g1 && g2) {

@@ -12,7 +12,6 @@ describe('Lambda functions', () => {
     const graph = Graph.fromJSON(JSON.parse(fs.readFileSync('./test/fixtures/lambda_output.json', 'utf8')))
     expect(Graph.hasNode('/functional/lambda', graph)).to.be.true
     const typed = API.TypifyAll(graph)
-    console.log(JSON.stringify(typed.nodes[2].ports[0].type))
     expect(API.isFullyTyped(typed)).to.be.true
   })
 })
