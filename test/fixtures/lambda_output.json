@@ -1,0 +1,411 @@
+{
+  "nodes": [
+    {
+      "ports": [
+        {
+          "port": "text",
+          "kind": "input",
+          "type": "String"
+        },
+        {
+          "port": "IO_in",
+          "kind": "input",
+          "type": "IO"
+        },
+        {
+          "port": "IO_out",
+          "kind": "output",
+          "type": "IO",
+          "node": "#cj0s7zdwj0002jvg2m9r8cs79"
+        }
+      ],
+      "settings": {},
+      "componentId": "print",
+      "version": "1.0.0",
+      "atomic": true,
+      "id": "#cj0s7zdwj0002jvg2m9r8cs79",
+      "path": [
+        "#cj0s7zdwj0002jvg2m9r8cs79"
+      ],
+      "edges": []
+    },
+    {
+      "ports": [
+        {
+          "port": "fn",
+          "kind": "input",
+          "type": {
+            "returnValues": "outputs",
+            "arguments": [],
+            "type": "Function"
+          }
+        },
+        {
+          "port": "result",
+          "kind": "output",
+          "type": "outputs",
+          "node": "#cj0s7zdwn0003jvg2q1yknrfs"
+        }
+      ],
+      "settings": {},
+      "componentId": "call",
+      "version": "1.0.0",
+      "atomic": true,
+      "id": "#cj0s7zdwn0003jvg2q1yknrfs",
+      "path": [
+        "#cj0s7zdwn0003jvg2q1yknrfs"
+      ],
+      "edges": []
+    },
+    {
+      "componentId": "functional/lambda",
+      "atomic": true,
+      "nodes": [
+        {
+          "nodes": [
+            {
+              "ports": [
+                {
+                  "port": "summand1",
+                  "type": "Number",
+                  "kind": "input"
+                },
+                {
+                  "port": "summand2",
+                  "type": "Number",
+                  "kind": "input"
+                },
+                {
+                  "port": "sum",
+                  "type": "Number",
+                  "kind": "output",
+                  "node": "#cj0s7zdwo0005jvg2z1492pe6"
+                }
+              ],
+              "settings": {},
+              "atomic": true,
+              "componentId": "math/add",
+              "version": "1.0.0",
+              "id": "#cj0s7zdwo0005jvg2z1492pe6",
+              "path": [
+                "#cj0s7zdyi000djvg2j718eaua",
+                "#cj0s7zdwo0004jvg2nqd5d7kh",
+                "#cj0s7zdwo0005jvg2z1492pe6"
+              ],
+              "edges": []
+            },
+            {
+              "metaInformation": {
+                "parameters": {
+                  "type": "NUMBER",
+                  "value": 1
+                }
+              },
+              "settings": {},
+              "ports": [
+                {
+                  "port": "const",
+                  "kind": "output",
+                  "type": "generic",
+                  "node": "#cj0s7zdwp0006jvg2umvysk6z"
+                }
+              ],
+              "componentId": "std/const",
+              "version": "1.0.0",
+              "atomic": true,
+              "id": "#cj0s7zdwp0006jvg2umvysk6z",
+              "path": [
+                "#cj0s7zdyi000djvg2j718eaua",
+                "#cj0s7zdwo0004jvg2nqd5d7kh",
+                "#cj0s7zdwp0006jvg2umvysk6z"
+              ],
+              "edges": []
+            },
+            {
+              "metaInformation": {
+                "parameters": {
+                  "type": "NUMBER",
+                  "value": 2
+                }
+              },
+              "settings": {},
+              "ports": [
+                {
+                  "port": "const",
+                  "kind": "output",
+                  "type": "generic"
+                }
+              ],
+              "componentId": "std/const",
+              "version": "1.0.0",
+              "atomic": true,
+              "id": "#cj0s7zdxa0007jvg2yr2i37sy",
+              "path": [
+                "#cj0s7zdyi000djvg2j718eaua",
+                "#cj0s7zdwo0004jvg2nqd5d7kh",
+                "#cj0s7zdxa0007jvg2yr2i37sy"
+              ],
+              "edges": []
+            }
+          ],
+          "metaInformation": {},
+          "edges": [
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cj0s7zdwp0006jvg2umvysk6z",
+                "port": "const",
+                "kind": "output"
+              },
+              "to": {
+                "type": "Number",
+                "node": "#cj0s7zdwo0005jvg2z1492pe6",
+                "port": "summand1",
+                "kind": "input"
+              },
+              "layer": "dataflow"
+            },
+            {
+              "from": {
+                "type": "generic",
+                "node": "#cj0s7zdxa0007jvg2yr2i37sy",
+                "port": "const",
+                "kind": "output"
+              },
+              "to": {
+                "type": "Number",
+                "node": "#cj0s7zdwo0005jvg2z1492pe6",
+                "port": "summand2",
+                "kind": "input"
+              },
+              "layer": "dataflow"
+            },
+            {
+              "from": {
+                "type": "Number",
+                "node": "#cj0s7zdwo0005jvg2z1492pe6",
+                "port": "sum",
+                "kind": "output"
+              },
+              "to": {
+                "type": "generic",
+                "node": "#cj0s7zdwo0004jvg2nqd5d7kh",
+                "port": "output"
+              },
+              "layer": "dataflow",
+              "innerCompoundInput": true
+            }
+          ],
+          "components": [],
+          "ports": [
+            {
+              "port": "output",
+              "kind": "output",
+              "type": "generic",
+              "node": "#cj0s7zdwo0004jvg2nqd5d7kh"
+            }
+          ],
+          "atomic": false,
+          "settings": {},
+          "id": "#cj0s7zdwo0004jvg2nqd5d7kh",
+          "path": [
+            "#cj0s7zdyi000djvg2j718eaua",
+            "#cj0s7zdwo0004jvg2nqd5d7kh"
+          ]
+        }
+      ],
+      "edges": [],
+      "ports": [
+        {
+          "port": "fn",
+          "kind": "output",
+          "type": {
+            "name": "Function",
+            "data": [
+              {
+                "name": "arguments",
+                "data": []
+              },
+              {
+                "name": "returnValues",
+                "data": [
+                  "generic"
+                ]
+              }
+            ]
+          },
+          "node": "#cj0s7zdyi000djvg2j718eaua"
+        }
+      ],
+      "settings": {},
+      "id": "#cj0s7zdyi000djvg2j718eaua",
+      "path": [
+        "#cj0s7zdyi000djvg2j718eaua"
+      ]
+    }
+  ],
+  "metaInformation": {},
+  "edges": [
+    {
+      "from": {
+        "type": "generic",
+        "node": "#cj0s7zdyi000djvg2j718eaua",
+        "port": "fn"
+      },
+      "to": {
+        "type": {
+          "returnValues": "outputs",
+          "arguments": [],
+          "type": "Function"
+        },
+        "node": "#cj0s7zdwn0003jvg2q1yknrfs",
+        "port": "fn",
+        "kind": "input"
+      },
+      "layer": "dataflow"
+    },
+    {
+      "from": {
+        "type": "outputs",
+        "node": "#cj0s7zdwn0003jvg2q1yknrfs",
+        "port": "result",
+        "kind": "output"
+      },
+      "to": {
+        "type": "String",
+        "node": "#cj0s7zdwj0002jvg2m9r8cs79",
+        "port": "text",
+        "kind": "input"
+      },
+      "layer": "dataflow"
+    },
+    {
+      "from": {
+        "type": "generic",
+        "node": "#cj0s7zdwh0001jvg2eopnwx4h",
+        "port": "IO"
+      },
+      "to": {
+        "type": "IO",
+        "node": "#cj0s7zdwj0002jvg2m9r8cs79",
+        "port": "IO_in",
+        "kind": "input"
+      },
+      "layer": "dataflow",
+      "innerCompoundOutput": true
+    },
+    {
+      "from": {
+        "type": "IO",
+        "node": "#cj0s7zdwj0002jvg2m9r8cs79",
+        "port": "IO_out",
+        "kind": "output"
+      },
+      "to": {
+        "type": "generic",
+        "node": "#cj0s7zdwh0001jvg2eopnwx4h",
+        "port": "value"
+      },
+      "layer": "dataflow",
+      "innerCompoundInput": true
+    }
+  ],
+  "components": [
+    {
+      "componentId": "print",
+      "version": "1.0.0",
+      "atomic": true,
+      "ports": [
+        {
+          "port": "text",
+          "kind": "input",
+          "type": "String"
+        },
+        {
+          "port": "IO_in",
+          "kind": "input",
+          "type": "IO"
+        },
+        {
+          "port": "IO_out",
+          "kind": "output",
+          "type": "IO"
+        }
+      ]
+    },
+    {
+      "componentId": "call",
+      "version": "1.0.0",
+      "atomic": true,
+      "ports": [
+        {
+          "port": "fn",
+          "kind": "input",
+          "type": {
+            "returnValues": "outputs",
+            "arguments": [],
+            "type": "Function"
+          }
+        },
+        {
+          "port": "result",
+          "kind": "output",
+          "type": "outputs"
+        }
+      ]
+    },
+    {
+      "atomic": true,
+      "ports": [
+        {
+          "port": "summand1",
+          "type": "Number",
+          "kind": "input"
+        },
+        {
+          "port": "summand2",
+          "type": "Number",
+          "kind": "input"
+        },
+        {
+          "port": "sum",
+          "type": "Number",
+          "kind": "output"
+        }
+      ],
+      "componentId": "math/add",
+      "version": "1.0.0"
+    },
+    {
+      "componentId": "std/const",
+      "version": "1.0.0",
+      "atomic": true,
+      "ports": [
+        {
+          "port": "const",
+          "kind": "output",
+          "type": "generic"
+        }
+      ]
+    }
+  ],
+  "path": [],
+  "ports": [
+    {
+      "port": "IO",
+      "kind": "input",
+      "type": "generic",
+      "node": "#cj0s7zdwh0001jvg2eopnwx4h"
+    },
+    {
+      "port": "value",
+      "kind": "output",
+      "type": "generic",
+      "node": "#cj0s7zdwh0001jvg2eopnwx4h"
+    }
+  ],
+  "atomic": false,
+  "id": "#cj0s7zdwh0001jvg2eopnwx4h",
+  "version": "0.0.0",
+  "componentId": "main"
+}

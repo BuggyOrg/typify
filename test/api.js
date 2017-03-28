@@ -244,137 +244,41 @@ function createBinomialGraph () {
 }
 
 describe('API tests', () => {
-  it('can replace nodes', () => {
-    let graph = createSimpleGraph1()
-    for (const node of Graph.nodesDeep(graph)) {
-      let newNode = _.assign(_.cloneDeep(node), {
-        someKey: 'someValue'
-      })
-      graph = Graph.replaceNode(node, newNode, graph)
-    }
-    for (const node of Graph.nodes(graph)) {
-      expect(node.someKey).to.equal('someValue')
-    }
-  })
-  it('can replace ports', () => {
-    let graph = createSimpleGraph1()
-    for (let node of Graph.nodesDeep(graph)) {
-      for (const port of Graph.Node.ports(node)) {
-        let newPort = _.assign(_.cloneDeep(port), {
-          type: 'Something'
-        })
-        graph = Rewrite.replacePort(node, port, newPort, graph)
-        node = Graph.node(node.id, graph)
-      }
-    }
-    for (const node of Graph.nodes(graph)) {
-      for (const port of Graph.Node.ports(node)) {
-        expect(port.type).to.equal('Something')
-      }
-    }
-  })
   it('can apply basic rules I', () => {
     let graph1 = createSimpleGraph1()
     let graph2 = API.TypifyAll(graph1)
-    expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
-    for (const node of Graph.nodes(graph2)) {
-      for (const port of Graph.Node.ports(node)) {
-        expect(port).to.not.satisfy(Utils.IsGenericPort)
-      }
-    }
+    expect(API.isFullyTyped(graph2)).to.be.true
   })
   it('can apply basic rules II', () => {
     let graph1 = createSimpleGraph2()
     let graph2 = API.TypifyAll(graph1)
-    expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
-    for (const node of Graph.nodes(graph2)) {
-      for (const port of Graph.Node.ports(node)) {
-        expect(port).to.not.satisfy(Utils.IsGenericPort)
-      }
-    }
+    expect(API.isFullyTyped(graph2)).to.be.true
   })
+
   it('can typify loop problem case', () => {
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/problem.json', 'utf-8'))
     let graph2 = API.TypifyAll(graph1)
     fs.writeFileSync('./test/fixtures/problem_typified.json', JSON.stringify(graph2, null, 2))
-    expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
-    for (const node of Graph.nodes(graph2)) {
-      for (const port of Graph.Node.ports(node)) {
-        expect(port).to.not.satisfy(Utils.IsGenericPort)
-      }
-    }
+    expect(API.isFullyTyped(graph2)).to.be.true
   })
+
   it('can typify recursive function (factorial)', () => {
     let graph1 = createFactorialGraph()
     let graph2 = API.TypifyAll(graph1)
-    expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
-    for (const node of Graph.nodes(graph2)) {
-      for (const port of Graph.Node.ports(node)) {
-        expect(port).to.not.satisfy(Utils.IsGenericPort)
-      }
-    }
+    expect(API.isFullyTyped(graph2)).to.be.true
   })
+
   it('can typify recursive function (binomial)', () => {
     let graph1 = createBinomialGraph()
     let graph2 = API.TypifyAll(graph1)
-    expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
-    for (const node of Graph.nodes(graph2)) {
-      for (const port of Graph.Node.ports(node)) {
-        expect(port).to.not.satisfy(Utils.IsGenericPort)
-      }
-    }
+    expect(API.isFullyTyped(graph2)).to.be.true
   })
+
   it('can typify ackermann function', () => {
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/ackermann.json', 'utf-8'))
     graph1 = Untypify(graph1)
     let graph2 = API.TypifyAll(graph1)
     fs.writeFileSync('./test/fixtures/ackermann_typified.json', JSON.stringify(graph2, null, 2))
-    expect(Rewrite.graphEquals(graph1, graph2)).to.be.false
-    for (const node of Graph.nodes(graph2)) {
-      for (const port of Graph.Node.ports(node)) {
-        expect(port).to.not.satisfy(Utils.IsGenericPort)
-      }
-    }
-  })
-  it('can unify simple types', () => {
-    let t1 = {
-      data: ['a', 'Number'],
-      name: 'Pair'
-    }
-    let t2 = {
-      data: ['String', 'b'],
-      name: 'Pair'
-    }
-    var assignments = { }
-    expect(API.UnifyTypes(t1, t2, assignments)).to.be.true
-    expect(assignments).to.deep.equal({
-      'a': 'String',
-      'b': 'Number'
-    })
-  })
-  it('can unify function types', () => {
-    let genArray = {
-      name: 'Generic Array',
-      args: [
-        'N'
-      ],
-      data: [
-        'e'
-      ]
-    }
-    let genFunc = {
-      name: 'Generic Function',
-      args: [
-        'a'
-      ],
-      data: [
-        'e'
-      ]
-    }
-    var assignments = { }
-    expect(API.UnifyTypes(genArray, genFunc, assignments)).to.be.true
-    expect(assignments).to.deep.equal({
-      'a': 'N'
-    })
+    expect(API.isFullyTyped(graph2)).to.be.true
   })
 })

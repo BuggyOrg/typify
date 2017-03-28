@@ -14,28 +14,22 @@ const Utils = require('./utils.js')
 export function TypifyEdge () {
   return Rewrite.applyEdge(
       (edge, graph) => {
-        if (!edge.sourcePort) return false
-        if (!edge.targetPort) return false
+        if (!Graph.Edge.isBetweenPorts(edge) || !API.areUnifyable(edge.from.type, edge.to.type)) return false
         // check wether edge goes from generic to specific
-        var assignments = _.cloneDeep(graph.assignments || { })
-        var unifies = API.TryUnifyTypes(edge.sourcePort.type, edge.targetPort.type, assignments)
-        assignments = _.omit(assignments, _.keys(graph.assignments))
-        if (!unifies) {
-          return false
-        } else if (_.keys(assignments).length === 0) {
+        const assignments = API.UnifyTypes(edge.from.type, edge.to.type)
+        const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
+        if (diff.length === 0) {
           return false
         } else {
           return [edge, assignments]
         }
       },
-      (match, graph) => {
-        const edge = match[0]
-        const assignments = match[1]
+      ([edge, assignments], graph) => {
         const line = 'typifying edge from ' +
         (edge.source.id || edge.source.name || edge.source) +
-        '@' + edge.sourcePort.port +
+        '@' + edge.from.port +
         ' to ' +
-        (edge.target.id || edge.target.name || edge.target) +'@' + edge.targetPort.port +
+        (edge.target.id || edge.target.name || edge.target) +'@' + edge.to.port +
         ' with ' +
         JSON.stringify(assignments)
         Utils.Log(line)
@@ -43,7 +37,7 @@ export function TypifyEdge () {
         return _.merge(_.cloneDeep(graph), {
           assignments: assignments
         })
-      })
+      }, {checkIsomorph: false})
 }
 
 /**
@@ -58,12 +52,10 @@ export function TypifyNode () {
         for (const p1 of ports) {
           for (const p2 of ports) {
             if (p1 === p2) continue
-            var assignments = _.cloneDeep(graph.assignments || { })
-            var unifies = API.TryUnifyTypes(p1.type, p2.type, assignments)
-            assignments = _.omit(assignments, _.keys(graph.assignments))
-            if (!unifies) {
-              return false
-            } else if (_.keys(assignments).length === 0) {
+            if (!API.areUnifyable(p1.type, p2.type)) continue
+            const assignments = API.UnifyTypes(p1.type, p2.type)
+            const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
+            if (Object.keys(diff).length === 0) {
               return false
             } else {
               return [node, assignments]
@@ -72,16 +64,14 @@ export function TypifyNode () {
         }
         return false
       },
-      (match, graph) => {
-        const node = match[0]
-        const assignments = match[1]
+      ([node, assignments], graph) => {
         var line = 'typifying atomic node ' + node.id +
         ' with ' + JSON.stringify(assignments)
         Utils.Log(line)
         return _.merge(_.cloneDeep(graph), {
           assignments: assignments
         })
-      })
+      }, {checkIsomorph: false})
 }
 
 /**
@@ -145,5 +135,5 @@ export function TypifyRecursion () {
         graph = Graph.replaceNode(match.ref, newRef, graph)
         graph = Graph.replaceNode(match.root, newRoot, graph)
         return graph
-      })
+      }, {checkIsomorph: false})
 }

@@ -10,5 +10,5 @@ export function Log (line) {
 }
 
 export function IsGenericPort (port) {
-    return API.IsGenericType(port.type)
+  return API.IsGenericType(port.type)
 }
