@@ -8,7 +8,7 @@ import fs from 'fs'
 const expect = chai.expect
 
 describe('Lambda functions', () => {
-  it('Can identify lambda function with Functiontypes', () => {
+  it('Can identify lambda function with Function types', () => {
     const graph = Graph.fromJSON(JSON.parse(fs.readFileSync('./test/fixtures/lambda_output.json', 'utf8')))
     expect(Graph.hasNode('/functional/lambda', graph)).to.be.true
     const typed = API.TypifyAll(graph)

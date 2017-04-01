@@ -91,7 +91,6 @@ export function typifyLambdaOutput () {
         }, {})
       const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
       if (diff.length === 0) {
-        console.log(assignments)
         return false
       } else {
         return [node, assignments]

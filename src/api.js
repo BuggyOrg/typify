@@ -33,7 +33,7 @@ export function TypifyAll (graph, iterations = Infinity) {
     }
   }
   graph = Rewrite.rewrite([
-    Rewrites.TypifyNode(),
+    // Rewrites.TypifyNode(),
     Rewrites.TypifyEdge(),
     Rewrites.typifyLambdaOutput()
     // Rewrites.TypifyRecursion()
@@ -158,7 +158,11 @@ export function UnifyTypes (t1b, t2b, graph) {
 export function isFullyTyped (graph) {
   for (const node of Graph.nodesDeep(graph)) {
     for (const port of Graph.Node.ports(node)) {
-      if (Utils.IsGenericPort(port)) return false
+      if (Utils.IsGenericPort(port)) {
+        console.log(JSON.stringify(port.type, null, 2))
+        console.log(JSON.stringify(graph.assignments))
+        return false
+      }
     }
   }
   return true

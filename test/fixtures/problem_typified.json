@@ -144,18 +144,18 @@
         {
           "port": "const",
           "kind": "output",
-          "type": "generic",
+          "type": "String",
           "node": "#ciyqcnzcy0005uxg2bs37q2mp"
         }
       ],
       "componentId": "std/const",
       "version": "1.0.0",
       "atomic": true,
+      "edges": [],
       "id": "#ciyqcnzcy0005uxg2bs37q2mp",
       "path": [
         "#ciyqcnzcy0005uxg2bs37q2mp"
-      ],
-      "edges": []
+      ]
     },
     {
       "metaInformation": {
@@ -169,18 +169,18 @@
         {
           "port": "const",
           "kind": "output",
-          "type": "generic",
+          "type": "String",
           "node": "#ciyqcnzdv0006uxg2ve3otyyo"
         }
       ],
       "componentId": "std/const",
       "version": "1.0.0",
       "atomic": true,
+      "edges": [],
       "id": "#ciyqcnzdv0006uxg2ve3otyyo",
       "path": [
         "#ciyqcnzdv0006uxg2ve3otyyo"
-      ],
-      "edges": []
+      ]
     }
   ],
   "metaInformation": {},
@@ -469,16 +469,16 @@
   "path": [],
   "ports": [
     {
-      "node": "#ciyqcnzcn0001uxg27v1fph5x",
       "port": "IO",
       "kind": "input",
-      "type": "IO"
+      "type": "IO",
+      "node": "#ciyqcnzcn0001uxg27v1fph5x"
     },
     {
-      "node": "#ciyqcnzcn0001uxg27v1fph5x",
       "port": "value",
       "kind": "output",
-      "type": "IO"
+      "type": "IO",
+      "node": "#ciyqcnzcn0001uxg27v1fph5x"
     }
   ],
   "atomic": false,
@@ -486,7 +486,8 @@
   "version": "0.0.0",
   "componentId": "main",
   "assignments": {
-    "generic": "String",
+    "generic.#ciyqcnzcy0005uxg2bs37q2mp": "String",
+    "generic.#ciyqcnzdv0006uxg2ve3otyyo": "String",
     "generic.#ciyqcnzcn0001uxg27v1fph5x": "IO"
   }
 }
