@@ -1,13 +1,14 @@
 
 import * as Graph from '@buggyorg/graphtools'
 import * as Rewrite from '@buggyorg/rewrite'
+import * as Unify from './unify'
 import _ from 'lodash'
 
 const Rewrites = require('./rewrites.js')
 const Utils = require('./utils.js')
 
 function postfixGenericType (type, postfix) {
-  if (typeof (type) === 'string' && isGenericTypeName(type)) {
+  if (typeof (type) === 'string' && Unify.isGenericTypeName(type)) {
     return type + postfix
   } else if (typeof (type) === 'object') {
     return Object.assign({}, type, {data: type.data.map((t) => postfixGenericType(t, postfix))})
@@ -43,7 +44,7 @@ export function TypifyAll (graph, iterations = Infinity) {
 }
 
 export function assignedType (type, graph) {
-  if (isGenericTypeName(type) && type in (graph.assignments || {})) {
+  if (Unify.isGenericTypeName(type) && type in (graph.assignments || {})) {
     return graph.assignments[type]
   } else if (typeof (type) === 'object') {
     return Object.assign({}, type, {data: type.data.map((t) => assignedType(t, graph))})
@@ -70,41 +71,11 @@ function applyAssignments (graph) {
   return graph
 }
 
-function IsValidType (t) {
-  if (!t) return false
-  if (typeof t === 'string') return true
-  if (!t.data) return false
-  return t.data.every(IsValidType)
-}
-
-function isTypeObject (t) {
-  return typeof (t) === 'object' && t.data
-}
-
-export function IsGenericType (t) {
-  if (!IsValidType(t)) return false
-  if (isTypeObject(t)) {
-    return t.data.some(IsGenericType)
-  }
-  return isGenericTypeName(t)
-}
-
-function isGenericTypeName (t) {
-  return (typeof (t) === 'string') && IsLowerCase((t.name || t).charAt(0))
-}
-
-function IsLowerCase (c) {
-  return c === c.toLowerCase()
-}
+export const IsGenericType = Unify.IsGenericType
 
 export function areUnifyable (t1, t2, graph) {
   if (!graph) throw new Error('[typify] areUnifyable requires a graph as the third parameter to resolve assignments.')
-  try {
-    UnifyTypes(t1, t2, graph)
-    return true
-  } catch (err) {
-    return false
-  }
+  return Unify.areUnifyable(t1, t2, (type) => assignedType(type, graph))
 }
 
 /**
@@ -116,43 +87,9 @@ export function areUnifyable (t1, t2, graph) {
  * @returns {Assignment} The assignment for the given types
  * @throws {Error} If the types are not assignable.
  */
-export function UnifyTypes (t1b, t2b, graph) {
-  if (!graph) throw new Error('[typify] UnifyTypes requires a graph as the third parameter to resolve assignments.')
-  var t1 = assignedType(t1b, graph)
-  var t2 = assignedType(t2b, graph)
-  var assignments = {}
-  if (!IsValidType(t1)) throw new Error('invalid type t1: ' + JSON.stringify(t1))
-  if (!IsValidType(t2)) throw new Error('invalid type t2: ' + JSON.stringify(t2))
-  if ((t1.name || t1) in assignments) t1 = assignments[t1.name || t1]
-  if ((t2.name || t2) in assignments) t2 = assignments[t2.name || t2]
-  const g1 = isGenericTypeName(t1)
-  const g2 = isGenericTypeName(t2)
-  if (!g1 && !g2) {
-    if (typeof t1 === 'string' && typeof t2 === 'string') {
-      // TODO: should this throw an error, if the types are not equal?
-      // Or more precisely, we would perhaps need information about the types.
-      // e.g. if t1 ⊑ t2 everything is fine (but not if t1 ⋢ t2)
-      if (t1 !== t2) throw new Error('Types are not unifyable: "' + t1 + '" and "' + t2 + '"')
-      return {}
-    }
-    // if (t1.name !== t2.name) throw new Error('type unification error: ' + t1.name + ' has a different name than ' + t2.name)
-    let f1 = t1.data
-    let f2 = t2.data
-    if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
-    for (let i = 0; i < f1.length; ++i) {
-      Object.assign(assignments, UnifyTypes(f1[i], f2[i], graph))
-    }
-    return assignments
-  } else if (g1 && g2) {
-    if (t1 !== t2) throw new Error('Types are not unifyable: "' + JSON.stringify(t1) + '" and "' + JSON.stringify(t2) + '"')
-    return assignments
-  } else {
-    if (g1) assignments[t1.name || t1] = _.cloneDeep(t2)
-    if (g2) assignments[t2.name || t2] = _.cloneDeep(t1)
-    return assignments
-  }
-  // if (typeof t1 !== 'string') t1.assignments = assignments.concat(t1.assignment)
-  // if (typeof t2 !== 'string') t2.assignments = assignments.concat(t2.assignment)
+export function UnifyTypes (t1, t2, graph) {
+  if (!graph) throw new Error('[typify] areUnifyable requires a graph as the third parameter to resolve assignments.')
+  return Unify.UnifyTypes(t1, t2, (type) => assignedType(type, graph))
 }
 
 export function isFullyTyped (graph) {

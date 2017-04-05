@@ -59,4 +59,18 @@ describe('Unification', () => {
       'b': 'Number'
     })
   })
+
+  it('Throws an error if the types are not unifyable', () => {
+    let t1 = {
+      data: [{name: 'Arguments', data: ['a', 'Number']}, {name: 'Returns', data: ['Number']}],
+      name: 'Function'
+    }
+    let t2 = {
+      data: [{name: 'Arguments', data: ['String', 'String']}, {name: 'Returns', data: ['b']}],
+      name: 'Function'
+    }
+    expect(() => API.UnifyTypes(t1, t2, {})).to.throw(Error, /Number/)
+    expect(() => API.UnifyTypes(t1, t2, {})).to.throw(Error, /String/)
+    expect(() => API.UnifyTypes(t1, t2, {})).to.throw(Error, /Arguments/)
+  })
 })
