@@ -7,25 +7,25 @@ Uses rewrite library to iteratively search for candidates and apply the rules.
 
 To typify the graph completely, use<br/>
 
-<pre><code>
+```js
 g1 = Typify.TypifyAll(g, maxIterations)
-</code></pre>
+```
 
-where <code>maxIterations</code> is optional (default: Infinity)
+where `maxIterations` is optional (default: Infinity)
 To apply single rules, use
 
-<pre><code>
+```js
 g1 = Typify.TypifyEdge()(g)
-g3 = Typify.TypifyAtomicNode()(g)
-g4 = Typify.TypifyRecursion()(g)
-</code></pre>
+g2 = Typify.typifyLambdaOutput()(g1)
+// g3 = Typify.TypifyRecursion()(g2) // not yet implemented..
+```
 
 where
 
 <ul>
-<li><code>TypifyEdge</code> typifies a edge from mixed generic/nongeneric source/target</li>
-<li><code>TypifyNode</code> typifies a node with mixed generic/nongeneric ports</li>
-<li><code>TypifyRecursion</code> typifies a recursion node</li>
+<li>`TypifyEdge` typifies a edge from mixed generic/nongeneric source/target</li>
+<li>`typifyLambdaOutput` Identifies the Lambda implementation with the lambda function type</li>
+<li>`TypifyRecursion` typifies a recursion node</li>
 </ul>
 
 generic types are indicated by a lower case first character
@@ -33,14 +33,29 @@ generic types are indicated by a lower case first character
 
 all types are strings or should follow this format:
 
-<pre><code>
+```js
 var type = {
-    name: 'Specific'
-    args: [
-        'genInput' // list of argument types / function input types
-    ],
-    data: [
-        'genOutput' // list of data types / function output types
-    ]
+  name: 'Specific'
+  data: [
+    'genOutput' // list of data types
+  ]
 }
-</code></pre>
+```
+
+Functions have simply a special type name and structure
+
+```js
+var fnType = {
+  name: 'Function'
+  data: [
+    {
+      name: 'arguments',
+      data: ['list', 'of' 'args']
+    },
+    {
+      name: 'returnValues',
+      data: ['list', 'of', 'outputs']
+    }
+  ]
+}
+```
