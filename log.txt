@@ -1,12 +1,0 @@
-
-> @buggyorg/typify@0.1.6 test /home/volker/JS/typify
-> mocha --no-timeouts --compilers js:babel-register
-
-
-
-  API tests
-    ✓ can typify ackermann function (61492ms)
-
-
-  1 passing (1m)
-
