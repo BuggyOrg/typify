@@ -11,6 +11,9 @@ function postfixGenericType (type, postfix) {
   if (typeof (type) === 'string' && Unify.isGenericTypeName(type)) {
     return type + postfix
   } else if (typeof (type) === 'object') {
+    if (typeof (type.data) === 'string') {
+      return Object.assign({}, type, {data: postfixGenericType(type.data, postfix)})
+    }
     return Object.assign({}, type, {data: type.data.map((t) => postfixGenericType(t, postfix))})
   }
   return type

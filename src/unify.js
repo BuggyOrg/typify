@@ -5,7 +5,7 @@ function IsValidType (t) {
   if (!t) return false
   if (typeof t === 'string') return true
   if (!t.data) return false
-  return t.data.every(IsValidType)
+  return (isGenericTypeName(t.data) && !isRest(t.data)) || t.data.every(IsValidType)
 }
 
 function isTypeObject (t) {
@@ -15,7 +15,7 @@ function isTypeObject (t) {
 export function IsGenericType (t) {
   if (!IsValidType(t)) return false
   if (isTypeObject(t)) {
-    return t.data.some(IsGenericType)
+    return isGenericTypeName(t.data) || t.data.some(IsGenericType)
   }
   return isGenericTypeName(t)
 }
