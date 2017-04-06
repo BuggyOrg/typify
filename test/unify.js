@@ -102,5 +102,7 @@ describe('Unification', () => {
 
     const ass = API.UnifyTypes(t1, t2, id)
     expect(ass['rest']).to.eql(['String', 'Boolean'])
+    const ass2 = API.UnifyTypes(t2, t1, id)
+    expect(ass2['rest']).to.eql(['String', 'Boolean'])
   })
 })

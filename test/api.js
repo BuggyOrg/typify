@@ -275,6 +275,20 @@ describe('API tests', () => {
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 
+  it('can propagate rest params', () => {
+    const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
+    const t = API.assignedType({name: 'A', data: ['Number', '...rest']}, protoGraph)
+    expect(t.data).to.have.length(3)
+    expect(t.data).to.eql(['Number', 'String', 'Boolean'])
+  })
+
+  it('can propagate rest params', () => {
+    const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
+    const t = API.assignedType({name: 'A', data: 'rest'}, protoGraph)
+    expect(t.data).to.have.length(2)
+    expect(t.data).to.eql(['String', 'Boolean'])
+  })
+
   xit('can typify ackermann function', () => {
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/ackermann.json', 'utf-8'))
     graph1 = Untypify(graph1)

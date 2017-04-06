@@ -21,7 +21,7 @@ export function IsGenericType (t) {
 }
 
 export function isGenericTypeName (t) {
-  return (typeof (t) === 'string') && IsLowerCase((t.name || t).charAt(0))
+  return (typeof (t) === 'string') && (IsLowerCase((t.name || t).charAt(0)) || isRest(t))
 }
 
 function IsLowerCase (c) {
@@ -35,6 +35,19 @@ export function areUnifyable (t1, t2, assignedType) {
   } catch (err) {
     return false
   }
+}
+
+function isRest (type) {
+  return typeof (type) === 'string' && type.slice(0, 3) === '...'
+}
+
+function restName (type) {
+  return type.slice(3)
+}
+
+export function typeName (type) {
+  if (isRest(type)) return restName(type)
+  else return type
 }
 
 /**
@@ -70,13 +83,24 @@ export function UnifyTypes (t1b, t2b, assignedType) {
     if (t1.name !== t2.name) {
       throw new Error('Type names do not match for "' + t1.name + '" and "' + t2.name + '"')
     }
-    if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
-    for (let i = 0; i < f1.length; ++i) {
+    let ff1 = _.takeWhile(f1, (d) => !isRest(d))
+    let ff2 = _.takeWhile(f2, (d) => !isRest(d))
+    if (f1.length === ff1.length && f2.length === ff2.length && ff1.length !== ff2.length) throw new Error('type unification error: number of fields differ')
+    const minLen = Math.min(ff1.length, ff2.length)
+    for (let i = 0; i < minLen; ++i) {
       try {
         Object.assign(assignments, UnifyTypes(f1[i], f2[i], assignedType))
       } catch (err) {
         throw new Error(t1.name + '[' + i + ']>' + err.message)
       }
+    }
+    if (ff1.length < f1.length) {
+      if (!isRest(f1[ff1.length])) throw new Error('Expected rest param but found: ' + f1[ff1.length])
+      assignments[restName(f1[ff1.length])] = _.drop(f2, ff1.length)
+    }
+    if (ff2.length < f2.length) {
+      if (!isRest(f2[ff2.length])) throw new Error('Expected rest param but found: ' + f1[ff2.length])
+      assignments[restName(f2[ff2.length])] = _.drop(f1, ff2.length)
     }
     return assignments
   } else if (g1 && g2) {

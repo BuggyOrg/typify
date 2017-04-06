@@ -44,10 +44,15 @@ export function TypifyAll (graph, iterations = Infinity) {
 }
 
 export function assignedType (type, graph) {
-  if (Unify.isGenericTypeName(type) && type in (graph.assignments || {})) {
-    return graph.assignments[type]
+  const tName = Unify.typeName(type)
+  if (Unify.isGenericTypeName(type) && tName in (graph.assignments || {})) {
+    return graph.assignments[tName]
   } else if (typeof (type) === 'object') {
-    return Object.assign({}, type, {data: type.data.map((t) => assignedType(t, graph))})
+    if (typeof (type.data) === 'string') {
+      return Object.assign({}, type, {data: assignedType(type.data, graph)})
+    } else {
+      return Object.assign({}, type, {data: _.flatten(type.data.map((t) => assignedType(t, graph)))})
+    }
   } else {
     return type
   }
