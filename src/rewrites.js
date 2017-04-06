@@ -40,10 +40,12 @@ export function TypifyEdge () {
       }, {noIsomorphCheck: true})
 }
 
+
 /**
  * Generates a graph rewriter that typifies all atomic nodes (ie. make all input and outputs of the same type)
  * @return {Func} a rewrite function that takes a graph and returns a new one
  */
+/*
 export function TypifyNode () {
   return Rewrite.applyNode(
       (node, graph) => {
@@ -71,6 +73,7 @@ export function TypifyNode () {
         return _.merge(_.cloneDeep(graph), {assignments})
       }, {noIsomorphCheck: true})
 }
+*/
 
 export function typifyLambdaOutput () {
   return Rewrite.applyNode(

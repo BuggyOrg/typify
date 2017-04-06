@@ -67,9 +67,16 @@ export function UnifyTypes (t1b, t2b, assignedType) {
     // if (t1.name !== t2.name) throw new Error('type unification error: ' + t1.name + ' has a different name than ' + t2.name)
     let f1 = t1.data
     let f2 = t2.data
+    if (t1.name !== t2.name) {
+      throw new Error('Type names do not match for "' + t1.name + '" and "' + t2.name + '"')
+    }
     if (f1.length !== f2.length) throw new Error('type unification error: number of fields differ')
     for (let i = 0; i < f1.length; ++i) {
-      Object.assign(assignments, UnifyTypes(f1[i], f2[i], assignedType))
+      try {
+        Object.assign(assignments, UnifyTypes(f1[i], f2[i], assignedType))
+      } catch (err) {
+        throw new Error(t1.name + '[' + i + ']>' + err.message)
+      }
     }
     return assignments
   } else if (g1 && g2) {
