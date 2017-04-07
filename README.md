@@ -91,7 +91,7 @@ const assign1 = Unify.UnifyTypes(t1, t2)
 
 const assign2 = Unify.UnifyTypes(t1, t3)
 /*
- assign1 = {
+ assign2 = {
    first: 'String',
    rest: ['Number', 'Boolean']
  }
