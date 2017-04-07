@@ -15,23 +15,27 @@ where `maxIterations` is optional (default: Infinity)
 To apply single rules, use
 
 ```js
-g1 = Typify.TypifyEdge()(g)
-g2 = Typify.typifyLambdaOutput()(g1)
-// g3 = Typify.TypifyRecursion()(g2) // not yet implemented..
+Graph.flow(
+  Typify.TypifyConstants(),
+  Typify.TypifyEdge(),
+  Typify.typifyLambdaOutput(),
+  Typify.typifyLambdaOutput()
+  // Typify.TypifyRecursion() // not yet implemented..
+)(graph)
 ```
 
 where
 
-<ul>
-<li>`TypifyEdge` typifies a edge from mixed generic/nongeneric source/target</li>
-<li>`typifyLambdaOutput` Identifies the Lambda implementation with the lambda function type</li>
-<li>`TypifyRecursion` typifies a recursion node</li>
-</ul>
+ - `TypifyConstants` deduces the type of all constants and sets the port types accordingly.
+ - `TypifyEdge` typifies a edge from mixed generic/nongeneric source/target
+ - `typifyLambdaOutput` Identifies the Lambda implementation with the lambda function type
+ - `TypifyRecursion` typifies a recursion node
 
-generic types are indicated by a lower case first character
-(ie 'generic' and 'a' are considered generic, 'Number' and 'A' aren't)
+Generic types or *type names* are indicated by a lower case first character
+(i.e. 'generic' and 'a' are considered generic, 'Number' and 'A' aren't).
+For arrays there is a rest parameter indicated by the `...` prefix.
 
-all types are strings or should follow this format:
+All types are strings or should follow this format:
 
 ```js
 var type = {
@@ -58,4 +62,39 @@ var fnType = {
     }
   ]
 }
+```
+
+Rest parameters can be used like this:
+
+```js
+import * as Unify from '@buggyorg/typify/lib/unify'
+const t1 = {
+  name: 'T1'
+  data: ['first', '...rest']
+}
+const t2 = {
+  name: 'T2'
+  data: ['Number']
+}
+const t3 = {
+  name: 'T3'
+  data: ['String', 'Number', 'Boolean']
+}
+
+const assign1 = Unify.UnifyTypes(t1, t2)
+/*
+ assign1 = {
+   first: 'Number',
+   rest: []
+ }
+*/
+
+const assign2 = Unify.UnifyTypes(t1, t3)
+/*
+ assign1 = {
+   first: 'String',
+   rest: ['Number', 'Boolean']
+ }
+*/
+
 ```

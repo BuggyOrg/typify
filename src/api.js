@@ -38,10 +38,10 @@ export function TypifyAll (graph, iterations = Infinity) {
   }
   graph = Rewrite.rewrite([
     // Rewrites.TypifyNode(),
+    Rewrites.typifyConstants(),
     Rewrites.TypifyEdge(),
     Rewrites.typifyLambdaInputs(),
-    Rewrites.typifyLambdaOutput(),
-    Rewrites.typifyConstants()
+    Rewrites.typifyLambdaOutput()
     // Rewrites.TypifyRecursion()
   ], iterations)(graph)
   graph = applyAssignments(graph)

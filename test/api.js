@@ -288,7 +288,7 @@ describe('API tests', () => {
     expect(t.data).to.eql(['Number', 'String', 'Boolean'])
   })
 
-  it('can propagate rest params', () => {
+  it('can propagate rest params as arrays', () => {
     const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
     const t = API.assignedType({name: 'A', data: 'rest'}, protoGraph)
     expect(t.data).to.have.length(2)
