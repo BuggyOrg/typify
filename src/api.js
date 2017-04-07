@@ -5,6 +5,7 @@ import * as Unify from './unify'
 import * as Rewrites from './rewrites'
 import * as Utils from './utils'
 import _ from 'lodash'
+import debug from 'debug'
 
 function postfixGenericType (type, postfix) {
   if (typeof (type) === 'string' && Unify.isGenericTypeName(type)) {
@@ -53,9 +54,13 @@ export function assignedType (type, graph) {
     return graph.assignments[tName]
   } else if (typeof (type) === 'object') {
     if (typeof (type.data) === 'string') {
-      return Object.assign({}, type, {data: assignedType(type.data, graph)})
+      return Object.assign({}, _.omit(type, 'data'), {data: assignedType(type.data, graph)})
     } else {
-      return Object.assign({}, type, {data: _.flatten(type.data.map((t) => assignedType(t, graph)))})
+      if (type.data.length === 2 && typeof (type.data[1]) === 'string' && type.data[1].slice(0, 3) === '...') {
+//        console.log(type.data[1])
+//        console.log({data: _.flatten(type.data.map((t) => assignedType(t, graph)))})
+      }
+      return Object.assign({}, _.omit(type, 'data'), {data: _.flatten(type.data.map((t) => assignedType(t, graph)))})
     }
   } else {
     return type
@@ -69,7 +74,7 @@ function applyAssignments (graph) {
     for (let port of Graph.Node.ports(node)) {
       if (IsGenericType(port.type)) {
         var assType = assignedType(port.type, graph)
-        var newPort = _.assign(_.cloneDeep(port), {
+        var newPort = _.assign(_.cloneDeep(_.omit(port, 'type')), {
           type: _.cloneDeep(assType)
         })
         graph = Graph.replacePort(port, newPort, graph)
@@ -105,8 +110,8 @@ export function isFullyTyped (graph) {
   for (const node of Graph.nodesDeep(graph)) {
     for (const port of Graph.Node.ports(node)) {
       if (Utils.IsGenericPort(port)) {
-        console.error(JSON.stringify(port.type, null, 2))
-        console.error(JSON.stringify(graph.assignments))
+        debug('[typify]')(JSON.stringify(port.type, null, 2))
+        debug('[typify]')(JSON.stringify(graph.assignments))
         Utils.Log(JSON.stringify(port.type, null, 2))
         Utils.Log(JSON.stringify(graph.assignments))
         return false

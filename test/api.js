@@ -259,7 +259,6 @@ describe('API tests', () => {
   it('can typify loop problem case', () => {
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/problem.json', 'utf-8'))
     let graph2 = API.TypifyAll(graph1)
-    fs.writeFileSync('./test/fixtures/problem_typified.json', JSON.stringify(graph2, null, 2))
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 
@@ -279,7 +278,6 @@ describe('API tests', () => {
     // (defco main [IO] (print (numToStr (partial (call (lambda [x] (math/add x 2)) 3))) IO))
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/partial.json', 'utf-8'))
     let graph2 = API.TypifyAll(graph1)
-    fs.writeFileSync('./test/fixtures/partial_typified.json', JSON.stringify(graph2, null, 2))
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 

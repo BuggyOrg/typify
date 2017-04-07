@@ -60,6 +60,21 @@ describe('Unification', () => {
       'a': 'String',
       'b': 'Number'
     })
+    const t3 = {
+      name: 'Function', data: [{name: 'arguments', data: ['Number']}, {name: 'returnValues', data: ['Number']}]
+    }
+    const t4 = {
+      data: [
+        {data: ['Number', '...rest'], name: 'arguments'},
+        {data: ['outType'], name: 'returnValues'}
+      ],
+      name: 'Function'
+    }
+    var ass2 = API.UnifyTypes(t3, t4, id)
+    expect(ass2).to.deep.equal({
+      rest: [],
+      outType: 'Number'
+    })
   })
 
   it('Throws an error if the types are not unifyable', () => {
