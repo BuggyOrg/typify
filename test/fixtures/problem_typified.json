@@ -135,7 +135,7 @@
     {
       "metaInformation": {
         "parameters": {
-          "type": "string",
+          "type": "String",
           "value": "a"
         }
       },
@@ -160,7 +160,7 @@
     {
       "metaInformation": {
         "parameters": {
-          "type": "string",
+          "type": "String",
           "value": "b"
         }
       },

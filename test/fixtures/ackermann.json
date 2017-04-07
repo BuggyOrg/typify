@@ -53,7 +53,7 @@
     },
     {
       "metaInformation": {
-        "type": "number",
+        "type": "Number",
         "value": 3
       },
       "settings": {},
@@ -75,7 +75,7 @@
     },
     {
       "metaInformation": {
-        "type": "number",
+        "type": "Number",
         "value": 2
       },
       "settings": {},
@@ -296,7 +296,7 @@
         },
         {
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": 0
           },
           "settings": {},
@@ -319,7 +319,7 @@
         },
         {
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": 1
           },
           "settings": {},
@@ -342,7 +342,7 @@
         },
         {
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": 0
           },
           "settings": {},
@@ -365,7 +365,7 @@
         },
         {
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": -1
           },
           "settings": {},
@@ -388,7 +388,7 @@
         },
         {
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": -1
           },
           "settings": {},
@@ -411,7 +411,7 @@
         },
         {
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": -1
           },
           "settings": {},
@@ -576,7 +576,7 @@
         },
         {
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": 1
           },
           "settings": {},
@@ -1177,7 +1177,7 @@
         {
           "ref": "std/const",
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": 0
           },
           "id": "#ciz7385ag00043mlulcc029ua",
@@ -1199,7 +1199,7 @@
         {
           "ref": "std/const",
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": 1
           },
           "id": "#ciz7385bf00063mludnjmeool",
@@ -1230,7 +1230,7 @@
         {
           "ref": "std/const",
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": 0
           },
           "id": "#ciz7385c800093mlu9t1sydqn",
@@ -1261,7 +1261,7 @@
         {
           "ref": "std/const",
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": -1
           },
           "id": "#ciz7385cu000c3mluy9vxx65v",
@@ -1274,7 +1274,7 @@
         {
           "ref": "std/const",
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": 1
           },
           "id": "#ciz7385dc000d3mlu5pyv8h92",
@@ -1305,7 +1305,7 @@
         {
           "ref": "std/const",
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": -1
           },
           "id": "#ciz7385e5000g3mlungb1p01m",
@@ -1336,7 +1336,7 @@
         {
           "ref": "std/const",
           "metaInformation": {
-            "type": "number",
+            "type": "Number",
             "value": -1
           },
           "id": "#ciz7385fd000j3mlu1ogjd280",

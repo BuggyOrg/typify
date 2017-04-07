@@ -75,6 +75,30 @@ export function TypifyNode () {
 }
 */
 
+export function typifyConstants () {
+  return Rewrite.applyNode(
+    (node, graph) => {
+      if (node.componentId !== 'std/const' || !API.IsGenericType(Node.outputPorts(node)[0].type)) return false
+
+      const assignments = API.UnifyTypes(Node.outputPorts(node)[0].type, Graph.meta(node).parameters.type, graph)
+      const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
+      if (diff.length === 0) {
+        return false
+      } else {
+        return assignments
+      }
+    },
+    (assignments, graph) => {
+      return {
+        ...graph,
+        assignments: {
+          ...graph.assignments,
+          ...assignments
+        }
+      }
+    }, {noIsomorphCheck: true})
+}
+
 export function typifyLambdaInputs () {
   return Rewrite.applyNode(
     (node, graph) => {

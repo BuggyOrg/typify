@@ -39,7 +39,8 @@ export function TypifyAll (graph, iterations = Infinity) {
     // Rewrites.TypifyNode(),
     Rewrites.TypifyEdge(),
     Rewrites.typifyLambdaInputs(),
-    Rewrites.typifyLambdaOutput()
+    Rewrites.typifyLambdaOutput(),
+    Rewrites.typifyConstants()
     // Rewrites.TypifyRecursion()
   ], iterations)(graph)
   graph = applyAssignments(graph)
@@ -104,6 +105,8 @@ export function isFullyTyped (graph) {
   for (const node of Graph.nodesDeep(graph)) {
     for (const port of Graph.Node.ports(node)) {
       if (Utils.IsGenericPort(port)) {
+        console.error(JSON.stringify(port.type, null, 2))
+        console.error(JSON.stringify(graph.assignments))
         Utils.Log(JSON.stringify(port.type, null, 2))
         Utils.Log(JSON.stringify(graph.assignments))
         return false
