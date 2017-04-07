@@ -2,10 +2,9 @@
 import * as Graph from '@buggyorg/graphtools'
 import * as Rewrite from '@buggyorg/rewrite'
 import * as Unify from './unify'
+import * as Rewrites from './rewrites'
+import * as Utils from './utils'
 import _ from 'lodash'
-
-const Rewrites = require('./rewrites.js')
-const Utils = require('./utils.js')
 
 function postfixGenericType (type, postfix) {
   if (typeof (type) === 'string' && Unify.isGenericTypeName(type)) {
@@ -39,6 +38,7 @@ export function TypifyAll (graph, iterations = Infinity) {
   graph = Rewrite.rewrite([
     // Rewrites.TypifyNode(),
     Rewrites.TypifyEdge(),
+    Rewrites.typifyLambdaInputs(),
     Rewrites.typifyLambdaOutput()
     // Rewrites.TypifyRecursion()
   ], iterations)(graph)
@@ -104,8 +104,8 @@ export function isFullyTyped (graph) {
   for (const node of Graph.nodesDeep(graph)) {
     for (const port of Graph.Node.ports(node)) {
       if (Utils.IsGenericPort(port)) {
-        console.log(JSON.stringify(port.type, null, 2))
-        console.log(JSON.stringify(graph.assignments))
+        Utils.Log(JSON.stringify(port.type, null, 2))
+        Utils.Log(JSON.stringify(graph.assignments))
         return false
       }
     }

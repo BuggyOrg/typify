@@ -75,6 +75,37 @@ export function TypifyNode () {
 }
 */
 
+export function typifyLambdaInputs () {
+  return Rewrite.applyNode(
+    (node, graph) => {
+      if (!Lambda.isValid(node)) return false
+      const out = Node.outputPorts(node)[0]
+      if (!API.IsGenericType(out.type)) return false
+      const impl = Lambda.implementation(node)
+      const implPorts = Node.inputPorts(impl)  
+      const lambdaArgs = Lambda.typeArguments(out.type)
+      if (implPorts.length !== lambdaArgs.length) {
+        throw new Error('Function type does not match the given lambda implementation for: ' + Node.id(node))
+      }
+      const assignments = _.zip(implPorts, lambdaArgs)
+        .reduce((ass, [port, type]) => {
+          if (!API.areUnifyable(port.type, type, graph)) return ass
+          return Object.assign(ass, API.UnifyTypes(type, port.type, graph))
+        }, {})
+      const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
+      if (diff.length === 0) {
+        return false
+      } else {
+        return [node, assignments]
+      }
+    },
+    ([node, assignments], graph) => {
+      return _.merge(_.cloneDeep(graph), {assignments})
+    },
+    {noIsomorphCheck: true}
+  )
+}
+
 export function typifyLambdaOutput () {
   return Rewrite.applyNode(
     (node, graph) => {
