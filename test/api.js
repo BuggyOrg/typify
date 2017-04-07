@@ -275,6 +275,13 @@ describe('API tests', () => {
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 
+  it('can typify partial example', () => {
+    // (defco main [IO] (print (numToStr (partial (call (lambda [x] (math/add x 2)) 3))) IO))
+    let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/partial.json', 'utf-8'))
+    let graph2 = API.TypifyAll(graph1)
+    expect(API.isFullyTyped(graph2)).to.be.true
+  })
+
   it('can propagate rest params', () => {
     const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
     const t = API.assignedType({name: 'A', data: ['Number', '...rest']}, protoGraph)
