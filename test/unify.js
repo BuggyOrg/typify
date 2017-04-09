@@ -120,4 +120,34 @@ describe('Unification', () => {
     const ass2 = API.UnifyTypes(t2, t1, id)
     expect(ass2['rest']).to.eql(['String', 'Boolean'])
   })
+
+  it('can extract the name of the generic', () => {
+    expect(API.genericName('a.#123')).to.equal('a')
+  })
+
+  describe('.typeNames', () => {
+    it('returns an empty array for a non generic type', () => {
+      expect(API.typeNames('Number')).to.eql([])
+    })
+
+    it('returns an array for a simple type name', () => {
+      expect(API.typeNames('a')).to.eql(['a'])
+    })
+
+    it('extracts the generic type names in an complex type', () => {
+      expect(API.typeNames({name: 'A', data: ['x']})).to.eql(['x'])
+      expect(API.typeNames({name: 'A', data: ['x', 'Y']})).to.eql(['x'])
+      expect(API.typeNames({name: 'A', data: ['String', 'Y']})).to.eql([])
+    })
+
+    it('can extract multiple type names in a complex type', () => {
+      expect(API.typeNames({name: 'A', data: ['x', 'y']})).to.eql(['x', 'y'])
+      expect(API.typeNames({name: 'A', data: [{name: 'B', data: ['x', 'Number']}, 'y']})).to.eql(['x', 'y'])
+    })
+
+    it('can extract rest params', () => {
+      expect(API.typeNames({name: 'A', data: ['...x']})).to.eql(['x'])
+      expect(API.typeNames({name: 'A', data: 'rest'})).to.eql(['rest'])
+    })
+  })
 })

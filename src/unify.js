@@ -28,6 +28,17 @@ function IsLowerCase (c) {
   return c === c.toLowerCase()
 }
 
+export function genericName (t) {
+  return t.split('.')[0]
+}
+
+export function typeNames (t) {
+  if (!IsGenericType(t)) return []
+  if (isGenericTypeName(t)) return [typeName(t)]
+  if (typeof (t.data) === 'string') return [typeName(t.data)]
+  else return _.flatten(t.data.map(typeNames))
+}
+
 export function areUnifyable (t1, t2, assignedType) {
   try {
     UnifyTypes(t1, t2, assignedType)

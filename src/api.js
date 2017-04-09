@@ -56,10 +56,6 @@ export function assignedType (type, graph) {
     if (typeof (type.data) === 'string') {
       return Object.assign({}, _.omit(type, 'data'), {data: assignedType(type.data, graph)})
     } else {
-      if (type.data.length === 2 && typeof (type.data[1]) === 'string' && type.data[1].slice(0, 3) === '...') {
-//        console.log(type.data[1])
-//        console.log({data: _.flatten(type.data.map((t) => assignedType(t, graph)))})
-      }
       return Object.assign({}, _.omit(type, 'data'), {data: _.flatten(type.data.map((t) => assignedType(t, graph)))})
     }
   } else {
@@ -67,10 +63,18 @@ export function assignedType (type, graph) {
   }
 }
 
+function typeNames (node) {
+  return _.uniq(_.flatten(Graph.Node.ports(node)
+    .map((p) => Unify.typeNames(p.type))))
+}
+
 function applyAssignments (graph) {
   if (!graph) throw new Error('no graph')
   if (!graph.assignments) return graph // nothing to apply
   for (let node of Graph.nodesDeep(graph)) {
+    graph = Graph.flow(typeNames(node).map((t) =>
+      (graph) => Graph.updateNodeMetaKey('parameters.typings.' + t, assignedType(t, graph), node, graph))
+    )(graph)
     for (let port of Graph.Node.ports(node)) {
       if (IsGenericType(port.type)) {
         var assType = assignedType(port.type, graph)
