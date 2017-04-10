@@ -73,7 +73,7 @@ function applyAssignments (graph) {
   if (!graph.assignments) return graph // nothing to apply
   for (let node of Graph.nodesDeep(graph)) {
     graph = Graph.flow(typeNames(node).map((t) =>
-      (graph) => Graph.updateNodeMetaKey('parameters.typings.' + t, assignedType(t, graph), node, graph))
+      (graph) => Graph.updateNodeMetaKey('parameters.typings.' + Unify.genericName(t), assignedType(t, graph), node, graph))
     )(graph)
     for (let port of Graph.Node.ports(node)) {
       if (IsGenericType(port.type)) {
