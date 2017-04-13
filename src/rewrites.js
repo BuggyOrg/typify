@@ -106,7 +106,7 @@ export function typifyLambdaInputs () {
       const out = Node.outputPorts(node)[0]
       if (!API.IsGenericType(out.type)) return false
       const impl = Lambda.implementation(node)
-      const implPorts = Node.inputPorts(impl)  
+      const implPorts = Node.inputPorts(impl)
       const lambdaArgs = Lambda.typeArguments(out.type)
       if (implPorts.length !== lambdaArgs.length) {
         throw new Error('Function type does not match the given lambda implementation for: ' + Node.id(node))

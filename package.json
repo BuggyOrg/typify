@@ -8,8 +8,8 @@
   },
   "scripts": {
     "test": "mocha --no-timeouts --compilers js:babel-register",
-    "build": "babel src -d lib",
-    "prepublish": "babel src -d lib"
+    "build": "rm -rf lib && babel src -d lib",
+    "prepublish": "rm -rf lib && babel src -d lib"
   },
   "author": "Maximilian Klein",
   "license": "MIT",
@@ -23,7 +23,7 @@
     "standard": "^6.0.8"
   },
   "dependencies": {
-    "@buggyorg/graphtools": "^0.4.0-pre.31",
+    "@buggyorg/graphtools": "^0.4.0-pre.33",
     "@buggyorg/rewrite": "^0.2.8",
     "cli-ext": "^1.1.0",
     "debug": "^2.6.0",

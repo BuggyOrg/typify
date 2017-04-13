@@ -17,9 +17,9 @@ cliExt.input(process.argv[2])
   if (!isFullyTyped(typifiedGraph)) {
     console.error('[Typify] Could not typify the given graph.')
     process.exitCode = 1
+  } else {
+    console.log(JSON.stringify(typifiedGraph, null, 2))
   }
-
-  console.log(JSON.stringify(typifiedGraph, null, 2))
 })
 .catch((err) => {
   console.error(err.stack || err)

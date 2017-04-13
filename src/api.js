@@ -51,7 +51,11 @@ export function TypifyAll (graph, iterations = Infinity) {
 export function assignedType (type, graph) {
   const tName = Unify.typeName(type)
   if (Unify.isGenericTypeName(type) && tName in (graph.assignments || {})) {
-    return graph.assignments[tName]
+    if (typeof (graph.assignments[tName]) === 'string') {
+      return graph.assignments[tName]
+    } else {
+      return graph.assignments[tName].map((a) => assignedType(a, graph))
+    }
   } else if (typeof (type) === 'object') {
     if (typeof (type.data) === 'string') {
       return Object.assign({}, _.omit(type, 'data'), {data: assignedType(type.data, graph)})
@@ -114,8 +118,9 @@ export function isFullyTyped (graph) {
   for (const node of Graph.nodesDeep(graph)) {
     for (const port of Graph.Node.ports(node)) {
       if (Utils.IsGenericPort(port)) {
-        debug('[typify]')(JSON.stringify(port.type, null, 2))
-        debug('[typify]')(JSON.stringify(graph.assignments))
+        debug('typify')(JSON.stringify(port.type, null, 2))
+        debug('typify')(JSON.stringify(graph.assignments, null, 2))
+        Graph.debug(Graph.setNodeMetaKey('style.color', 'red', port.node, graph))
         Utils.Log(JSON.stringify(port.type, null, 2))
         Utils.Log(JSON.stringify(graph.assignments))
         return false

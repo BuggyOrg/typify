@@ -281,18 +281,44 @@ describe('API tests', () => {
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 
-  it('can propagate rest params', () => {
-    const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
-    const t = API.assignedType({name: 'A', data: ['Number', '...rest']}, protoGraph)
-    expect(t.data).to.have.length(3)
-    expect(t.data).to.eql(['Number', 'String', 'Boolean'])
-  })
+  describe('.assignedType', () => {
+    it('can propagate rest params', () => {
+      const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
+      const t = API.assignedType({name: 'A', data: ['Number', '...rest']}, protoGraph)
+      expect(t.data).to.have.length(3)
+      expect(t.data).to.eql(['Number', 'String', 'Boolean'])
+    })
 
-  it('can propagate rest params as arrays', () => {
-    const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
-    const t = API.assignedType({name: 'A', data: 'rest'}, protoGraph)
-    expect(t.data).to.have.length(2)
-    expect(t.data).to.eql(['String', 'Boolean'])
+    it('can propagate rest params as arrays', () => {
+      const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
+      const t = API.assignedType({name: 'A', data: 'rest'}, protoGraph)
+      expect(t.data).to.have.length(2)
+      expect(t.data).to.eql(['String', 'Boolean'])
+    })
+
+    it('can assign types in functions', () => {
+      const fnType = {
+        name: 'Function',
+        data: [
+          {
+            name: 'arguments',
+            data: [
+              'Number',
+              'generic.#cj1gcsh7z001sealuh81gi7y8'
+            ]
+          },
+          {
+            name: 'returnValues',
+            data: [
+              'Number'
+            ]
+          }
+        ]
+      }
+      expect(API.IsGenericType(fnType)).to.be.true
+      const aType = API.assignedType(fnType, {assignments: {'generic.#cj1gcsh7z001sealuh81gi7y8': 'Number'}})
+      expect(aType.data[0].data[1]).to.equal('Number')
+    })
   })
 
   xit('can typify ackermann function', () => {
