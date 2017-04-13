@@ -296,28 +296,11 @@ describe('API tests', () => {
       expect(t.data).to.eql(['String', 'Boolean'])
     })
 
-    it('can assign types in functions', () => {
-      const fnType = {
-        name: 'Function',
-        data: [
-          {
-            name: 'arguments',
-            data: [
-              'Number',
-              'generic.#cj1gcsh7z001sealuh81gi7y8'
-            ]
-          },
-          {
-            name: 'returnValues',
-            data: [
-              'Number'
-            ]
-          }
-        ]
-      }
-      expect(API.IsGenericType(fnType)).to.be.true
-      const aType = API.assignedType(fnType, {assignments: {'generic.#cj1gcsh7z001sealuh81gi7y8': 'Number'}})
-      expect(aType.data[0].data[1]).to.equal('Number')
+    it('can assign types recursively', () => {
+      const type = {name: 'A', data: ['a']}
+      const assignments = {a: ['b'], b: 'Number'}
+      const resType = API.assignedType(type, {assignments})
+      expect(resType.data[0]).to.equal('Number')
     })
   })
 
