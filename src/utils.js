@@ -5,8 +5,7 @@ import debug from 'debug'
 const API = require('./api.js')
 
 export function Log (line) {
-  debug('[typify]', line)
-  // console.log(line)
+  debug('typify')(line)
 }
 
 export function IsGenericPort (port) {
