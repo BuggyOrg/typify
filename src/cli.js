@@ -6,6 +6,7 @@ import {TypifyAll, isFullyTyped} from './api'
 cliExt.input(process.argv[2])
 .then((graphStr) => {
   var graph
+  const iter = process.argv[3] || Infinity
   try {
     graph = JSON.parse(graphStr)
   } catch (err) {
@@ -13,10 +14,13 @@ cliExt.input(process.argv[2])
     process.exitCode = 1
     return
   }
-  const typifiedGraph = TypifyAll(graph)
+  const typifiedGraph = TypifyAll(graph, iter)
   if (!isFullyTyped(typifiedGraph)) {
     console.error('[Typify] Could not typify the given graph.')
     process.exitCode = 1
+    if (iter !== Infinity) {
+      console.log(JSON.stringify(typifiedGraph, 2))
+    }
   } else {
     console.log(JSON.stringify(typifiedGraph, null, 2))
   }
