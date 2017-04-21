@@ -114,19 +114,34 @@ export function UnifyTypes (t1, t2, graph) {
   return Unify.UnifyTypes(t1, t2, (type) => assignedType(type, graph))
 }
 
+function typeName (type) {
+  if (typeof (type) === 'string') return type
+  if (type.type === 'Function' || type.name === 'Function') {
+    return 'Function(' + type.data[0].data.map(typeName).join(', ') + ' → ' + type.data[1].data.map(typeName).join(', ') + ')'
+  } else return typeName(type.type || type.name || 'complex...')
+}
+
 export function isFullyTyped (graph) {
+  var typed = true
+  var newGraph = graph
+  const debugging = !!process.env.DEBUG
   for (const node of Graph.nodesDeep(graph)) {
     for (const port of Graph.Node.ports(node)) {
       if (Utils.IsGenericPort(port)) {
-        debug('typify')(JSON.stringify(port.type, null, 2))
-        debug('typify')(JSON.stringify(graph.assignments, null, 2))
-        Graph.debug(Graph.setNodeMetaKey('style.color', 'red', port.node, graph))
         Utils.Log(JSON.stringify(port.type, null, 2))
         Utils.Log(JSON.stringify(graph.assignments))
-        return false
+        typed = false
       }
     }
+    if (debugging) {
+      const Node = Graph.Node
+      var n = _.cloneDeep(node)
+      n.componentId = Node.inputPorts(n).map((p) => typeName(p.type)).join(', ') +
+        '\\n – ' + Node.outputPorts(n).map((p) => typeName(p.type))
+      newGraph = Graph.replaceNode(n.id, n, newGraph)
+    }
   }
-  return true
+  debug('typify')('debug-graph ' + JSON.stringify(newGraph))
+  return typed
 }
 
