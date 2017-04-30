@@ -4,7 +4,8 @@
   "description": "Applies a type scheme to a weakly typed buggy graph.",
   "main": "lib/api.js",
   "bin": {
-    "buggy-typify": "lib/cli.js"
+    "buggy-typify": "lib/cli.js",
+    "buggy-typify-relabel": "lib/cliDebug.js"
   },
   "scripts": {
     "test": "mocha --no-timeouts --compilers js:babel-register",

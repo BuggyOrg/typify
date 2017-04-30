@@ -118,6 +118,8 @@ function typeName (type) {
   if (typeof (type) === 'string') return type
   if (type.type === 'Function' || type.name === 'Function') {
     return 'Function(' + type.data[0].data.map(typeName).join(', ') + ' → ' + type.data[1].data.map(typeName).join(', ') + ')'
+  } else if (type.name && type.data) {
+    return type.name + '<' + type.data.map(typeName).join(', ') + '>'
   } else return typeName(type.type || type.name || 'complex...')
 }
 
@@ -135,13 +137,22 @@ export function isFullyTyped (graph) {
     }
     if (debugging) {
       const Node = Graph.Node
-      var n = _.cloneDeep(node)
+      var n = Graph.node(node.id, newGraph)
       n.componentId = Node.inputPorts(n).map((p) => typeName(p.type)).join(', ') +
         '\\n – ' + Node.outputPorts(n).map((p) => typeName(p.type))
       newGraph = Graph.replaceNode(n.id, n, newGraph)
     }
   }
-  debug('typify')('debug-graph ' + JSON.stringify(newGraph))
   return typed
 }
 
+export function relabelToTypes (graph) {
+  for (const node of Graph.nodesDeep(graph)) {
+    const Node = Graph.Node
+    var n = Graph.node(node.id, graph)
+    n.componentId = Node.inputPorts(n).map((p) => typeName(p.type)).join(', ') +
+      '\\n – ' + Node.outputPorts(n).map((p) => typeName(p.type))
+    graph = Graph.replaceNode(n.id, n, graph)
+  }
+  return graph
+}
