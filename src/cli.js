@@ -22,6 +22,8 @@ cliExt.input(process.argv[2])
       console.log(JSON.stringify(typifiedGraph, 2))
     }
   } else {
+    typifiedGraph.metaInformation.toolChain = typifiedGraph.metaInformation.toolChain || []
+    typifiedGraph.metaInformation.toolChain.push('typify')
     console.log(JSON.stringify(typifiedGraph, null, 2))
   }
 })

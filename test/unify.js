@@ -92,6 +92,17 @@ describe('Unification', () => {
     expect(() => API.UnifyTypes(t1, t2, id)).to.throw(Error, /Function/)
   })
 
+  it('Does not unify complex types with type names', () => {
+    let t1 = 'genericArray'
+    let t2 = {name: 'Array', data: ['generictype']}
+    let t3 = {name: 'Array', data: [{name: 'Inner', data: ['gen']}]}
+    let t4 = {name: 'Array', data: [{name: 'Inner', data: ['Number']}]}
+    expect(API.areUnifyable(t1, t2, id)).to.be.false
+    expect(API.areUnifyable(t1, t3, id)).to.be.false
+    expect(API.areUnifyable(t2, t3, id)).to.be.false
+    expect(API.areUnifyable(t2, t4, id)).to.be.true
+  })
+
   it('Complains if the type name differs', () => {
     let t1 = {
       data: ['Number', 'Number'],

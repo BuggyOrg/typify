@@ -118,8 +118,14 @@ export function UnifyTypes (t1b, t2b, assignedType) {
     if (t1 !== t2) throw new Error('Types are not unifyable: "' + JSON.stringify(t1) + '" and "' + JSON.stringify(t2) + '"')
     return assignments
   } else {
-    if (g1) assignments[t1.name || t1] = _.cloneDeep(t2)
-    if (g2) assignments[t2.name || t2] = _.cloneDeep(t1)
+    if (g1) {
+      if (IsGenericType(t2)) throw new Error('Cannot unify generic type with complex generic type: ' + JSON.stringify(t2))
+      assignments[t1.name || t1] = _.cloneDeep(t2)
+    }
+    if (g2) {
+      if (IsGenericType(t1)) throw new Error('Cannot unify generic type with complex generic type: ' + JSON.stringify(t1))
+      assignments[t2.name || t2] = _.cloneDeep(t1)
+    }
     return assignments
   }
   // if (typeof t1 !== 'string') t1.assignments = assignments.concat(t1.assignment)

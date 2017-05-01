@@ -51,7 +51,7 @@ export function TypifyAll (graph, iterations = Infinity) {
 export function assignedType (type, graph) {
   const tName = Unify.typeName(type)
   if (Unify.isGenericTypeName(type) && tName in (graph.assignments || {})) {
-    if (typeof (graph.assignments[tName]) === 'string') {
+    if (!Array.isArray(graph.assignments[tName])) {
       return graph.assignments[tName]
     } else {
       return graph.assignments[tName].map((a) => assignedType(a, graph))
