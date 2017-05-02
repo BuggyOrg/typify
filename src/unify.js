@@ -88,15 +88,16 @@ export function UnifyTypes (t1b, t2b, assignedType) {
       if (t1 !== t2) throw new Error('Types are not unifyable: "' + t1 + '" and "' + t2 + '"')
       return {}
     }
-    // if (t1.name !== t2.name) throw new Error('type unification error: ' + t1.name + ' has a different name than ' + t2.name)
-    let f1 = t1.data
-    let f2 = t2.data
     if (t1.name !== t2.name) {
       throw new Error('Type names do not match for "' + t1.name + '" and "' + t2.name + '"')
     }
+    let f1 = t1.data
+    let f2 = t2.data
     let ff1 = _.takeWhile(f1, (d) => !isRest(d))
     let ff2 = _.takeWhile(f2, (d) => !isRest(d))
-    if (f1.length === ff1.length && f2.length === ff2.length && ff1.length !== ff2.length) throw new Error('type unification error: number of fields differ')
+    if (f1.length === ff1.length && f2.length === ff2.length && ff1.length !== ff2.length) {
+      throw new Error('type unification error: number of fields differ')
+    }
     const minLen = Math.min(ff1.length, ff2.length)
     for (let i = 0; i < minLen; ++i) {
       try {
@@ -113,10 +114,11 @@ export function UnifyTypes (t1b, t2b, assignedType) {
       if (!isRest(f2[ff2.length])) throw new Error('Expected rest param but found: ' + f1[ff2.length])
       assignments[restName(f2[ff2.length])] = _.drop(f1, ff2.length)
     }
-    return assignments
   } else if (g1 && g2) {
-    if (t1 !== t2) throw new Error('Types are not unifyable: "' + JSON.stringify(t1) + '" and "' + JSON.stringify(t2) + '"')
-    return assignments
+    //if (t1 !== t2) throw new Error('Types are not unifyable: "' + JSON.stringify(t1) + '" and "' + JSON.stringify(t2) + '"')
+    if(!_.isEqual(t1, t2)) {
+      throw new Error('Types are not unifyable: "' + JSON.stringify(t1) + '" and "' + JSON.stringify(t2) + '"')
+    }
   } else {
     if (g1) {
       if (IsGenericType(t2)) throw new Error('Cannot unify generic type with complex generic type: ' + JSON.stringify(t2))
@@ -126,8 +128,8 @@ export function UnifyTypes (t1b, t2b, assignedType) {
       if (IsGenericType(t1)) throw new Error('Cannot unify generic type with complex generic type: ' + JSON.stringify(t1))
       assignments[t2.name || t2] = _.cloneDeep(t1)
     }
-    return assignments
   }
+  return assignments
   // if (typeof t1 !== 'string') t1.assignments = assignments.concat(t1.assignment)
   // if (typeof t2 !== 'string') t2.assignments = assignments.concat(t2.assignment)
 }

@@ -21,6 +21,8 @@ describe('Unification', () => {
   it('Identifies non-unifyable types', () => {
     expect(API.areUnifyable('A', 'B', id)).to.be.false
     expect(API.areUnifyable('b', 'a', id)).to.be.false
+    expect(API.areUnifyable('a', 'b', (varname) => (varname === 'a') ? 'Apple' : 'Orange')).to.be.false
+    expect(API.areUnifyable('a', 'b', (varname) => (varname === 'a') ? 'Apple' : 'o')).to.be.true
   })
 
   it('Identifies not fully typed complex types', () => {
@@ -77,6 +79,51 @@ describe('Unification', () => {
     })
   })
 
+  it('can detect unification errors in complex function types I', () => {
+    const t1 = {
+      data: [{name: 'Arguments', data: ['a', 'Number']}, {name: 'Returns', data: ['Orange']}],
+      name: 'Function'
+    }
+    const t2 = {
+      data: [{name: 'Arguments', data: ['String', 'b']}, {name: 'Returns', data: ['b']}],
+      name: 'Function'
+    }
+    // can unify iff Number = b = Orange, but Number =/= Orange
+    expect(API.UnifyTypes(t1, t2, id)).to.throw
+  })
+
+  it('can detect unification errors in complex function types II', () => {
+    const t1 = {
+      name: 'Function',
+      data: [
+        {
+          name: 'arguments',
+          data: ['Number']
+        }, {
+          name: 'returnValues',
+          data: ['Number']
+        }
+      ]
+    }
+    const t2 = {
+      data: [
+        {
+          name: 'arguments',
+          data: ['Number', '...rest']
+        }, {
+          name: 'returnValues',
+          data: ['outType']
+        }
+      ],
+      name: 'Function'
+    }
+    expect(API.UnifyTypes(t1, t2, id)).to.deep.equal({
+      rest: [], outType: 'Number'
+    })
+    t2.data.data = ['Number', 'X', '...rest']
+    expect(API.UnifyTypes(t1, t2, id)).to.throw
+  })
+
   it('Throws an error if the types are not unifyable', () => {
     let t1 = {
       data: [{name: 'Arguments', data: ['a', 'Number']}, {name: 'Returns', data: ['Number']}],
@@ -86,10 +133,10 @@ describe('Unification', () => {
       data: [{name: 'Arguments', data: ['String', 'String']}, {name: 'Returns', data: ['b']}],
       name: 'Function'
     }
+    expect(() => API.UnifyTypes(t1, t2, id)).to.throw(Error, /Function/)
+    expect(() => API.UnifyTypes(t1, t2, id)).to.throw(Error, /Arguments/)
     expect(() => API.UnifyTypes(t1, t2, id)).to.throw(Error, /Number/)
     expect(() => API.UnifyTypes(t1, t2, id)).to.throw(Error, /String/)
-    expect(() => API.UnifyTypes(t1, t2, id)).to.throw(Error, /Arguments/)
-    expect(() => API.UnifyTypes(t1, t2, id)).to.throw(Error, /Function/)
   })
 
   it('Does not unify complex types with type names', () => {
@@ -97,10 +144,16 @@ describe('Unification', () => {
     let t2 = {name: 'Array', data: ['generictype']}
     let t3 = {name: 'Array', data: [{name: 'Inner', data: ['gen']}]}
     let t4 = {name: 'Array', data: [{name: 'Inner', data: ['Number']}]}
+
     expect(API.areUnifyable(t1, t2, id)).to.be.false
+
     expect(API.areUnifyable(t1, t3, id)).to.be.false
     expect(API.areUnifyable(t2, t3, id)).to.be.false
+
+    expect(API.areUnifyable(t1, t4, id)).to.be.true
     expect(API.areUnifyable(t2, t4, id)).to.be.true
+    expect(API.areUnifyable(t3, t4, id)).to.be.true
+
   })
 
   it('Complains if the type name differs', () => {

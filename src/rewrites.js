@@ -40,6 +40,19 @@ export function TypifyEdge () {
       }, {noIsomorphCheck: true})
 }
 
+export function checkEdge () {
+  return Rewrite.applyEdge(
+    (edge, graph) => {
+      API.UnifyTypes(edge.from.type, edge.to.type, graph)
+      return [null, graph]
+    },
+    (_, graph) => {
+      return graph
+    },
+    { noIsomorphCheck: true }
+  )
+}
+
 
 /**
  * Generates a graph rewriter that typifies all atomic nodes (ie. make all input and outputs of the same type)

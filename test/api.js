@@ -312,3 +312,28 @@ describe('API tests', () => {
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 })
+
+
+describe('Error propagation tests', () => {
+    it('can detect non-unifiable edges', () => {
+      const g1 = Graph.flow(
+        Graph.addNode({
+          name: 'a',
+          ports: [
+            { port: 'p1', kind: 'output', type: 'Number' },
+            { port: 'p2', kind: 'output', type: 'generic' }
+          ]
+        }),
+        Graph.addNode({
+          name: 'b',
+          ports: [
+            { port: 'p3', kind: 'input', type: 'generic' },
+            { port: 'p4', kind: 'input', type: 'generic' }
+          ]
+        }),
+        Graph.addEdge({ from: 'a@p1', to: 'b@p4' }),
+        Graph.addEdge({ from: 'a@p2', to: 'b@p3' })
+      )()
+      expect(API.TypifyAll(g1)).not.to.throw
+    })
+})
