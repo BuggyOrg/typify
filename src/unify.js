@@ -93,8 +93,10 @@ export function UnifyTypes (t1b, t2b, assignedType) {
     }
     let f1 = t1.data
     let f2 = t2.data
-    let ff1 = _.takeWhile(f1, (d) => !isRest(d))
-    let ff2 = _.takeWhile(f2, (d) => !isRest(d))
+    let ff1 = (typeof (f1) === 'string') ? [] : _.takeWhile(f1, (d) => !isRest(d))
+    // let ff1 = _.takeWhile(f1, (d) => !isRest(d))
+    // let ff2 = _.takeWhile(f2, (d) => !isRest(d))
+    let ff2 = (typeof (f2) === 'string') ? [] : _.takeWhile(f2, (d) => !isRest(d))
     if (f1.length === ff1.length && f2.length === ff2.length && ff1.length !== ff2.length) {
       throw new Error('type unification error: number of fields differ')
     }
@@ -106,11 +108,15 @@ export function UnifyTypes (t1b, t2b, assignedType) {
         throw new Error(t1.name + '[' + i + ']>' + err.message)
       }
     }
-    if (ff1.length < f1.length) {
+    if (typeof (f1) === 'string') {
+      assignments[f1] = f2
+    } else if (ff1.length < f1.length) {
       if (!isRest(f1[ff1.length])) throw new Error('Expected rest param but found: ' + f1[ff1.length])
       assignments[restName(f1[ff1.length])] = _.drop(f2, ff1.length)
     }
-    if (ff2.length < f2.length) {
+    if (typeof (f2) === 'string') {
+      assignments[f2] = f1
+    } else if (ff2.length < f2.length) {
       if (!isRest(f2[ff2.length])) throw new Error('Expected rest param but found: ' + f1[ff2.length])
       assignments[restName(f2[ff2.length])] = _.drop(f1, ff2.length)
     }

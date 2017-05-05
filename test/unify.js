@@ -124,6 +124,55 @@ describe('Unification', () => {
     expect(API.UnifyTypes(t1, t2, id)).to.throw
   })
 
+  it.only('can unify empty arrays with rest params', () => {
+    const t1 = {
+      name: 'Function',
+      data: [
+        {
+          name: 'arguments',
+          data: []
+        }, {
+          name: 'returnValues',
+          data: ['Number']
+        }
+      ]
+    }
+    const t2 = {
+      data: [
+        {
+          name: 'arguments',
+          data: ['...rest']
+        }, {
+          name: 'returnValues',
+          data: ['outType']
+        }
+      ],
+      name: 'Function'
+    }
+    const t3 = {
+      data: [
+        {
+          name: 'arguments',
+          data: 'rest'
+        }, {
+          name: 'returnValues',
+          data: ['outType']
+        }
+      ],
+      name: 'Function'
+    }
+    expect(API.UnifyTypes(t1, t2, id)).to.deep.equal({
+      rest: [], outType: 'Number'
+    })
+    expect(API.UnifyTypes(t1, t3, id)).to.deep.equal({
+      rest: [], outType: 'Number'
+    })
+    expect(API.UnifyTypes(t2, t1, id)).to.deep.equal({
+      rest: [], outType: 'Number'
+    })
+    expect(API.areUnifyable(t1, t2, id)).to.be.true
+  })
+
   it('Throws an error if the types are not unifyable', () => {
     let t1 = {
       data: [{name: 'Arguments', data: ['a', 'Number']}, {name: 'Returns', data: ['Number']}],
