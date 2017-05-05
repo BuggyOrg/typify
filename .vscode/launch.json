@@ -11,7 +11,7 @@
       "protocol": "inspector",
       "program": "${workspaceRoot}/.vscode/debug.js",
       "cwd": "${workspaceRoot}",
-      "args": ["res.json"],
+      "args": ["fib.json"],
       "env": {
         "NODE_ENV": "development"
       },

@@ -123,7 +123,18 @@ export function UnifyTypes (t1, t2, graph) {
 function typeName (type) {
   if (typeof (type) === 'string') return type
   if (type.type === 'Function' || type.name === 'Function') {
-    return 'Function(' + type.data[0].data.map(typeName).join(', ') + ' → ' + type.data[1].data.map(typeName).join(', ') + ')'
+    var inputs, outputs
+    if (!type.data || !type.data[0] || !Array.isArray(type.data[0].data)) {
+      inputs = '?'
+    } else {
+      inputs = type.data[0].data.map(typeName).join(', ')
+    }
+    if (!type.data || !type.data[1] || !Array.isArray(type.data[1].data)) {
+      outputs = '?'
+    } else {
+      outputs = type.data[1].data.map(typeName).join(', ')
+    }
+    return 'Function(' + inputs + ' → ' + outputs + ')'
   } else if (type.name && type.data) {
     return type.name + '<' + type.data.map(typeName).join(', ') + '>'
   } else return typeName(type.type || type.name || 'complex...')
