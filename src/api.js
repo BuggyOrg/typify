@@ -5,12 +5,16 @@ import * as Unify from './unify'
 import * as Rewrites from './rewrites'
 import * as Utils from './utils'
 import _ from 'lodash'
-import debug from 'debug'
+// import debug from 'debug'
 
 function postfixGenericType (type, postfix) {
   if (typeof (type) === 'string' && Unify.isGenericTypeName(type)) {
     return type + postfix
   } else if (typeof (type) === 'object') {
+    /* TODO Volker 170505
+    i.A. sollte type.data eine Liste sein und nicht selbst ein String
+    aber im partial test is type.data === "rest"
+    */
     if (typeof (type.data) === 'string') {
       return Object.assign({}, type, {data: postfixGenericType(type.data, postfix)})
     }
@@ -49,8 +53,10 @@ export function TypifyAll (graph, iterations = Infinity) {
 }
 
 export function assignedType (type, graph) {
+  if (!graph) throw new Error('no graph')
+  if (!graph.assignments) return type
   const tName = Unify.typeName(type)
-  if (Unify.isGenericTypeName(type) && tName in (graph.assignments || {})) {
+  if (Unify.isGenericTypeName(type) && tName in graph.assignments) {
     if (!Array.isArray(graph.assignments[tName])) {
       return graph.assignments[tName]
     } else {
