@@ -24,8 +24,8 @@
     "standard": "^6.0.8"
   },
   "dependencies": {
-    "@buggyorg/graphtools": "^0.4.0-pre.34",
-    "@buggyorg/rewrite": "^0.2.8",
+    "@buggyorg/graphtools": "^0.4.0-pre.37",
+    "@buggyorg/rewrite": "^0.2.10",
     "cli-ext": "^1.1.0",
     "debug": "^2.6.0",
     "graphlib": "^2.1.0",

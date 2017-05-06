@@ -181,59 +181,29 @@ export function typifyLambdaOutput () {
 export function TypifyRecursion () {
   return Rewrite.applyEdge(
       (edge, graph) => {
-        if (!edge.source.isRecursive) return false
-        if (!edge.target.isRecursive) return false
-        var ref = _.find([edge.source, edge.target], (n) => !n.isRecursiveRoot)
+        if (edge.layer !== 'recursion') return false
+        var ref = _.find([edge.source, edge.target], (n) => !n.settings.recursiveRoot)
         if (!ref) return false
-        var root = _.find([edge.source, edge.target], (n) => n.isRecursiveRoot)
+        var root = _.find([edge.source, edge.target], (n) => n.settings.recursiveRoot)
         if (!root) return false
         var ports = _.intersectionBy([
           Graph.Node.ports(ref),
           Graph.Node.ports(root)],
           (p) => p.port)[0]
         if (_.every(ports, (p) => !API.IsGenericType(p.type))) return false
-        ports = _.filter(ports, (p) => {
+        const assignments = ports.reduce((ass, p) => {
           var refPort = Graph.Node.port(p.port, ref)
-          if (!refPort) return false
           var rootPort = Graph.Node.port(p.port, root)
-          if (!rootPort) return false
-          if (API.IsGenericType(refPort.type) === API.IsGenericType(rootPort.type)) return false
-          if (API.IsGenericType(rootPort.type)) {
-            return _.assign(p, {
-              type: _.cloneDeep(refPort.type)
-            })
-          } else {
-            return _.assign(p, {
-              type: _.cloneDeep(rootPort.type)
-            })
-          }
+          return Object.assign({}, ass, API.UnifyTypes(refPort.type, rootPort.type, graph))
         })
-        if (_.isEmpty(ports)) return false
-        return {
-          ref: ref,
-          root: root,
-          ports: ports
+        const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
+        if (diff.length === 0) {
+          return false
+        } else {
+          return assignments
         }
       },
-      (match, graph) => {
-        // var line = 'typifying recursion edge from ' + match.ref.name + ' to ' + match.root.name
-        // Log(line)
-        var newRef = _.assign(_.cloneDeep(match.ref), {
-          ports: _.map(match.ref.ports, (p) => {
-            var matchPort = _.find(match.ports, (p2) => p2.port === p.port)
-            if (!matchPort) return p
-            return _.assign(p, { type: _.cloneDeep(matchPort.type) })
-          })
-        })
-        var newRoot = _.assign(_.cloneDeep(match.root), {
-          ports: _.map(match.root.ports, (p) => {
-            var matchPort = _.find(match.ports, (p2) => p2.port === p.port)
-            if (!matchPort) return p
-            return _.assign(p, { type: _.cloneDeep(matchPort.type) })
-          })
-        })
-        graph = Graph.replaceNode(match.ref, newRef, graph)
-        graph = Graph.replaceNode(match.root, newRoot, graph)
-        return graph
+      (assignments, graph) => {
+        return _.merge(_.cloneDeep(graph), {assignments})
       }, {noIsomorphCheck: true})
 }
