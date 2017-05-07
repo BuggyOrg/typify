@@ -27,16 +27,8 @@ export function TypifyEdge () {
         }
       },
       ([edge, assignments], graph) => {
-        const line = 'typifying edge from ' +
-        (edge.source.id || edge.source.name || edge.source) +
-        '@' + edge.from.port +
-        ' to ' +
-        (edge.target.id || edge.target.name || edge.target) + '@' + edge.to.port +
-        ' with ' +
-        JSON.stringify(assignments)
-        Utils.Log(line)
-        // replace source type with target type
-        return _.merge(_.cloneDeep(graph), {assignments})
+        Object.assign(graph.assignments, assignments)
+        return graph
       }, {noIsomorphCheck: true})
 }
 
@@ -102,13 +94,8 @@ export function typifyConstants () {
       }
     },
     (assignments, graph) => {
-      return {
-        ...graph,
-        assignments: {
-          ...graph.assignments,
-          ...assignments
-        }
-      }
+      Object.assign(graph.assignments, assignments)
+      return graph
     }, {noIsomorphCheck: true})
 }
 
@@ -137,7 +124,8 @@ export function typifyLambdaInputs () {
       }
     },
     ([node, assignments], graph) => {
-      return _.merge(_.cloneDeep(graph), {assignments})
+      Object.assign(graph.assignments, assignments)
+      return graph
     },
     {noIsomorphCheck: true}
   )
@@ -168,7 +156,8 @@ export function typifyLambdaOutput () {
       }
     },
     ([node, assignments], graph) => {
-      return _.merge(_.cloneDeep(graph), {assignments})
+      Object.assign(graph.assignments, assignments)
+      return graph
     },
     {noIsomorphCheck: true}
   )
@@ -204,6 +193,7 @@ export function TypifyRecursion () {
         }
       },
       (assignments, graph) => {
-        return _.merge(_.cloneDeep(graph), {assignments})
+        Object.assign(graph.assignments, assignments)
+        return graph
       }, {noIsomorphCheck: true})
 }

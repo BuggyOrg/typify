@@ -30,16 +30,20 @@ function postfixGenericType (type, postfix) {
 export function TypifyAll (graph, iterations = Infinity) {
   if (!graph) throw new Error('no graph')
   for (let node of Graph.nodesDeep(graph)) {
-    const ports = _.filter(Graph.Node.ports(node), Utils.IsGenericPort)
-    for (const port of ports) {
+    // const ports = _.filter(Graph.Node.ports(node), Utils.IsGenericPort)
+    for (var i = 0; i < node.ports.length; i++) {
+      const port = node.ports[i]
+      if (Utils.IsGenericPort(port)) continue
       var newType = postfixGenericType(port.type, '.' + node.id)
       let newPort = _.assign(_.cloneDeep(port), {
         type: newType
       })
-      graph = Graph.replacePort(port, newPort, graph)
-      node = Graph.node(node.id, graph)
+      node.ports[i] = newPort
+      // graph = Graph.replacePort(port, newPort, graph)
+      // node = Graph.node(node.id, graph)
     }
   }
+  graph.assignments = {}
   graph = Rewrite.rewrite([
     // Rewrites.TypifyNode(),
     Rewrites.typifyConstants(),
@@ -82,17 +86,23 @@ function applyAssignments (graph) {
   if (!graph) throw new Error('no graph')
   if (!graph.assignments) return graph // nothing to apply
   for (let node of Graph.nodesDeep(graph)) {
+    typeNames(node).forEach((t) =>
+      _.set(node, 'parameters.typings.' + Unify.genericName(t), assignedType(t, graph)))
+    /*
     graph = Graph.flow(typeNames(node).map((t) =>
       (graph) => Graph.updateNodeMetaKey('parameters.typings.' + Unify.genericName(t), assignedType(t, graph), node, graph))
     )(graph)
-    for (let port of Graph.Node.ports(node)) {
+    */
+    for (var i = 0; i < node.ports.length; i++) {
+      const port = node.ports[i]
       if (IsGenericType(port.type)) {
         var assType = assignedType(port.type, graph)
         var newPort = _.assign(_.cloneDeep(_.omit(port, 'type')), {
           type: _.cloneDeep(assType)
         })
-        graph = Graph.replacePort(port, newPort, graph)
-        node = Graph.node(node.id, graph)
+        node.ports[i] = newPort
+        // graph = Graph.replacePort(port, newPort, graph)
+        // node = Graph.node(node.id, graph)
       }
     }
   }
