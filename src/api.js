@@ -30,17 +30,14 @@ function postfixGenericType (type, postfix) {
 export function TypifyAll (graph, iterations = Infinity) {
   if (!graph) throw new Error('no graph')
   for (let node of Graph.nodesDeep(graph)) {
-    // const ports = _.filter(Graph.Node.ports(node), Utils.IsGenericPort)
     for (var i = 0; i < node.ports.length; i++) {
       const port = node.ports[i]
-      if (Utils.IsGenericPort(port)) continue
+      if (!Utils.IsGenericPort(port)) continue
       var newType = postfixGenericType(port.type, '.' + node.id)
       let newPort = _.assign(_.cloneDeep(port), {
         type: newType
       })
       node.ports[i] = newPort
-      // graph = Graph.replacePort(port, newPort, graph)
-      // node = Graph.node(node.id, graph)
     }
   }
   graph.assignments = {}
