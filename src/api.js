@@ -47,7 +47,8 @@ export function TypifyAll (graph, iterations = Infinity) {
     Rewrites.TypifyEdge(),
     Rewrites.typifyLambdaInputs(),
     Rewrites.typifyLambdaOutput(),
-    Rewrites.TypifyRecursion()
+    Rewrites.TypifyRecursion(),
+    Rewrites.checkEdge()
   ], iterations)(graph)
   graph = applyAssignments(graph)
   return graph

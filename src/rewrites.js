@@ -32,20 +32,6 @@ export function TypifyEdge () {
       }, {noIsomorphCheck: true})
 }
 
-export function checkEdge () {
-  return Rewrite.applyEdge(
-    (edge, graph) => {
-      API.UnifyTypes(edge.from.type, edge.to.type, graph)
-      return [null, graph]
-    },
-    (_, graph) => {
-      return graph
-    },
-    { noIsomorphCheck: true }
-  )
-}
-
-
 /**
  * Generates a graph rewriter that typifies all atomic nodes (ie. make all input and outputs of the same type)
  * @return {Func} a rewrite function that takes a graph and returns a new one
@@ -79,6 +65,22 @@ export function TypifyNode () {
       }, {noIsomorphCheck: true})
 }
 */
+
+export function checkEdge () {
+  return Rewrite.applyEdge(
+      (edge, graph) => {
+        if (!edge.from.type) return false
+        if (!edge.to.type) return false
+        if (API.areUnifyable(edge.from.type, edge.to.type, graph)) {
+          return false
+        }
+        return edge
+      },
+      (edge, graph) => {
+        throw new Error('type conflict: cannot unify ' + JSON.stringify(edge.from.type) + ' and ' + JSON.stringify(edge.to.type))
+      },
+      { noIsomorphCheck: true })
+}
 
 export function typifyConstants () {
   return Rewrite.applyNode(

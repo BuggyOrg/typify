@@ -280,6 +280,33 @@ describe('API tests', () => {
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 
+  it('can assign different types to same type generic type name on different nodes', () => {
+    let graph = Graph.flow(
+    Graph.addNode({
+      name: 'n1',
+      ports: [
+        { port: 'p1o', kind: 'output', type: 'generic' }
+      ]
+    }),
+    Graph.addNode({
+      name: 'n2',
+      ports: [
+        { port: 'p2i', kind: 'input', type: 'Apple' },
+        { port: 'p2o', kind: 'output', type: 'Orange' }
+      ]
+    }),
+    Graph.addNode({
+      name: 'n3',
+      ports: [
+        { port: 'p3i', kind: 'input', type: 'generic' }
+      ]
+    }),
+    Graph.addEdge({ from: 'n1@p1o', to: 'n2@p2i' }),
+    Graph.addEdge({ from: 'n2@p2o', to: 'n3@p3i' }))()
+    graph = API.TypifyAll(graph)
+    expect(API.isFullyTyped(graph)).to.be.true
+  })
+
   describe('.assignedType', () => {
     it('can propagate rest params', () => {
       const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
@@ -287,7 +314,6 @@ describe('API tests', () => {
       expect(t.data).to.have.length(3)
       expect(t.data).to.eql(['Number', 'String', 'Boolean'])
     })
-
     it('can propagate rest params as arrays', () => {
       const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
       const t = API.assignedType({name: 'A', data: 'rest'}, protoGraph)
@@ -314,6 +340,7 @@ describe('API tests', () => {
 
 
 describe('Error propagation tests', () => {
+
   it('can detect non-unifiable edges', () => {
     const g1 = Graph.flow(
       Graph.addNode({
@@ -335,4 +362,31 @@ describe('Error propagation tests', () => {
     )()
     expect(API.TypifyAll(g1)).not.to.throw
   })
+
+  it('can detect conflicts between nongeneric types', () => {
+    let graph = Graph.flow(
+    Graph.addNode({
+      name: 'n1',
+      ports: [
+        { port: 'p1o', kind: 'output', type: 'Apple' }
+      ]
+    }),
+    Graph.addNode({
+      name: 'n2',
+      ports: [
+        { port: 'p2i', kind: 'input', type: 'generic' },
+        { port: 'p2o', kind: 'output', type: 'generic' }
+      ]
+    }),
+    Graph.addNode({
+      name: 'n3',
+      ports: [
+        { port: 'p3i', kind: 'input', type: 'Orange' }
+      ]
+    }),
+    Graph.addEdge({ from: 'n1@p1o', to: 'n2@p2i' }),
+    Graph.addEdge({ from: 'n2@p2o', to: 'n3@p3i' }))()
+    expect(() => API.TypifyAll(graph)).to.throw()
+  })
+
 })
