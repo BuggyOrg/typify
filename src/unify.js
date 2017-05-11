@@ -113,12 +113,12 @@ function UnifyNonGenericTypes (t1, t2, assign) {
   const s1 = typeof t1 === 'string'
   const s2 = typeof t2 === 'string'
   if (s1 && !s2) {
-    throw new Error('Types are not unifyable: cannot unify ' + t1 + ' and ' + JSON.stringify(t2))
+    throw new Error('nongeneric types are not unifyable: cannot unify ' + t1 + ' and ' + JSON.stringify(t2))
   } else if (!s1 && s2) {
-    throw new Error('Types are not unifyable: cannot unify ' + JSON.stringify(t1) + ' and ' + t2)
+    throw new Error('nongeneric types are not unifyable: cannot unify ' + JSON.stringify(t1) + ' and ' + t2)
   } else if (s1 && s2) {
     if (t1 === t2) return { }
-    else throw new Error('Types are not unifyable: cannot unify ' + t1 + ' and ' + t2)
+    else throw new Error('nongeneric types are not unifyable: cannot unify ' + t1 + ' and ' + t2)
   } else if (!s1 && !s2) {
     return UnifyNonGenericComplexTypes(t1, t2, assign)
   }

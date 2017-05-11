@@ -67,56 +67,6 @@ describe('unification', () => {
 
 describe('error handling', () => {
 
-
-
-  it('can detect non-unifiable edges', () => {
-    const g1 = Graph.flow(
-      Graph.addNode({
-        name: 'a',
-        ports: [
-          { port: 'p1', kind: 'output', type: 'Number' },
-          { port: 'p2', kind: 'output', type: 'generic' }
-        ]
-      }),
-      Graph.addNode({
-        name: 'b',
-        ports: [
-          { port: 'p3', kind: 'input', type: 'generic' },
-          { port: 'p4', kind: 'input', type: 'generic' }
-        ]
-      }),
-      Graph.addEdge({ from: 'a@p1', to: 'b@p4' }),
-      Graph.addEdge({ from: 'a@p2', to: 'b@p3' })
-    )()
-    expect(API.TypifyAll(g1)).not.to.throw
-  })
-
-  it('can detect conflicts between nongeneric types', () => {
-    let graph = Graph.flow(
-    Graph.addNode({
-      name: 'n1',
-      ports: [
-        { port: 'p1o', kind: 'output', type: 'Apple' }
-      ]
-    }),
-    Graph.addNode({
-      name: 'n2',
-      ports: [
-        { port: 'p2i', kind: 'input', type: 'generic' },
-        { port: 'p2o', kind: 'output', type: 'generic' }
-      ]
-    }),
-    Graph.addNode({
-      name: 'n3',
-      ports: [
-        { port: 'p3i', kind: 'input', type: 'Orange' }
-      ]
-    }),
-    Graph.addEdge({ from: 'n1@p1o', to: 'n2@p2i' }),
-    Graph.addEdge({ from: 'n2@p2o', to: 'n3@p3i' }))()
-    expect(() => API.TypifyAll(graph)).to.throw()
-  })
-
   it('Identifies non-unifyable types', () => {
     expect(API.areUnifyable('A', 'B', id)).to.be.false
     expect(API.areUnifyable('b', 'a', id)).to.be.false

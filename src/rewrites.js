@@ -69,6 +69,8 @@ export function TypifyNode () {
 export function checkEdge () {
   return Rewrite.applyEdge(
       (edge, graph) => {
+        if (!edge.from) return false
+        if (!edge.to) return false
         if (!edge.from.type) return false
         if (!edge.to.type) return false
         if (API.areUnifyable(edge.from.type, edge.to.type, graph)) {

@@ -33,7 +33,7 @@
     {
       "ports": [
         {
-          "type": "NumberMitSahneObenDrauf",
+          "type": "Number",
           "kind": "input",
           "port": "inNumber"
         },

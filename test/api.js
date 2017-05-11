@@ -76,7 +76,7 @@ function Untypify (graph) {
       let newPort = _.assign(_.cloneDeep(port), {
         type: 'generic'
       })
-      graph = Rewrite.replacePort(node, port, newPort, graph)
+      graph = Graph.replacePort(port, newPort, graph)
       node = Graph.node(node.id, graph)
     }
   }
@@ -339,7 +339,7 @@ describe('API tests', () => {
 })
 
 
-describe('Error propagation tests', () => {
+describe('.error-handling', () => {
 
   it('can detect non-unifiable edges', () => {
     const g1 = Graph.flow(
@@ -386,7 +386,7 @@ describe('Error propagation tests', () => {
     }),
     Graph.addEdge({ from: 'n1@p1o', to: 'n2@p2i' }),
     Graph.addEdge({ from: 'n2@p2o', to: 'n3@p3i' }))()
-    expect(() => API.TypifyAll(graph)).to.throw()
+    expect(() => API.TypifyAll(graph)).to.throw(Error, /cannot unify/)
   })
 
 })
