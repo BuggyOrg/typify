@@ -337,10 +337,7 @@ describe('API tests', () => {
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 })
-
-
 describe('.error-handling', () => {
-
   it('can detect non-unifiable edges', () => {
     const g1 = Graph.flow(
       Graph.addNode({
@@ -388,5 +385,4 @@ describe('.error-handling', () => {
     Graph.addEdge({ from: 'n2@p2o', to: 'n3@p3i' }))()
     expect(() => API.TypifyAll(graph)).to.throw(Error, /cannot unify/)
   })
-
 })
