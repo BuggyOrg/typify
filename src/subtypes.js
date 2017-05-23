@@ -1,45 +1,50 @@
 
-import _ from 'lodash'
+const _ = require('lodash')
 
-const Types = [{
-    name: 'top',
-    subtypes: ['poset', 'group']
-},{
-    name: 'poset',
-    subtypes: ['toset']
-},{
-    name: 'toset',
-    subtypes: ['2Z', '2Z+1', '3Z', '6Z']
-},{
-    name: 'group',
-    subtypes: ['2Z', '3Z', '6Z', 'F3']
-},{
-    name: '2Z',
-    subtypes: ['6Z']
-},{
-    name: '2Z+1',
-    subtypes: []
-},{
-    name: '3Z',
-    subtypes: ['6Z']
-},{
-    name: '6Z',
-    subtypes: []
-},{
-    name: 'F3',
-    subtypes: []
-}]
-
-export function unifyTypes (t1, t2) {
-    const s1 = typeof (t1) === 'string'
-    const s2 = typeof (t2) === 'string'
-    if (s1 != s2) throw new Error('cannot unify type strings and type objects')
-    if (s1 && s2) {
-        if (t1 === t2) return { }
-    }
-    if (t1.length !== t2.length) throw new Error('differing number of fields')
+export function getType (types, name) {
+    return _.find(types, (t) => t.name === name)
 }
 
-function findType (name) {
-    return _.find(Types, (t) => t.name === name)
+export function getTypes (types, names) {
+    return _.map(names, name => getType(types, name))
+}
+
+export function constructTypes (types) {
+    // derive direct supertypes
+    for(const t of types)
+        t.supertypes = []
+    for(const t of types) {
+        for(const st of getTypes(types, t.subtypes))
+            st.supertypes.push(t.name)
+    }
+    // advance sub- and supertypes transitively
+    for(const t of types)
+        t.transitive = { subtypes: _.clone(t.subtypes), supertypes: _.clone(t.supertypes)}
+    do {
+        if(newTypes) types = newTypes
+        var newTypes = _.cloneDeep(types)
+        for(const t of newTypes) {
+            for(const st of getTypes(types, t.transitive.subtypes))
+                t.transitive.subtypes = _.uniq(_.concat(t.transitive.subtypes, st.transitive.subtypes))
+            for(const st of getTypes(types, t.transitive.supertypes))
+                t.transitive.supertypes = _.uniq(_.concat(t.transitive.supertypes, st.transitive.supertypes))
+        }
+    } while(!_.isEqual(types, newTypes)) // until fixpoint is reached
+    return types
+}
+
+export function isSubtype (types, n1, n2) {
+    let t2 = getType(types, n2)
+    if(!t2) return false
+    if(!t2.transitive) throw new Error('invalid type graph')
+    if(!t2.transitive.subtypes) throw new Error('invalid type graph')
+    return t2.transitive.subtypes.includes(n1)
+}
+
+export function isSupertype (types, n1, n2) {
+    let t2 = getType(types, n2)
+    if(!t2) return false
+    if(!t2.transitive) throw new Error('invalid type graph')
+    if(!t2.transitive.supertypes) throw new Error('invalid type graph')
+    return t2.transitive.supertypes.includes(n1)
 }

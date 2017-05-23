@@ -280,7 +280,7 @@ describe('API tests', () => {
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 
-  it('can assign different types to same type generic type name on different nodes', () => {
+  it('can assign different types to same generic type name on different nodes', () => {
     let graph = Graph.flow(
     Graph.addNode({
       name: 'n1',

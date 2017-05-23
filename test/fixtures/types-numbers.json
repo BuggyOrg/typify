@@ -1,0 +1,28 @@
+[{
+    "name": "top",
+    "subtypes": ["poset", "group"]
+},{
+    "name": "poset",
+    "subtypes": ["toset"]
+},{
+    "name": "toset",
+    "subtypes": ["2Z", "2Z+1", "3Z"]
+},{
+    "name": "group",
+    "subtypes": ["2Z", "3Z"]
+},{
+    "name": "2Z",
+    "subtypes": ["6Z"]
+},{
+    "name": "2Z+1",
+    "subtypes": ["bottom"]
+},{
+    "name": "3Z",
+    "subtypes": ["6Z"]
+},{
+    "name": "6Z",
+    "subtypes": ["bottom"]
+},{
+    "name": "bottom",
+    "subtypes": []
+}]
