@@ -55,23 +55,25 @@ describe('Subtypes tests', () => {
 
   })
   it('can query type relations', () => {
-    let types = Subtypes.constructTypes(JSON.parse(fs.readFileSync('./test/fixtures/types-numbers.json')))
-    expect(Subtypes.isSubtype(types, 'bottom', 'top')).to.be.true
-    expect(Subtypes.isSupertype(types, 'top', 'bottom')).to.be.true
+    let atomics = Subtypes.constructTypes(JSON.parse(fs.readFileSync('./test/fixtures/types-numbers.json')))
+    expect(Subtypes.isSubtype('bottom', 'top', atomics)).to.be.true
+    expect(Subtypes.isSupertype('top', 'bottom', atomics)).to.be.true
   })
   it('can unify atomics from a given type graph', () => {
-    let types = Subtypes.constructTypes(JSON.parse(fs.readFileSync('./test/fixtures/types-numbers.json')))
+    let atomics = Subtypes.constructTypes(JSON.parse(fs.readFileSync('./test/fixtures/types-numbers.json')))
     let t1 = {
-      data: [{name: 'Arguments', data: ['2Z', '3Z']}, {name: 'Returns', data: ['b']}],
-      name: 'Function'
+      data: ['2Z', '3Z'],
+      name: 'Pair'
     }
     let t2 = {
-      data: [{name: 'Arguments', data: ['b', 'b']}, {name: 'Returns', data: ['6Z']}],
-      name: 'Function'
+      data: ['b', 'b'],
+      name: 'Pair'
     }
-    var assignments = API.UnifyTypes(t1, t2, x => x, [])
-    expect(assignments).to.deep.equal({
-      'b': '6Z'
+    let assign = { }
+    let t3 = API.UnifyTypes(t1, t2, atomics, assign)
+    expect(t3).to.deep.equal({
+      data: ['6Z', '6Z'],
+      name: 'Pair'
     })
   })
 })

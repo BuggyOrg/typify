@@ -6,7 +6,7 @@ function IsValidType (t) {
   if (!t) return false
   if (typeof t === 'string') return true
   if (!t.data) return false
-  return (isGenericTypeName(t.data) && !isRest(t.data)) || t.data.every(IsValidType)
+  return (isTypeParameter(t.data) && !isRest(t.data)) || t.data.every(IsValidType)
 }
 
 function isTypeObject (t) {
@@ -16,12 +16,12 @@ function isTypeObject (t) {
 export function IsGenericType (t) {
   if (!IsValidType(t)) return false
   if (isTypeObject(t)) {
-    return isGenericTypeName(t.data) || t.data.some(IsGenericType)
+    return isTypeParameter(t.data) || t.data.some(IsGenericType)
   }
-  return isGenericTypeName(t)
+  return isTypeParameter(t)
 }
 
-export function isGenericTypeName (t) {
+export function isTypeParameter (t) {
   return (typeof (t) === 'string') && (IsLowerCase((t.name || t).charAt(0)) || isRest(t))
 }
 
@@ -35,14 +35,14 @@ export function genericName (t) {
 
 export function typeNames (t) {
   if (!IsGenericType(t)) return []
-  if (isGenericTypeName(t)) return [typeName(t)]
+  if (isTypeParameter(t)) return [typeName(t)]
   if (typeof (t.data) === 'string') return [typeName(t.data)]
   else return _.flatten(t.data.map(typeNames))
 }
 
-export function areUnifyable (t1, t2, assignedType) {
+export function areUnifyable (types, t1, t2) {
   try {
-    UnifyTypes(t1, t2, assignedType)
+    UnifyTypes(types, t1, t2)
     return true
   } catch (err) {
     return false
@@ -67,87 +67,66 @@ export function typeName (type) {
  * its unified type. E.g. `{ a: 'Number' }` assigns the type `Number` to `a`.
  * @param {Type} t1 The first type
  * @param {Type} t2 Second type
- * @param {Function} assign the assignment function
  * @param {Typegraph} atomics optional graph of subtypes
  * @returns {Assignment} The assignment for the given types
  * @throws {Error} If the types are not assignable.
  */
-export function UnifyTypes (t1b, t2b, assign, atomics = []) {
-  const t1 = assign(t1b)
-  const t2 = assign(t2b)
+export function UnifyTypes (t1, t2, atomics = [], assign = []) {
   if (!IsValidType(t1)) throw new Error('invalid type t1: ' + JSON.stringify(t1))
   if (!IsValidType(t2)) throw new Error('invalid type t2: ' + JSON.stringify(t2))
-  const g1 = isGenericTypeName(t1)
-  const g2 = isGenericTypeName(t2)
-  if (!g1 && !g2) {
-    return UnifyNonGenericTypes(t1, t2, assign, atomics)
-  } else if (g1 && g2) {
-    return UnifyGenericTypes(t1, t2)
-  } else if (!g1 && g2) {
-    if (IsGenericType(t1)) throw new Error('Types are not unifyable: "' + t2 + '" and "' + JSON.stringify(t1) + '"')
-    else return SingleAssignment(t2, t1)
-  } else if (g1 && !g2) {
-    if (IsGenericType(t2)) throw new Error('Types are not unifyable: "' + t1 + '" and "' + JSON.stringify(t2) + '"')
-    else return SingleAssignment(t1, t2)
+  let p1 = isTypeParameter(t1)
+  let p2 = isTypeParameter(t2)
+  if (p1 && p2) return unifyParameterTypes(t1, t2)
+  else if (!p1 && p2) return (assign[t2] = t1)
+  else if (p1 && !p2) return (assign[t1] = t2)
+  else {
+    let s1 = typeof t1 === 'string'
+    let s2 = typeof t2 === 'string'
+    if (s1 && !s2) throw new Error('nongeneric types are not unifyable: cannot unify ' + t1 + ' and ' + JSON.stringify(t2))
+    else if (!s1 && s2) throw new Error('nongeneric types are not unifyable: cannot unify ' + JSON.stringify(t1) + ' and ' + t2)
+    else if (s1 && s2) return unifyAtomicTypes(t1, t2, atomics)
+    else if (!s1 && !s2) return unifyRecordType(t1, t2, atomics, assign)
   }
 }
 
-function SwapKeysAndValues (x) {
-  var y = { }
-  for (const k in _.keys(x)) {
-    y[x[k]] = k
-  }
-  return y
+function unifyParameterTypes (t1, t2) {
+  if (t1 === t2) return t2
+  else throw new Error('Types are not unifyable: ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
 }
 
-function SingleAssignment (k, v) {
-  var map = { }
-  map[k] = v
-  return map
+function unifyAtomicTypes (t1, t2, atomics) {
+  if (t1 === t2) return t1
+  if (!Subtypes.hasType(atomics, t1)) throw new Error('expected ' + t1 + ' to be an atomic type')
+  if (!Subtypes.hasType(atomics, t2)) throw new Error('expected ' + t2 + ' to be an atomic type')
+  let st = _.intersection(t1.transitive.subtypes, t2.transitive.subtypes)
+  if (st.length === 0) throw new Error('no common subtype of ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+  return Subtypes.getType(st[0])
 }
 
-function UnifyGenericTypes (t1, t2) {
-  if (_.isEqual(t1, t2)) return { }
-  else throw new Error('Types are not unifyable: "' + JSON.stringify(t1) + '" and "' + JSON.stringify(t2) + '"')
-}
-
-function UnifyNonGenericTypes (t1, t2, assign, atomics) {
-  const s1 = typeof t1 === 'string'
-  const s2 = typeof t2 === 'string'
-  if (s1 && !s2) {
-    throw new Error('nongeneric types are not unifyable: cannot unify ' + t1 + ' and ' + JSON.stringify(t2))
-  } else if (!s1 && s2) {
-    throw new Error('nongeneric types are not unifyable: cannot unify ' + JSON.stringify(t1) + ' and ' + t2)
-  } else if (s1 && s2) {
-    if (t1 === t2) return { }
-    else if (Subtypes.isSubtype(atomics, t1, t2)) return { }
-    else if (Subtypes.isSupertype(atomics, t1, t2)) return { }
-    else throw new Error('nongeneric types are not unifyable: cannot unify ' + t1 + ' and ' + t2)
-  } else if (!s1 && !s2) {
-    return UnifyNonGenericComplexTypes(t1, t2, assign, atomics)
-  }
-}
-
-function UnifyNonGenericComplexTypes (t1, t2, assign, atomics) {
+function unifyRecordType (t1, t2, atomics, assign) {
   if (t1.name !== t2.name) {
     throw new Error('Type names do not match for "' + t1.name + '" and "' + t2.name + '"')
   }
+  if (t1.data.length !== t2.data.length) {
+    throw new Error('number of fields differ for ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+  }
+  t1.data.sort(f => f.name || f)
+  t2.data.sort(f => f.name || f)
+  let fields = _.zip(t1.data, t2.data)
+  return { name: t1.name, data: _.map(fields, f => UnifyTypes(f[0], f[1], atomics, assign)) }
+  /*
   var assignments = { }
   let f1 = t1.data
   let f2 = t2.data
   let ff1 = (typeof (f1) === 'string') ? [] : _.takeWhile(f1, (d) => !isRest(d))
   let ff2 = (typeof (f2) === 'string') ? [] : _.takeWhile(f2, (d) => !isRest(d))
-  /*
-  let ff1 = _.takeWhile(f1, (d) => !isRest(d))
-  let ff2 = _.takeWhile(f2, (d) => !isRest(d))
-  */
   if (f1.length === ff1.length && f2.length === ff2.length && ff1.length !== ff2.length) {
     throw new Error('type unification error: number of fields differ')
   }
   const minLen = Math.min(ff1.length, ff2.length)
   for (let i = 0; i < minLen; ++i) {
     try {
-      const childAssignments = UnifyTypes(f1[i], f2[i], assign, atomics)
+      const childAssignments = UnifyTypes(types, f1[i], f2[i])
       for(const k of _.intersection(_.keys(childAssignments), _.keys(assignments))) {
         // UnifyTypes(childAssignments[k], assignments[k], assign, atomics)
       }
@@ -169,4 +148,5 @@ function UnifyNonGenericComplexTypes (t1, t2, assign, atomics) {
     assignments[restName(f2[ff2.length])] = _.drop(f1, ff2.length)
   }
   return assignments
+  */
 }

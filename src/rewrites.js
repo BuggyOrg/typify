@@ -18,7 +18,7 @@ export function TypifyEdge () {
       (edge, graph) => {
         if (!Graph.Edge.isBetweenPorts(edge) || !API.areUnifyable(edge.from.type, edge.to.type, graph)) return false
         // check wether edge goes from generic to specific
-        const assignments = API.UnifyTypes(edge.from.type, edge.to.type, graph)
+        const assignments = API.UnifyTypes(edge.from.type, edge.to.type)
         const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
         if (diff.length === 0) {
           return false
@@ -118,7 +118,7 @@ export function typifyLambdaInputs () {
       const assignments = _.zip(implPorts, lambdaArgs)
         .reduce((ass, [port, type]) => {
           if (!API.areUnifyable(port.type, type, graph)) return ass
-          return Object.assign(ass, API.UnifyTypes(type, port.type, graph))
+          return Object.assign(ass, API.UnifyTypes(type, port.type))
         }, {})
       const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
       if (diff.length === 0) {
@@ -150,7 +150,7 @@ export function typifyLambdaOutput () {
       const assignments = _.zip(implPorts, lambdaRets)
         .reduce((ass, [port, type]) => {
           if (!API.areUnifyable(port.type, type, graph)) return ass
-          return Object.assign(ass, API.UnifyTypes(port.type, type, graph))
+          return Object.assign(ass, API.UnifyTypes(port.type, type))
         }, {})
       const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
       if (diff.length === 0) {
@@ -187,7 +187,7 @@ export function TypifyRecursion () {
         const assignments = ports.reduce((ass, p) => {
           var refPort = Graph.Node.port(p.port, ref)
           var rootPort = Graph.Node.port(p.port, root)
-          return Object.assign({}, ass, API.UnifyTypes(refPort.type, rootPort.type, graph))
+          return Object.assign({}, ass, API.UnifyTypes(refPort.type, rootPort.type))
         })
         const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
         if (diff.length === 0) {

@@ -33,18 +33,6 @@ export function constructTypes (types) {
     return types
 }
 
-export function isSubtype (types, n1, n2) {
-    let t2 = getType(types, n2)
-    if(!t2) return false
-    if(!t2.transitive) throw new Error('invalid type graph')
-    if(!t2.transitive.subtypes) throw new Error('invalid type graph')
-    return t2.transitive.subtypes.includes(n1)
-}
-
-export function isSupertype (types, n1, n2) {
-    let t2 = getType(types, n2)
-    if(!t2) return false
-    if(!t2.transitive) throw new Error('invalid type graph')
-    if(!t2.transitive.supertypes) throw new Error('invalid type graph')
-    return t2.transitive.supertypes.includes(n1)
+export function hasType (types, n) {
+    return !!getType(types, n)
 }

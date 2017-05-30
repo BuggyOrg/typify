@@ -8,7 +8,7 @@ import _ from 'lodash'
 // import debug from 'debug'
 
 function postfixGenericType (type, postfix) {
-  if (typeof (type) === 'string' && Unify.isGenericTypeName(type)) {
+  if (typeof (type) === 'string' && Unify.isTypeParameter(type)) {
     return type + postfix
   } else if (typeof (type) === 'object') {
     /* TODO Volker 170505
@@ -21,6 +21,15 @@ function postfixGenericType (type, postfix) {
     return Object.assign({}, type, {data: type.data.map((t) => postfixGenericType(t, postfix))})
   }
   return type
+}
+
+
+export function replaceTypeParameter (type, param, value) {
+  if ((type.name || type) === param) return _.cloneDeep(value)
+  else return {
+    name: type.name,
+    data: _.map(type.data, f => replaceTypeParameter(f, param, value))
+  }
 }
 
 /**
@@ -58,7 +67,7 @@ export function assignedType (type, graph) {
   if (!graph) throw new Error('no graph')
   if (!graph.assignments) return type
   const tName = Unify.typeName(type)
-  if (Unify.isGenericTypeName(type) && tName in graph.assignments) {
+  if (Unify.isTypeParameter(type) && tName in graph.assignments) {
     if (!Array.isArray(graph.assignments[tName])) {
       return graph.assignments[tName]
     } else {
@@ -109,9 +118,8 @@ function applyAssignments (graph) {
 
 export const IsGenericType = Unify.IsGenericType
 
-export function areUnifyable (t1, t2, graph) {
-  if (!graph) throw new Error('[typify] areUnifyable requires a graph as the third parameter to resolve assignments.')
-  return Unify.areUnifyable(t1, t2, (type) => assignedType(type, graph))
+export function areUnifyable (atomics, t1, t2) {
+  return Unify.areUnifyable(atomics, t1, t2)
 }
 
 /**
