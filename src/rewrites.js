@@ -13,21 +13,26 @@ const Lambda = Graph.Lambda
  * Generates a graph rewriter that typifies all specializing edges (ie. from generic to specific ports)
  * @return {Func} a rewrite function that takes a graph and returns a new one
  */
-export function TypifyEdge () {
+export function TypifyEdge (types) {
   return Rewrite.applyEdge(
       (edge, graph) => {
-        if (!Graph.Edge.isBetweenPorts(edge) || !API.areUnifyable(edge.from.type, edge.to.type, graph)) return false
+        if (!Graph.Edge.isBetweenPorts(edge) || !API.areUnifyable(edge.from.type, edge.to.type)) return false
         // check wether edge goes from generic to specific
-        const assignments = API.UnifyTypes(edge.from.type, edge.to.type)
-        const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
-        if (diff.length === 0) {
+        let assign = { }
+        let type = API.UnifyTypes(edge.from.type, edge.to.type, types, assign)
+        let diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
+        if (Object.keys(diff).length === 0 && _.isEqual(type, edge.from.type) && _.isEqual(type, edge.to.type)) {
           return false
         } else {
-          return [edge, assignments]
+          return [edge, type, assign]
         }
       },
-      ([edge, assignments], graph) => {
-        Object.assign(graph.assignments, assignments)
+      ([edge, type, assign], graph) => {
+        Object.assign(graph.assignments, assign)
+        for (const p of [edge.from, edge.to]) {
+          graph = Graph.replacePort(p, _.assign(_.cloneDeep(p), { type: type }), graph)
+        }
+        Graph.debug(graph)
         return graph
       }, {noIsomorphCheck: true})
 }
@@ -36,35 +41,38 @@ export function TypifyEdge () {
  * Generates a graph rewriter that typifies all atomic nodes (ie. make all input and outputs of the same type)
  * @return {Func} a rewrite function that takes a graph and returns a new one
  */
-/*
-export function TypifyNode () {
+export function TypifyNode (types) {
   return Rewrite.applyNode(
       (node, graph) => {
-        // if (!Graph.Node.isAtomic(node)) return false
-        var ports = Graph.Node.ports(node, true)
+        if (!Graph.Node.isAtomic(node)) return false
+        let ports = Graph.Node.ports(node, true)
         for (const p1 of ports) {
           for (const p2 of ports) {
             if (p1 === p2) continue
-            if (!API.areUnifyable(p1.type, p2.type, graph)) continue
-            const assignments = API.UnifyTypes(p1.type, p2.type, graph)
-            const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
-            if (Object.keys(diff).length === 0) {
+            if (!API.areUnifyable(p1.type, p2.type)) continue
+            let assign = { }
+            let type = API.UnifyTypes(p1.type, p2.type, types, assign)
+            let diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
+            if (Object.keys(diff).length === 0 && _.every(ports, p => _.isEqual(p.type, type))) {
               return false
             } else {
-              return [node, assignments]
+              return [node, type, assign]
             }
           }
         }
         return false
       },
-      ([node, assignments], graph) => {
-        var line = 'typifying atomic node ' + node.id +
-        ' with ' + JSON.stringify(assignments)
+      ([node, type, assign], graph) => {
+        var line = 'typifying atomic node ' + node.id + ' with ' + JSON.stringify(assign)
         Utils.Log(line)
-        return _.merge(_.cloneDeep(graph), {assignments})
+        Object.assign(graph.assignments, assign)
+        for (const p of Graph.Node.ports(node, true)) {
+          graph = Graph.replacePort(p, _.assign(_.cloneDeep(p), { type: type }), graph)
+        }
+        Graph.debug(graph)
+        return graph
       }, {noIsomorphCheck: true})
 }
-*/
 
 export function checkEdge () {
   return Rewrite.applyEdge(

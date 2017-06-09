@@ -244,25 +244,19 @@ function createBinomialGraph () {
 
 describe('API tests', () => {
   it('can apply basic rules I', () => {
-    let graph1 = createSimpleGraph1()
+    let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/simple1.json'))
     let graph2 = API.TypifyAll(graph1)
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 
   it('can apply basic rules II', () => {
-    let graph1 = createSimpleGraph2()
-    let graph2 = API.TypifyAll(graph1)
-    expect(API.isFullyTyped(graph2)).to.be.true
-  })
-
-  it.skip('can typify loop problem case', () => {
-    let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/problem.json', 'utf-8'))
+    let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/simple2.json'))
     let graph2 = API.TypifyAll(graph1)
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 
   it('can typify recursive function (factorial)', () => {
-    let graph1 = createFactorialGraph()
+    let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/fac.json'))
     let graph2 = API.TypifyAll(graph1)
     expect(API.isFullyTyped(graph2)).to.be.true
   })
@@ -310,7 +304,7 @@ describe('API tests', () => {
   describe('.assignedType', () => {
     it('can propagate rest params', () => {
       const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
-      const t = API.assignedType({name: 'A', data: ['Number', '...rest']}, protoGraph)
+      const t = API.assignedType({name: 'A', data: ['Number', '...']}, protoGraph)
       expect(t.data).to.have.length(3)
       expect(t.data).to.eql(['Number', 'String', 'Boolean'])
     })
@@ -343,7 +337,7 @@ describe('.error-handling', () => {
       Graph.addNode({
         name: 'a',
         ports: [
-          { port: 'p1', kind: 'output', type: 'Number' },
+          { port: 'p1', kind: 'output', type: 'Apple' },
           { port: 'p2', kind: 'output', type: 'generic' }
         ]
       }),
@@ -351,13 +345,13 @@ describe('.error-handling', () => {
         name: 'b',
         ports: [
           { port: 'p3', kind: 'input', type: 'generic' },
-          { port: 'p4', kind: 'input', type: 'generic' }
+          { port: 'p4', kind: 'input', type: 'Orange' }
         ]
       }),
-      Graph.addEdge({ from: 'a@p1', to: 'b@p4' }),
-      Graph.addEdge({ from: 'a@p2', to: 'b@p3' })
+      Graph.addEdge({ from: 'a@p1', to: 'b@p3' }),
+      Graph.addEdge({ from: 'a@p2', to: 'b@p4' })
     )()
-    expect(API.TypifyAll(g1)).not.to.throw
+    expect(() => API.TypifyAll(g1)).to.throw(Error)
   })
 
   it('can detect conflicts between nongeneric types', () => {

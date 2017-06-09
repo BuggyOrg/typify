@@ -33,6 +33,22 @@ export function constructTypes (types) {
     return types
 }
 
+export function isSubtype (types, st, t) {
+    return getType(types, t).transitive.subtypes.includes(st)
+}
+
+export function isSupertype (types, st, t) {
+    return getType(types, t).transitive.supertypes.includes(st)
+}
+
 export function hasType (types, n) {
     return !!getType(types, n)
+}
+
+export function intersectionType (types, t1, t2) {
+  let st = _.intersection(getType(types, t1).transitive.subtypes, getType(types, t1).transitive.subtypes)
+  if (st.length === 0) {
+    throw new Error('no common subtype of ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+  }
+  return st[0]
 }

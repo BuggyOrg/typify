@@ -25,10 +25,15 @@ function postfixGenericType (type, postfix) {
 
 
 export function replaceTypeParameter (type, param, value) {
-  if ((type.name || type) === param) return _.cloneDeep(value)
-  else return {
-    name: type.name,
-    data: _.map(type.data, f => replaceTypeParameter(f, param, value))
+  if (typeof type === 'string') {
+    return type === param ? value : type
+  } else if ((type.name || type) === param) {
+    return _.cloneDeep(value)
+  } else {
+    return {
+      name: type.name,
+      data: _.map(type.data, f => replaceTypeParameter(f, param, value))
+    }
   }
 }
 
@@ -36,7 +41,7 @@ export function replaceTypeParameter (type, param, value) {
  * Generates a graph rewriter using all six default rules
  * @return {Boolean} a rewrite function that takes a graph and returns a new one
  */
-export function TypifyAll (graph, iterations = Infinity) {
+export function TypifyAll (graph, types = [], iterations = Infinity) {
   if (!graph) throw new Error('no graph')
   for (let node of Graph.nodesDeep(graph)) {
     for (var i = 0; i < node.ports.length; i++) {
@@ -51,13 +56,15 @@ export function TypifyAll (graph, iterations = Infinity) {
   }
   graph.assignments = {}
   graph = Rewrite.rewrite([
-    // Rewrites.TypifyNode(),
-    Rewrites.typifyConstants(),
-    Rewrites.TypifyEdge(),
-    Rewrites.typifyLambdaInputs(),
-    Rewrites.typifyLambdaOutput(),
-    Rewrites.TypifyRecursion(),
-    Rewrites.checkEdge()
+    Rewrites.TypifyNode(types),
+    // Rewrites.typifyConstants(types),
+    Rewrites.TypifyEdge(types),
+    // Rewrites.typifyLambdaInputs(types),
+    // Rewrites.typifyLambdaOutput(types),
+    // Rewrites.TypifyRecursion(types),
+    Rewrites.checkEdge(types),
+    Rewrite.applyNode((node, graph) => false, graph => graph)
+
   ], iterations)(graph)
   graph = applyAssignments(graph)
   return graph
@@ -118,8 +125,8 @@ function applyAssignments (graph) {
 
 export const IsGenericType = Unify.IsGenericType
 
-export function areUnifyable (atomics, t1, t2) {
-  return Unify.areUnifyable(atomics, t1, t2)
+export function areUnifyable (t1, t2, atomics, assignments) {
+  return Unify.areUnifyable(t1, t2, atomics, assignments)
 }
 
 /**
@@ -131,9 +138,8 @@ export function areUnifyable (atomics, t1, t2) {
  * @returns {Assignment} The assignment for the given types
  * @throws {Error} If the types are not assignable.
  */
-export function UnifyTypes (t1, t2, graph) {
-  if (!graph) throw new Error('[typify] areUnifyable requires a graph as the third parameter to resolve assignments.')
-  return Unify.UnifyTypes(t1, t2, (type) => assignedType(type, graph))
+export function UnifyTypes (t1, t2, atomics, assignments) {
+  return Unify.UnifyAndAssignTypes(t1, t2, atomics, assignments)
 }
 
 function typeName (type) {

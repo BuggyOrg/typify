@@ -1,0 +1,137 @@
+{
+  "nodes": [
+    {
+      "name": "A",
+      "ports": [
+        {
+          "port": "p1",
+          "kind": "output",
+          "type": "generic",
+          "node": "#cj3pwg5j3000648g6hfd590hq"
+        },
+        {
+          "port": "p2",
+          "kind": "output",
+          "type": "generic",
+          "node": "#cj3pwg5j3000648g6hfd590hq"
+        }
+      ],
+      "id": "#cj3pwg5j3000648g6hfd590hq",
+      "metaInformation": {},
+      "settings": {},
+      "path": [
+        "#cj3pwg5j3000648g6hfd590hq"
+      ],
+      "atomic": true
+    },
+    {
+      "name": "B",
+      "ports": [
+        {
+          "port": "p3",
+          "kind": "input",
+          "type": "generic",
+          "node": "#cj3pwg5j4000748g6siyy9lrb"
+        },
+        {
+          "port": "p4",
+          "kind": "input",
+          "type": "generic",
+          "node": "#cj3pwg5j4000748g6siyy9lrb"
+        }
+      ],
+      "id": "#cj3pwg5j4000748g6siyy9lrb",
+      "metaInformation": {},
+      "settings": {},
+      "path": [
+        "#cj3pwg5j4000748g6siyy9lrb"
+      ],
+      "atomic": true
+    },
+    {
+      "name": "C",
+      "ports": [
+        {
+          "port": "p5",
+          "kind": "output",
+          "type": "generic",
+          "node": "#cj3pwg5j4000848g6qdo3t210"
+        }
+      ],
+      "id": "#cj3pwg5j4000848g6qdo3t210",
+      "metaInformation": {},
+      "settings": {},
+      "path": [
+        "#cj3pwg5j4000848g6qdo3t210"
+      ],
+      "atomic": true
+    },
+    {
+      "name": "D",
+      "ports": [
+        {
+          "port": "p6",
+          "kind": "input",
+          "type": "String",
+          "node": "#cj3pwg5j5000948g60dc724tc"
+        }
+      ],
+      "id": "#cj3pwg5j5000948g60dc724tc",
+      "metaInformation": {},
+      "settings": {},
+      "path": [
+        "#cj3pwg5j5000948g60dc724tc"
+      ],
+      "atomic": true
+    }
+  ],
+  "metaInformation": {
+    "version": "0.4.0-pre.39"
+  },
+  "edges": [
+    {
+      "from": {
+        "type": "generic",
+        "node": "#cj3pwg5j3000648g6hfd590hq",
+        "port": "p1"
+      },
+      "to": {
+        "type": "generic",
+        "node": "#cj3pwg5j4000748g6siyy9lrb",
+        "port": "p3"
+      },
+      "layer": "dataflow"
+    },
+    {
+      "from": {
+        "type": "generic",
+        "node": "#cj3pwg5j3000648g6hfd590hq",
+        "port": "p2"
+      },
+      "to": {
+        "type": "generic",
+        "node": "#cj3pwg5j5000948g60dc724tc",
+        "port": "p6"
+      },
+      "layer": "dataflow"
+    },
+    {
+      "from": {
+        "type": "generic",
+        "node": "#cj3pwg5j4000848g6qdo3t210",
+        "port": "p5"
+      },
+      "to": {
+        "type": "generic",
+        "node": "#cj3pwg5j4000748g6siyy9lrb",
+        "port": "p4"
+      },
+      "layer": "dataflow"
+    }
+  ],
+  "components": [],
+  "path": [],
+  "ports": [],
+  "atomic": false,
+  "id": "#cj3pwg5j3000548g6rs47s2gc"
+}

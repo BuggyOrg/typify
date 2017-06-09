@@ -1,3 +1,4 @@
+/* global describe, it */
 
 import * as API from '../src/api'
 import * as Subtypes from '../src/subtypes'
@@ -52,12 +53,11 @@ describe('Subtypes tests', () => {
       Subtypes.getType(types, 'bottom').transitive.supertypes,
       Subtypes.getType(types, 'top').transitive.subtypes))
       .to.deep.equal(['top'])
-
   })
   it('can query type relations', () => {
     let atomics = Subtypes.constructTypes(JSON.parse(fs.readFileSync('./test/fixtures/types-numbers.json')))
-    expect(Subtypes.isSubtype('bottom', 'top', atomics)).to.be.true
-    expect(Subtypes.isSupertype('top', 'bottom', atomics)).to.be.true
+    expect(Subtypes.isSubtype(atomics, 'bottom', 'top')).to.be.true
+    expect(Subtypes.isSupertype(atomics, 'top', 'bottom')).to.be.true
   })
   it('can unify atomics from a given type graph', () => {
     let atomics = Subtypes.constructTypes(JSON.parse(fs.readFileSync('./test/fixtures/types-numbers.json')))
@@ -69,8 +69,7 @@ describe('Subtypes tests', () => {
       data: ['b', 'b'],
       name: 'Pair'
     }
-    let assign = { }
-    let t3 = API.UnifyTypes(t1, t2, atomics, assign)
+    let t3 = API.UnifyTypes(t1, t2, atomics)
     expect(t3).to.deep.equal({
       data: ['6Z', '6Z'],
       name: 'Pair'

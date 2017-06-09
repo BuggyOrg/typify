@@ -1,6 +1,8 @@
 
 import _ from 'lodash'
-import * as Subtypes from '../src/subtypes'
+import * as Subtypes from './subtypes'
+
+const API = require('./api.js')
 
 function IsValidType (t) {
   if (!t) return false
@@ -40,9 +42,9 @@ export function typeNames (t) {
   else return _.flatten(t.data.map(typeNames))
 }
 
-export function areUnifyable (types, t1, t2) {
+export function areUnifyable (t1, t2, atomics, assign) {
   try {
-    UnifyTypes(types, t1, t2)
+    UnifyTypes(t1, t2, atomics, assign)
     return true
   } catch (err) {
     return false
@@ -71,15 +73,29 @@ export function typeName (type) {
  * @returns {Assignment} The assignment for the given types
  * @throws {Error} If the types are not assignable.
  */
-export function UnifyTypes (t1, t2, atomics = [], assign = []) {
+export function UnifyAndAssignTypes (t1, t2, atomics = []) {
+  let assign = { }
+  let t = UnifyTypes(t1, t2, atomics, assign)
+  for (const k in assign) {
+    t = API.replaceTypeParameter(t, k, assign[k])
+  }
+  return t
+}
+
+export function UnifyTypes (t1, t2, atomics = [], assign = {}) {
   if (!IsValidType(t1)) throw new Error('invalid type t1: ' + JSON.stringify(t1))
   if (!IsValidType(t2)) throw new Error('invalid type t2: ' + JSON.stringify(t2))
   let p1 = isTypeParameter(t1)
   let p2 = isTypeParameter(t2)
-  if (p1 && p2) return unifyParameterTypes(t1, t2)
-  else if (!p1 && p2) return (assign[t2] = t1)
-  else if (p1 && !p2) return (assign[t1] = t2)
-  else {
+  if (p1 && p2) {
+    return unifyParameterTypes(t1, t2)
+  } else if (!p1 && p2) {
+    if (t2 in assign) t1 = UnifyTypes(t1, assign[t2], atomics, assign)
+    return (assign[t2] = t1)
+  } else if (p1 && !p2) {
+    if (t1 in assign) t2 = UnifyTypes(assign[t1], t2, atomics, assign)
+    return (assign[t1] = t2)
+  } else {
     let s1 = typeof t1 === 'string'
     let s2 = typeof t2 === 'string'
     if (s1 && !s2) throw new Error('nongeneric types are not unifyable: cannot unify ' + t1 + ' and ' + JSON.stringify(t2))
@@ -95,12 +111,26 @@ function unifyParameterTypes (t1, t2) {
 }
 
 function unifyAtomicTypes (t1, t2, atomics) {
-  if (t1 === t2) return t1
-  if (!Subtypes.hasType(atomics, t1)) throw new Error('expected ' + t1 + ' to be an atomic type')
-  if (!Subtypes.hasType(atomics, t2)) throw new Error('expected ' + t2 + ' to be an atomic type')
-  let st = _.intersection(t1.transitive.subtypes, t2.transitive.subtypes)
-  if (st.length === 0) throw new Error('no common subtype of ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
-  return Subtypes.getType(st[0])
+  if (t1 === t2) {
+    return t1
+  }
+  let a1 = Subtypes.hasType(atomics, t1)
+  let a2 = Subtypes.hasType(atomics, t2)
+  if (a1 !== a2) {
+    throw new Error('cannot unify ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+  }
+  if (!a1 && !a2) {
+    if (t1 !== t2) {
+      throw new Error('cannot unify ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+    } else {
+      return t1
+    }
+  }
+  return Subtypes.intersectionType(atomics, t1, t2)
+}
+
+function isRest (field) {
+  return field === '...'
 }
 
 function unifyRecordType (t1, t2, atomics, assign) {
@@ -108,12 +138,43 @@ function unifyRecordType (t1, t2, atomics, assign) {
     throw new Error('Type names do not match for "' + t1.name + '" and "' + t2.name + '"')
   }
   if (t1.data.length !== t2.data.length) {
-    throw new Error('number of fields differ for ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+    let r1 = isRest(t1.data[t1.data.length - 1])
+    let r2 = isRest(t2.data[t2.data.length - 1])
+    if (r1 && r2) {
+      let minLength = Math.min(t1.data.length, t2.data.length)
+      return unifyRecordType({
+        name: t1.name,
+        data: t1.data.slice(0, minLength)
+      }, {
+        name: t2.name,
+        data: t2.data.slice(0, minLength)
+      }, atomics, assign)
+    } else if (r1 && !r2) {
+      if (t2.data.length < t1.data.length - 1) {
+        throw new Error('cannot unify ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+      }
+      return unifyRecordType({
+        name: t1.name,
+        data: t1.data.slice(0, t1.data.length - 1).concat(t2.data.slice(t1.data.length - 1, t2.data.length))
+      }, t2, atomics, assign)
+    } else if (!r1 && r2) {
+      if (t1.data.length < t2.data.length - 1) {
+        throw new Error('cannot unify ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+      }
+      return unifyRecordType(t1, {
+        name: t2.name,
+        data: t2.data.slice(0, t2.data.length - 1).concat(t1.data.slice(t2.data.length - 1, t1.data.length))
+      }, atomics, assign)
+    } else {
+      throw new Error('number of fields differ for ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+    }
   }
   t1.data.sort(f => f.name || f)
   t2.data.sort(f => f.name || f)
-  let fields = _.zip(t1.data, t2.data)
-  return { name: t1.name, data: _.map(fields, f => UnifyTypes(f[0], f[1], atomics, assign)) }
+  return {
+    name: t1.name,
+    data: _.zipWith(t1.data, t2.data, (l, r) => UnifyTypes(l, r, atomics, assign))
+  }
   /*
   var assignments = { }
   let f1 = t1.data
