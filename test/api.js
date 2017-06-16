@@ -66,7 +66,7 @@ function createSimpleGraph2 () {
   )()
 }
 
-function Untypify (graph) {
+function untypify (graph) {
   const nodes = Graph.nodesDeep(graph)
   for (let node of nodes) {
     if (node === nodes[7]) {
@@ -325,7 +325,7 @@ describe('API tests', () => {
 
   xit('can typify ackermann function', () => {
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/ackermann.json', 'utf-8'))
-    graph1 = Untypify(graph1)
+    graph1 = untypify(graph1)
     let graph2 = API.TypifyAll(graph1)
     fs.writeFileSync('./test/fixtures/ackermann_typified.json', JSON.stringify(graph2, null, 2))
     expect(API.isFullyTyped(graph2)).to.be.true
@@ -339,14 +339,16 @@ describe('.error-handling', () => {
         ports: [
           { port: 'p1', kind: 'output', type: 'Apple' },
           { port: 'p2', kind: 'output', type: 'generic' }
-        ]
+        ],
+        atomic: true
       }),
       Graph.addNode({
         name: 'b',
         ports: [
           { port: 'p3', kind: 'input', type: 'generic' },
           { port: 'p4', kind: 'input', type: 'Orange' }
-        ]
+        ],
+        atomic: true
       }),
       Graph.addEdge({ from: 'a@p1', to: 'b@p3' }),
       Graph.addEdge({ from: 'a@p2', to: 'b@p4' })
@@ -360,23 +362,26 @@ describe('.error-handling', () => {
       name: 'n1',
       ports: [
         { port: 'p1o', kind: 'output', type: 'Apple' }
-      ]
+      ],
+      atomic: true
     }),
     Graph.addNode({
       name: 'n2',
       ports: [
         { port: 'p2i', kind: 'input', type: 'generic' },
         { port: 'p2o', kind: 'output', type: 'generic' }
-      ]
+      ],
+      atomic: true
     }),
     Graph.addNode({
       name: 'n3',
       ports: [
         { port: 'p3i', kind: 'input', type: 'Orange' }
-      ]
+      ],
+      atomic: true
     }),
     Graph.addEdge({ from: 'n1@p1o', to: 'n2@p2i' }),
     Graph.addEdge({ from: 'n2@p2o', to: 'n3@p3i' }))()
-    expect(() => API.TypifyAll(graph)).to.throw(Error, /cannot unify/)
+    expect(() => API.TypifyAll(graph)).to.throw(Error)
   })
 })

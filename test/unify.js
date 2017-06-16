@@ -1,6 +1,7 @@
 /* global describe, it */
 
-import * as API from '../src/unify'
+import * as API from '../src/api'
+import * as Unify from '../src/unify'
 import chai from 'chai'
 
 const expect = chai.expect
@@ -18,6 +19,7 @@ describe('unification', () => {
     expect(API.areUnifyable('b', 'B')).to.be.true
   })
   it('can unify simple types', () => {
+    let assign = { }
     let t1 = {
       data: ['a', 'Number'],
       name: 'Pair'
@@ -26,14 +28,15 @@ describe('unification', () => {
       data: ['String', 'b'],
       name: 'Pair'
     }
-    let t3 = API.UnifyTypes(t1, t2)
-    expect(t3).to.deep.equal({
-      data: ['String', 'Number'],
-      name: 'Pair'
+    let t3 = Unify.UnifyAndAssignTypes(t1, t2, null, assign)
+    expect(assign).to.deep.equal({
+      a: 'String',
+      b: 'Number'
     })
   })
 
   it('can unify complex function types', () => {
+    let assign = { }
     let t1 = {
       data: [{name: 'Arguments', data: ['a', 'Number']}, {name: 'Returns', data: ['Number']}],
       name: 'Function'
@@ -42,21 +45,10 @@ describe('unification', () => {
       data: [{name: 'Arguments', data: ['String', 'b']}, {name: 'Returns', data: ['b']}],
       name: 'Function'
     }
-    let assignments = { }
-    let t12 = API.UnifyTypes(t1, t2, [], assignments)
-    expect(assignments).to.deep.equal({
-      'a': 'String',
-      'b': 'Number'
-    })
-    expect(t12).to.deep.equal({
-      'name': 'Function',
-      'data': [{
-        'name': 'Arguments',
-        'data': ['String', 'Number']
-      }, {
-        'name': 'Returns',
-        'data': [ 'Number' ]
-      }]
+    let t3 = Unify.UnifyTypes(t1, t2, null, assign)
+    expect(assign).to.deep.equal({
+      a: 'String',
+      b: 'Number'
     })
   })
 
@@ -76,7 +68,7 @@ describe('unification', () => {
       ]
     }
     let assignments = { }
-    let t12 = API.UnifyTypes(t1, t2, [], assignments)
+    let t12 = Unify.UnifyTypes(t1, t2, [], assignments)
     expect(assignments).to.deep.equal({
       'outType': 'Number'
     })
@@ -109,7 +101,8 @@ describe('error handling', () => {
       data: [{name: 'Arguments', data: ['String', 'b']}, {name: 'Returns', data: ['b']}],
       name: 'Function'
     }
-    expect(() => API.UnifyTypes(t1, t2)).to.throw(Error)
+    Unify.UnifyAndAssignTypes(t1, t2)
+    expect(() => Unify.UnifyAndAssignTypes(t1, t2)).to.throw(Error)
   })
 
   it('can detect unification errors in complex function types II', () => {
@@ -138,13 +131,13 @@ describe('error handling', () => {
       name: 'Function'
     }
     let assignment = { }
-    let t12 = API.UnifyTypes(t1, t2, [], assignment)
+    let t12 = Unify.UnifyTypes(t1, t2, [], assignment)
     expect(t12).to.deep.equal(t1)
     expect(assignment).to.deep.equal({
       'outType': 'Number'
     })
     t2.data[0].data = ['Number', 'X', '...']
-    expect(() => API.UnifyTypes(t1, t2)).to.throw(Error)
+    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
   })
 
   it('can unify empty arrays with rest params', () => {
@@ -173,7 +166,7 @@ describe('error handling', () => {
       name: 'Function'
     }
     let assignment = { }
-    let t12 = API.UnifyTypes(t1, t2, [], assignment)
+    let t12 = Unify.UnifyTypes(t1, t2, [], assignment)
     expect(t12).to.deep.equal(t1)
     expect(assignment).to.deep.equal({
       'outType': 'Number'
@@ -188,12 +181,12 @@ describe('error handling', () => {
       data: [{name: 'Arguments', data: ['String', 'String']}, {name: 'Returns', data: ['b']}],
       name: 'Function'
     }
-    expect(() => API.UnifyTypes(t1, t2)).to.throw(Error)
-    expect(() => API.UnifyTypes(t1, t2)).to.throw(Error)
-    expect(() => API.UnifyTypes(t1, t2)).to.throw(Error)
-    expect(() => API.UnifyTypes(t1, t2)).to.throw(Error)
+    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
+    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
+    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
+    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
   })
-  xit('Does not unify complex types with type names', () => {
+  xit('Does not unify complex types with different type names', () => {
     let t1 = 'genericArray'
     let t2 = {name: 'Array', data: ['genericType']}
     let t3 = {name: 'Array', data: [{name: 'Inner', data: ['gen']}]}
@@ -214,8 +207,8 @@ describe('error handling', () => {
       data: ['Number', 'Number'],
       name: 'Type2'
     }
-    expect(() => API.UnifyTypes(t1, t2)).to.throw(Error, /Type1/)
-    expect(() => API.UnifyTypes(t1, t2)).to.throw(Error, /Type2/)
+    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error, /Type1/)
+    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error, /Type2/)
   })
 
   it('Can handle array rests', () => {
@@ -228,7 +221,7 @@ describe('error handling', () => {
       name: 'Tupel'
     }
     let assignment = { }
-    let t12 = API.UnifyTypes(t1, t2, [], assignment)
+    let t12 = Unify.UnifyTypes(t1, t2, [], assignment)
     expect(t12).to.deep.equal(t1)
   })
 

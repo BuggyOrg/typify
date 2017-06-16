@@ -8,7 +8,7 @@ import _ from 'lodash'
 // import debug from 'debug'
 
 function postfixGenericType (type, postfix) {
-  if (typeof (type) === 'string' && Unify.isTypeParameter(type)) {
+  if (typeof (type) === 'string' && isTypeParameter(type)) {
     return type + postfix
   } else if (typeof (type) === 'object') {
     /* TODO Volker 170505
@@ -66,15 +66,15 @@ export function TypifyAll (graph, types = [], iterations = Infinity) {
     Rewrite.applyNode((node, graph) => false, graph => graph)
 
   ], iterations)(graph)
-  graph = applyAssignments(graph)
+  // graph = applyAssignments(graph)
   return graph
 }
 
 export function assignedType (type, graph) {
   if (!graph) throw new Error('no graph')
   if (!graph.assignments) return type
-  const tName = Unify.typeName(type)
-  if (Unify.isTypeParameter(type) && tName in graph.assignments) {
+  const tName = typeName(type)
+  if (isTypeParameter(type) && tName in graph.assignments) {
     if (!Array.isArray(graph.assignments[tName])) {
       return graph.assignments[tName]
     } else {
@@ -93,18 +93,18 @@ export function assignedType (type, graph) {
 
 function typeNames (node) {
   return _.uniq(_.flatten(Graph.Node.ports(node)
-    .map((p) => Unify.typeNames(p.type))))
+    .map((p) => typeNames(p.type))))
 }
 
-function applyAssignments (graph) {
+export function applyAssignments (graph) {
   if (!graph) throw new Error('no graph')
   if (!graph.assignments) return graph // nothing to apply
   for (let node of Graph.nodesDeep(graph)) {
     typeNames(node).forEach((t) =>
-      _.set(node, 'metaInformation.parameters.typings.' + Unify.genericName(t), assignedType(t, graph)))
+      _.set(node, 'metaInformation.parameters.typings.' + genericName(t), assignedType(t, graph)))
     /*
     graph = Graph.flow(typeNames(node).map((t) =>
-      (graph) => Graph.updateNodeMetaKey('parameters.typings.' + Unify.genericName(t), assignedType(t, graph), node, graph))
+      (graph) => Graph.updateNodeMetaKey('parameters.typings.' + genericName(t), assignedType(t, graph), node, graph))
     )(graph)
     */
     for (var i = 0; i < node.ports.length; i++) {
@@ -123,23 +123,19 @@ function applyAssignments (graph) {
   return graph
 }
 
-export const IsGenericType = Unify.IsGenericType
-
 export function areUnifyable (t1, t2, atomics, assignments) {
   return Unify.areUnifyable(t1, t2, atomics, assignments)
 }
 
-/**
- * Finds an assignment to unify the given types. An assignment assigns to every generic type
- * its unified type. E.g. `{ a: 'Number' }` assigns the type `Number` to `a`.
- * @param {Type} t1 The first type
- * @param {Type} t2 Second type
- * @param {Portgraph} graph The base graph
- * @returns {Assignment} The assignment for the given types
- * @throws {Error} If the types are not assignable.
- */
-export function UnifyTypes (t1, t2, atomics, assignments) {
-  return Unify.UnifyAndAssignTypes(t1, t2, atomics, assignments)
+export function genericName (t) {
+  return t.split('.')[0]
+}
+
+export function typeNames (t) {
+  if (!IsGenericType(t)) return []
+  if (isTypeParameter(t)) return [typeName(t)]
+  if (typeof (t.data) === 'string') return [typeName(t.data)]
+  else return _.flatten(t.data.map(typeNames))
 }
 
 function typeName (type) {
@@ -158,7 +154,7 @@ function typeName (type) {
     }
     return 'Function(' + inputs + ' → ' + outputs + ')'
   } else if (type.name && type.data) {
-    return type.name + '<' + type.data.map(typeName).join(', ') + '>'
+    return type.name + '<' + _.map(type.dat, typeName).join(', ') + '>'
   } else return typeName(type.type || type.name || 'complex...')
 }
 
@@ -195,3 +191,44 @@ export function relabelToTypes (graph) {
   }
   return graph
 }
+
+
+export function IsValidType (t) {
+  if (!t) return false
+  if (typeof t === 'string') return true
+  if (!t.data) return false
+  return (isTypeParameter(t.data) && !isRest(t.data)) || t.data.every(IsValidType)
+}
+
+function isTypeObject (t) {
+  return typeof (t) === 'object' && t.data
+}
+
+export function IsGenericType (t) {
+  if (!IsValidType(t)) return false
+  if (isTypeObject(t)) {
+    return isTypeParameter(t.data) || t.data.some(IsGenericType)
+  }
+  return isTypeParameter(t)
+}
+
+export function isTypeParameter (t) {
+  return (typeof (t) === 'string') && (IsLowerCase((t.name || t).charAt(0)) || isRest(t))
+}
+
+function IsLowerCase (c) {
+  return c >= 'a' && c <= 'z'
+}
+
+function isRest (type) {
+  return typeof (type) === 'string' && type.slice(0, 3) === '...'
+}
+
+function restName (type) {
+  return type.slice(3)
+}
+
+// export function typeName (type) {
+//   if (isRest(type)) return restName(type)
+//   else return type
+// }
