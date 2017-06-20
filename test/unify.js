@@ -2,6 +2,7 @@
 
 import * as API from '../src/api'
 import * as Unify from '../src/unify'
+import * as Rewrites from '../src/rewrites'
 import chai from 'chai'
 
 const expect = chai.expect
@@ -101,7 +102,6 @@ describe('error handling', () => {
       data: [{name: 'Arguments', data: ['String', 'b']}, {name: 'Returns', data: ['b']}],
       name: 'Function'
     }
-    Unify.UnifyAndAssignTypes(t1, t2)
     expect(() => Unify.UnifyAndAssignTypes(t1, t2)).to.throw(Error)
   })
 
@@ -122,7 +122,7 @@ describe('error handling', () => {
       data: [
         {
           name: 'Arguments',
-          data: ['Number', '...']
+          data: ['Number', 'Extra']
         }, {
           name: 'Returns',
           data: ['outType']
@@ -130,14 +130,15 @@ describe('error handling', () => {
       ],
       name: 'Function'
     }
-    let assignment = { }
-    let t12 = Unify.UnifyTypes(t1, t2, [], assignment)
-    expect(t12).to.deep.equal(t1)
-    expect(assignment).to.deep.equal({
-      'outType': 'Number'
-    })
-    t2.data[0].data = ['Number', 'X', '...']
-    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
+    expect(() => Unify.UnifyAndAssignTypes(t1, t2)).to.throw(Error)
+    // let assignment = { }
+    // let t12 = Unify.UnifyTypes(t1, t2, [], assignment)
+    // expect(t12).to.deep.equal(t1)
+    // expect(assignment).to.deep.equal({
+    //   'outType': 'Number'
+    // })
+    // t2.data[0].data = ['Number', 'X', '...']
+    // expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
   })
 
   it('can unify empty arrays with rest params', () => {
@@ -181,22 +182,9 @@ describe('error handling', () => {
       data: [{name: 'Arguments', data: ['String', 'String']}, {name: 'Returns', data: ['b']}],
       name: 'Function'
     }
-    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
-    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
-    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
-    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
-  })
-  xit('Does not unify complex types with different type names', () => {
-    let t1 = 'genericArray'
-    let t2 = {name: 'Array', data: ['genericType']}
-    let t3 = {name: 'Array', data: [{name: 'Inner', data: ['gen']}]}
-    let t4 = {name: 'Array', data: [{name: 'Inner', data: ['Number']}]}
-    expect(API.areUnifyable(t1, t2)).to.be.false
-    expect(API.areUnifyable(t1, t3)).to.be.false
-    expect(API.areUnifyable(t2, t3)).to.be.false
-    expect(API.areUnifyable(t1, t4)).to.be.true
-    expect(API.areUnifyable(t2, t4)).to.be.true
-    expect(API.areUnifyable(t3, t4)).to.be.true
+    // let assign = { }
+    // let t3 = Unify.UnifyTypes(t1, t2, [], assign)
+    expect(() => Unify.UnifyAndAssignTypes(t1, t2)).to.throw(Error)
   })
   it('Complains if the type name differs', () => {
     let t1 = {
@@ -207,8 +195,7 @@ describe('error handling', () => {
       data: ['Number', 'Number'],
       name: 'Type2'
     }
-    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error, /Type1/)
-    expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error, /Type2/)
+    expect(Unify.UnifyTypes(t1, t2)).to.deep.equal('bottom')
   })
 
   it('Can handle array rests', () => {

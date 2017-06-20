@@ -22,7 +22,6 @@
       "settings": {},
       "componentId": "print",
       "version": "1.0.0",
-      "atomic": true,
       "id": "#cj0ybij740002k4g2trxh1z6p",
       "path": [
         "#cj0ybij740002k4g2trxh1z6p"
@@ -60,7 +59,6 @@
       "settings": {},
       "componentId": "call",
       "version": "1.0.2",
-      "atomic": true,
       "id": "#cj0ybij780003k4g21f6r0nt3",
       "path": [
         "#cj0ybij780003k4g21f6r0nt3"
@@ -69,7 +67,6 @@
     },
     {
       "componentId": "functional/lambda",
-      "atomic": true,
       "nodes": [
         {
           "nodes": [
@@ -93,7 +90,6 @@
                 }
               ],
               "settings": {},
-              "atomic": true,
               "componentId": "math/add",
               "version": "1.0.0",
               "id": "#cj0ybij7a0005k4g2suhwrcck",
@@ -122,7 +118,6 @@
               ],
               "componentId": "std/const",
               "version": "1.0.0",
-              "atomic": true,
               "id": "#cj0ybij7b0006k4g2vzxebamw",
               "path": [
                 "#cj0ybij9m000dk4g24cva036s",
@@ -148,7 +143,6 @@
               ],
               "componentId": "std/const",
               "version": "1.0.0",
-              "atomic": true,
               "id": "#cj0ybij800007k4g2xu7iex2j",
               "path": [
                 "#cj0ybij9m000dk4g24cva036s",
@@ -215,7 +209,6 @@
               "node": "#cj0ybij7a0004k4g2b6l7mj9y"
             }
           ],
-          "atomic": false,
           "settings": {},
           "id": "#cj0ybij7a0004k4g2b6l7mj9y",
           "path": [
@@ -334,7 +327,6 @@
     {
       "componentId": "print",
       "version": "1.0.0",
-      "atomic": true,
       "ports": [
         {
           "port": "text",
@@ -356,7 +348,6 @@
     {
       "componentId": "call",
       "version": "1.0.2",
-      "atomic": true,
       "ports": [
         {
           "port": "fn",
@@ -385,7 +376,6 @@
       ]
     },
     {
-      "atomic": true,
       "ports": [
         {
           "port": "summand1",
@@ -409,7 +399,6 @@
     {
       "componentId": "std/const",
       "version": "1.0.0",
-      "atomic": true,
       "ports": [
         {
           "port": "const",
@@ -434,7 +423,6 @@
       "node": "#cj0ybij710001k4g2u1uw2hxi"
     }
   ],
-  "atomic": false,
   "id": "#cj0ybij710001k4g2u1uw2hxi",
   "version": "0.0.0",
   "componentId": "main"

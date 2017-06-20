@@ -10,7 +10,7 @@ const Unify = require('./unify.js')
 const Node = Graph.Node
 const Lambda = Graph.Lambda
 
-function hasBottom (type) {
+export function hasBottom (type) {
   if (typeof type === 'object') return _.some(type.data, t => hasBottom(t))
   else return type === 'bottom'
 }
@@ -26,7 +26,8 @@ export function TypifyEdge (types) {
         // check wether edge goes from generic to specific
         let assign = { }
         let type = Unify.UnifyTypes(edge.from.type, edge.to.type, types, assign)
-        if (hasBottom(type)) throw new Error('cannot typify edge ' + JSON.stringify(edge))
+        // if (hasBottom(type)) throw new Error('cannot typify edge ' + JSON.stringify(edge))
+        if (hasBottom(type)) return false
         if (Object.keys(assign).length === 0) return false
         return [edge, type, assign]
         // let diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
@@ -61,7 +62,8 @@ export function TypifyNode (types) {
             if (p1 === p2) continue
             let assign = { }
             let type = Unify.UnifyTypes(p1.type, p2.type, types, assign)
-            if (hasBottom(type)) throw new Error('cannot typify node ' + JSON.stringify(node))
+            // if (hasBottom(type)) throw new Error('cannot typify node ' + JSON.stringify(node))
+            if (hasBottom(type)) return false
             if (Object.keys(assign).length === 0) return false
             // let diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
             // if (Object.keys(diff).length === 0 && _.every(ports, p => _.isEqual(p.type, type))) {
@@ -87,20 +89,23 @@ export function TypifyNode (types) {
       }, {noIsomorphCheck: true})
 }
 
-export function checkEdge () {
+export function checkEdge (types) {
   return Rewrite.applyEdge(
       (edge, graph) => {
         if (!edge.from) return false
         if (!edge.to) return false
         if (!edge.from.type) return false
         if (!edge.to.type) return false
-        if (API.areUnifyable(edge.from.type, edge.to.type, graph)) {
-          return false
-        }
+        let assign = { }
+        let type = Unify.UnifyTypes(edge.from.type, edge.to.type, types, assign)
+        if (!hasBottom(type)) return false
         return edge
       },
       (edge, graph) => {
-        throw new Error('type conflict: cannot unify ' + JSON.stringify(edge.from.type) + ' and ' + JSON.stringify(edge.to.type))
+        throw new Error('type conflict: cannot unify '
+        + JSON.stringify(edge.from.node) + ' @ ' + JSON.stringify(edge.from.port) + ' :: ' + JSON.stringify(edge.from.type)
+        + ' and '
+        + JSON.stringify(edge.to.node) + ' @ ' + JSON.stringify(edge.to.port) + ' :: ' + JSON.stringify(edge.to.type))
       },
       { noIsomorphCheck: true })
 }

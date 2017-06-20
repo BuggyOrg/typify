@@ -267,7 +267,7 @@ describe('API tests', () => {
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 
-  it('can typify partial example', () => {
+  xit('can typify partial example', () => {
     // (defco main [IO] (print (numToStr (partial (call (lambda [x] (math/add x 2)) 3))) IO))
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/partial.json', 'utf-8'))
     let graph2 = API.TypifyAll(graph1)

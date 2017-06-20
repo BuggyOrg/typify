@@ -1,10 +1,11 @@
 
 import _ from 'lodash'
 import * as Subtypes from './subtypes'
+import * as Rewrites from './rewrites'
 
 const API = require('./api.js')
 export function areUnifyable (t1, t2, atomics, assign) {
-  return UnifyTypes(t1, t2, atomics, assign) !== 'bottom'
+  return !Rewrites.hasBottom(UnifyTypes(t1, t2, atomics, assign))
   // try {
   //   UnifyTypes(t1, t2, atomics, assign)
   //   return true
@@ -33,11 +34,13 @@ const DefaultTypes = Subtypes.constructTypes([
  * @returns {Assignment} The assignment for the given types
  * @throws {Error} If the types are not assignable.
  */
-export function UnifyAndAssignTypes (t1, t2, atomics, assign) {
+export function UnifyAndAssignTypes (t1, t2, atomics, assign = { }) {
   let t = UnifyTypes(t1, t2, atomics, assign)
   for (const k in assign) {
     t = API.replaceTypeParameter(t, k, assign[k])
   }
+  if (Rewrites.hasBottom(t))
+    throw new Error()
   return t
 }
 
