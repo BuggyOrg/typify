@@ -43,7 +43,7 @@ export function TypifyEdge (types) {
         // for (const p of [edge.from, edge.to]) {
         //   graph = Graph.replacePort(p, _.assign(_.cloneDeep(p), { type: type }), graph)
         // }
-        Graph.debug(graph)
+        Graph.debug(API.relabelToTypes(graph))
         return graph
       }, {noIsomorphCheck: true})
 }
@@ -84,7 +84,7 @@ export function TypifyNode (types) {
         // for (const p of Graph.Node.ports(node, true)) {
         //   graph = Graph.replacePort(p, _.assign(_.cloneDeep(p), { type: type }), graph)
         // }
-        Graph.debug(graph)
+        Graph.debug(API.relabelToTypes(graph))
         return graph
       }, {noIsomorphCheck: true})
 }
@@ -125,11 +125,12 @@ export function typifyConstants () {
     },
     (assignments, graph) => {
       Object.assign(graph.assignments, assignments)
+      Graph.debug(API.relabelToTypes(graph))
       return graph
     }, {noIsomorphCheck: true})
 }
 
-export function typifyLambdaInputs () {
+export function typifyLambdaInputs (atomics = null) {
   return Rewrite.applyNode(
     (node, graph) => {
       if (!Lambda.isValid(node)) return false
@@ -143,8 +144,8 @@ export function typifyLambdaInputs () {
       }
       const assignments = _.zip(implPorts, lambdaArgs)
         .reduce((ass, [port, type]) => {
-          if (!API.areUnifyable(port.type, type, graph)) return ass
-          return Object.assign(ass, Unify.UnifyTypes(type, port.type))
+          if (!API.areUnifyable(port.type, type, atomics, ass)) return ass
+          return Object.assign(ass, Unify.UnifyTypes(type, port.type, atomics, ass))
         }, {})
       const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
       if (diff.length === 0) {
@@ -155,13 +156,14 @@ export function typifyLambdaInputs () {
     },
     ([node, assignments], graph) => {
       Object.assign(graph.assignments, assignments)
+      Graph.debug(API.relabelToTypes(graph))
       return graph
     },
     {noIsomorphCheck: true}
   )
 }
 
-export function typifyLambdaOutput () {
+export function typifyLambdaOutput (atomics = null) {
   return Rewrite.applyNode(
     (node, graph) => {
       if (!Lambda.isValid(node)) return false
@@ -175,8 +177,8 @@ export function typifyLambdaOutput () {
       }
       const assignments = _.zip(implPorts, lambdaRets)
         .reduce((ass, [port, type]) => {
-          if (!API.areUnifyable(port.type, type, graph)) return ass
-          return Object.assign(ass, Unify.UnifyTypes(port.type, type))
+          Unify.UnifyTypes(port.type, type, atomics, ass)
+          return ass
         }, {})
       const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
       if (diff.length === 0) {
@@ -187,6 +189,7 @@ export function typifyLambdaOutput () {
     },
     ([node, assignments], graph) => {
       Object.assign(graph.assignments, assignments)
+      Graph.debug(API.relabelToTypes(graph))
       return graph
     },
     {noIsomorphCheck: true}
@@ -224,6 +227,7 @@ export function TypifyRecursion () {
       },
       (assignments, graph) => {
         Object.assign(graph.assignments, assignments)
+        Graph.debug(API.relabelToTypes(graph))
         return graph
       }, {noIsomorphCheck: true})
 }

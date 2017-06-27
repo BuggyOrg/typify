@@ -56,15 +56,13 @@ export function TypifyAll (graph, types = [], iterations = Infinity) {
   }
   graph.assignments = {}
   graph = Rewrite.rewrite([
-    Rewrites.TypifyNode(types),
+    // Rewrites.TypifyNode(types),
     // Rewrites.typifyConstants(types),
     Rewrites.TypifyEdge(types),
     // Rewrites.typifyLambdaInputs(types),
     // Rewrites.typifyLambdaOutput(types),
     // Rewrites.TypifyRecursion(types),
-    Rewrites.checkEdge(types),
-    Rewrite.applyNode((node, graph) => false, graph => graph)
-
+    Rewrites.checkEdge(types)
   ], iterations)(graph)
   // graph = applyAssignments(graph)
   return graph
@@ -111,12 +109,12 @@ export function applyAssignments (graph) {
       const port = node.ports[i]
       if (IsGenericType(port.type)) {
         var assType = assignedType(port.type, graph)
-        var newPort = _.assign(_.cloneDeep(_.omit(port, 'type')), {
+        var newPort = _.merge(_.cloneDeep(port), {
           type: _.cloneDeep(assType)
         })
-        node.ports[i] = newPort
-        // graph = Graph.replacePort(port, newPort, graph)
-        // node = Graph.node(node.id, graph)
+        // node.ports[i] = newPort
+        graph = Graph.replacePort(port, newPort, graph)
+        node = Graph.node(node.id, graph)
       }
     }
   }
@@ -201,7 +199,7 @@ export function IsValidType (t) {
 }
 
 function isTypeObject (t) {
-  return typeof (t) === 'object' && t.data
+  return typeof (t) === 'object' && t.name && t.data
 }
 
 export function IsGenericType (t) {

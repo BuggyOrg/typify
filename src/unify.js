@@ -48,15 +48,13 @@ export function UnifyTypes (t1, t2, atomics = DefaultTypes, assign = {}) {
   if (!API.IsValidType(t1)) {
     return 'bottom'
   }
-    // throw new Error('invalid type t1: ' + JSON.stringify(t1))
   if (!API.IsValidType(t2)) {
     return 'bottom'
   }
-    // throw new Error('invalid type t2: ' + JSON.stringify(t2))
   let p1 = API.isTypeParameter(t1)
   let p2 = API.isTypeParameter(t2)
   if (p1 && p2) {
-    return unifyParameterTypes(t1, t2)
+    return unifyParameterTypes(t1, t2, atomics, assign)
   } else if (!p1 && p2) {
     if (t2 in assign) t1 = UnifyTypes(t1, assign[t2], atomics, assign)
     assign[t2] = t1
@@ -70,10 +68,8 @@ export function UnifyTypes (t1, t2, atomics = DefaultTypes, assign = {}) {
     let s2 = typeof t2 === 'string'
     if (s1 && !s2) {
       return 'bottom'
-      // throw new Error('nongeneric types are not unifyable: cannot unify ' + t1 + ' and ' + JSON.stringify(t2))
     } else if (!s1 && s2) {
       return 'bottom'
-      // throw new Error('nongeneric types are not unifyable: cannot unify ' + JSON.stringify(t1) + ' and ' + t2)
     } else if (s1 && s2) {
       return unifyAtomicTypes(t1, t2, atomics)
     } else if (!s1 && !s2) {
@@ -82,10 +78,10 @@ export function UnifyTypes (t1, t2, atomics = DefaultTypes, assign = {}) {
   }
 }
 
-function unifyParameterTypes (t1, t2) {
-  if (t1 === t2) return t2
-  else return 'bottom'
-  // else throw new Error('Types are not unifyable: ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
+function unifyParameterTypes (t1, t2, atomics, assign) {
+  if (t1 !== t2) assign[t1] = t2
+  return t2
+  // else return 'bottom'
 }
 
 function unifyAtomicTypes (t1, t2, atomics) {
@@ -96,12 +92,10 @@ function unifyAtomicTypes (t1, t2, atomics) {
   let a2 = Subtypes.hasType(atomics, t2)
   if (a1 !== a2) {
     return 'bottom'
-    // throw new Error('cannot unify ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
   }
   if (!a1 && !a2) {
     if (t1 !== t2) {
       return 'bottom'
-      // throw new Error('cannot unify ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
     } else {
       return t1
     }
@@ -110,47 +104,37 @@ function unifyAtomicTypes (t1, t2, atomics) {
 }
 
 function isRest (field) {
-  return field === '...'
+  return typeof field === 'string' && field.startsWith('...')
 }
 
 function unifyRecordType (t1, t2, atomics, assign) {
   if (t1.name !== t2.name) {
     return 'bottom'
-    // throw new Error('Type names do not match for "' + t1.name + '" and "' + t2.name + '"')
   }
   if (t1.data.length !== t2.data.length) {
-    let r1 = isRest(t1.data[t1.data.length - 1])
-    let r2 = isRest(t2.data[t2.data.length - 1])
+    let r1 = isRest(_.last(t1.data))
+    let r2 = isRest(_.last(t2.data))
     if (r1 && r2) {
-      let minLength = Math.min(t1.data.length, t2.data.length)
-      return unifyRecordType({
-        name: t1.name,
-        data: t1.data.slice(0, minLength)
-      }, {
-        name: t2.name,
-        data: t2.data.slice(0, minLength)
-      }, atomics, assign)
+      return 'bottom'
     } else if (r1 && !r2) {
-      if (t2.data.length < t1.data.length - 1) {
-        return 'bottom'
-        // throw new Error('cannot unify ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
-      }
-      return unifyRecordType({
-        name: t1.name,
-        data: t1.data.slice(0, t1.data.length - 1).concat(t2.data.slice(t1.data.length - 1, t2.data.length))
-      }, t2, atomics, assign)
+      return unifyRecordType(t2, t1, atomics, assign)
     } else if (!r1 && r2) {
       if (t1.data.length < t2.data.length - 1) {
         return 'bottom'
-        // throw new Error('cannot unify ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
       }
-      return unifyRecordType(t1, {
+      let restName = _.last(t2.data).substring(3)
+      let restData = t1.data.slice(t2.data.length - 1, t1.data.length)
+      assign[restName] = {
+        name: restName,
+        data: _.cloneDeep(restData)
+      }
+      t2 = {
         name: t2.name,
-        data: t2.data.slice(0, t2.data.length - 1).concat(t1.data.slice(t2.data.length - 1, t1.data.length))
-      }, atomics, assign)
+        data: t2.data.slice(0, t2.data.length - 1).concat(_.cloneDeep(restData))
+      }
+      return unifyRecordType(t1, t2, atomics, assign)
     } else {
       return 'bottom'
-      // throw new Error('number of fields differ for ' + JSON.stringify(t1) + ' and ' + JSON.stringify(t2))
     }
   }
   t1.data.sort(f => f.name || f)

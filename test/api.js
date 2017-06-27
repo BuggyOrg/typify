@@ -3,6 +3,7 @@
 import * as Graph from '@buggyorg/graphtools'
 import * as Rewrite from '@buggyorg/rewrite'
 import * as API from '../src/api'
+import * as Unify from '../src/unify'
 const fs = require('fs')
 const Utils = require('../src/utils.js')
 
@@ -267,7 +268,7 @@ describe('API tests', () => {
     expect(API.isFullyTyped(graph2)).to.be.true
   })
 
-  xit('can typify partial example', () => {
+  it('can typify partial example', () => {
     // (defco main [IO] (print (numToStr (partial (call (lambda [x] (math/add x 2)) 3))) IO))
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/partial.json', 'utf-8'))
     let graph2 = API.TypifyAll(graph1)
@@ -303,18 +304,23 @@ describe('API tests', () => {
 
   describe('.assignedType', () => {
     it('can propagate rest params', () => {
-      const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
-      const t = API.assignedType({name: 'A', data: ['Number', '...']}, protoGraph)
-      expect(t.data).to.have.length(3)
-      expect(t.data).to.eql(['Number', 'String', 'Boolean'])
+      let t1 = { name: 'Type', data: ['String', 'Boolean', 'Number'] }
+      let t2 = { name: 'Type', data: ['String', '...rest'] }
+      let assign = { }
+      let t3 = Unify.UnifyTypes(t1, t2, null, assign)
+      expect(assign).to.deep.equal({
+        rest: { name: 'rest', data: ['Boolean', 'Number'] }
+      })
     })
-    it('can propagate rest params as arrays', () => {
-      const protoGraph = {assignments: {rest: ['String', 'Boolean']}}
-      const t = API.assignedType({name: 'A', data: 'rest'}, protoGraph)
-      expect(t.data).to.have.length(2)
-      expect(t.data).to.eql(['String', 'Boolean'])
+    it('can handle empty rest params', () => {
+      let t1 = { name: 'Type', data: ['String'] }
+      let t2 = { name: 'Type', data: ['String', '...rest'] }
+      let assign = { }
+      let t3 = Unify.UnifyTypes(t1, t2, null, assign)
+      expect(assign).to.deep.equal({
+        rest: { name: 'rest', data: [] }
+      })
     })
-
     it('can assign types recursively', () => {
       const type = {name: 'A', data: ['a']}
       const assignments = {a: ['b'], b: 'Number'}
@@ -322,8 +328,7 @@ describe('API tests', () => {
       expect(resType.data[0]).to.equal('Number')
     })
   })
-
-  xit('can typify ackermann function', () => {
+  it('can typify ackermann function', () => {
     let graph1 = JSON.parse(fs.readFileSync('./test/fixtures/ackermann.json', 'utf-8'))
     graph1 = untypify(graph1)
     let graph2 = API.TypifyAll(graph1)
@@ -335,23 +340,20 @@ describe('.error-handling', () => {
   it('can detect non-unifiable edges', () => {
     const g1 = Graph.flow(
       Graph.addNode({
-        name: 'a',
+        name: 'n1',
         ports: [
           { port: 'p1', kind: 'output', type: 'Apple' },
-          { port: 'p2', kind: 'output', type: 'generic' }
         ],
         atomic: true
       }),
       Graph.addNode({
-        name: 'b',
+        name: 'n2',
         ports: [
-          { port: 'p3', kind: 'input', type: 'generic' },
-          { port: 'p4', kind: 'input', type: 'Orange' }
+          { port: 'p2', kind: 'input', type: 'Orange' }
         ],
         atomic: true
       }),
-      Graph.addEdge({ from: 'a@p1', to: 'b@p3' }),
-      Graph.addEdge({ from: 'a@p2', to: 'b@p4' })
+      Graph.addEdge({ from: 'n1@p1', to: 'n2@p2' }),
     )()
     expect(() => API.TypifyAll(g1)).to.throw(Error)
   })

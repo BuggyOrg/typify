@@ -64,14 +64,15 @@ describe('unification', () => {
     let t2 = {
       name: 'Function',
       data: [
-        { name: 'Arguments', data: ['Number', '...'] },
+        { name: 'Arguments', data: ['Number', '...rest'] },
         { name: 'Returns', data: ['outType'] }
       ]
     }
-    let assignments = { }
-    let t12 = Unify.UnifyTypes(t1, t2, [], assignments)
-    expect(assignments).to.deep.equal({
-      'outType': 'Number'
+    let assign = { }
+    let t12 = Unify.UnifyAndAssignTypes(t1, t2, null, assign)
+    expect(assign).to.deep.equal({
+      rest: { name: 'rest', data: [] },
+      outType: 'Number'
     })
     expect(t12).to.deep.equal(t1)
   })
@@ -139,39 +140,6 @@ describe('error handling', () => {
     // })
     // t2.data[0].data = ['Number', 'X', '...']
     // expect(() => Unify.UnifyTypes(t1, t2)).to.throw(Error)
-  })
-
-  it('can unify empty arrays with rest params', () => {
-    let t1 = {
-      name: 'Function',
-      data: [
-        {
-          name: 'Arguments',
-          data: []
-        }, {
-          name: 'Returns',
-          data: ['Number']
-        }
-      ]
-    }
-    let t2 = {
-      data: [
-        {
-          name: 'Arguments',
-          data: ['...']
-        }, {
-          name: 'Returns',
-          data: ['outType']
-        }
-      ],
-      name: 'Function'
-    }
-    let assignment = { }
-    let t12 = Unify.UnifyTypes(t1, t2, [], assignment)
-    expect(t12).to.deep.equal(t1)
-    expect(assignment).to.deep.equal({
-      'outType': 'Number'
-    })
   })
   it('Throws an error if the types are not unifyable', () => {
     let t1 = {
