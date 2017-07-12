@@ -21,7 +21,7 @@ To apply single rules, use
 ```js
 Graph.flow(
     Rewrites.typifyEdge(types),
-    typifyConstants(types),
+    Rewrites.typifyConstants(types),
     Rewrites.typifyLambdaInputs(types),
     Rewrites.typifyLambdaOutput(types),
     // Rewrites.TypifyRecursion(types),
