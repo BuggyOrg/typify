@@ -10,17 +10,18 @@ const expect = chai.expect
 const id = (x) => x
 
 describe('unification', () => {
-  it('can unify normal types via strings', () => {
-    expect(API.areUnifyable('A', 'A')).to.be.true
-    expect(API.areUnifyable('other', 'other')).to.be.true
+  it('can unify atomic types', () => {
+    let assign = { }
+    expect(Unify.UnifyAndAssignTypes('A', 'A', null, assign)).to.deep.equal('A')
+    expect(assign).to.deep.equal({})
   })
 
-  it('can unify a type with a generic', () => {
-    expect(API.areUnifyable('A', 'a')).to.be.true
-    expect(API.areUnifyable('b', 'B')).to.be.true
-  })
-  it('can unify simple types', () => {
+  it('can unify atomic type and a parameter type', () => {
     let assign = { }
+    expect(Unify.UnifyAndAssignTypes('A', 'a', null, assign)).to.deep.equal('A')
+    expect(assign).to.deep.equal({a: 'A'})
+  })
+  it('can unify record types', () => {
     let t1 = {
       data: ['a', 'Number'],
       name: 'Pair'
@@ -29,7 +30,11 @@ describe('unification', () => {
       data: ['String', 'b'],
       name: 'Pair'
     }
-    let t3 = Unify.UnifyAndAssignTypes(t1, t2, null, assign)
+    let assign = { }
+    expect(Unify.UnifyAndAssignTypes(t1, t2, null, assign)).to.deep.equal({
+      data: ['String', 'Number'],
+      name: 'Pair'
+    })
     expect(assign).to.deep.equal({
       a: 'String',
       b: 'Number'
@@ -46,7 +51,7 @@ describe('unification', () => {
       data: [{name: 'Arguments', data: ['String', 'b']}, {name: 'Returns', data: ['b']}],
       name: 'Function'
     }
-    let t3 = Unify.UnifyTypes(t1, t2, null, assign)
+    let t3 = Unify.UnifyAndAssignTypes(t1, t2, null, assign)
     expect(assign).to.deep.equal({
       a: 'String',
       b: 'Number'
@@ -71,7 +76,7 @@ describe('unification', () => {
     let assign = { }
     let t12 = Unify.UnifyAndAssignTypes(t1, t2, null, assign)
     expect(assign).to.deep.equal({
-      rest: { name: 'rest', data: [] },
+      rest: [],
       outType: 'Number'
     })
     expect(t12).to.deep.equal(t1)
@@ -81,10 +86,10 @@ describe('unification', () => {
 describe('error handling', () => {
 
   it('Identifies non-unifyable types', () => {
-    expect(API.areUnifyable('A', 'B')).to.be.false
-    expect(API.areUnifyable('b', 'a')).to.be.false
-    expect(API.areUnifyable('a', 'b')).to.be.false
-    expect(API.areUnifyable('A', 'b')).to.be.true
+    expect(() => Unify.UnifyTypes('A', 'B')).not.to.throw()
+    expect(() => Unify.UnifyTypes('b', 'a')).to.throw()
+    expect(() => Unify.UnifyTypes('a', 'b')).to.throw()
+    expect(() => Unify.UnifyTypes('A', 'b')).not.to.throw()
   })
 
   it('Identifies not fully typed complex types', () => {

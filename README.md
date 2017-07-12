@@ -8,42 +8,45 @@ Uses rewrite library to iteratively search for candidates and apply the rules.
 To typify the graph completely, use<br/>
 
 ```js
-g1 = Typify.TypifyAll(g, maxIterations)
+let typifiedGraph = Typify.TypifyAll(graph, [atomics = null], [maxIterations = Infinity])
 ```
+where
 
-where `maxIterations` is optional (default: Infinity)
+- `graph` is the graph to be typified
+- `atomics` is a tree of subtypes
+- `maxIterations` limits the number of rewrite applications
+
 To apply single rules, use
 
 ```js
 Graph.flow(
-  Typify.TypifyConstants(),
-  Typify.TypifyEdge(),
-  Typify.typifyLambdaOutput(),
-  Typify.typifyLambdaOutput()
-  // Typify.TypifyRecursion() // not yet implemented..
+    Rewrites.typifyEdge(types),
+    typifyConstants(types),
+    Rewrites.typifyLambdaInputs(types),
+    Rewrites.typifyLambdaOutput(types),
+    // Rewrites.TypifyRecursion(types),
+    Rewrites.checkEdge(types)
 )(graph)
 ```
 
 where
 
- - `TypifyConstants` deduces the type of all constants and sets the port types accordingly.
- - `TypifyEdge` typifies a edge from mixed generic/nongeneric source/target
- - `typifyLambdaOutput` Identifies the Lambda implementation with the lambda function type
- - `TypifyRecursion` typifies a recursion node
+ - `typifyConstants` deduces the type of all constants and sets the port types accordingly.
+ - `typifyEdge` typifies a edge from mixed generic/nongeneric source/target
+ - `typifyLambdaInputs` and `typifyLambdaOutputs` unify the lambda implementation with the lambda function type
+ - `typifyRecursion` typifies a recursion node
 
-Generic types or *type names* are indicated by a lower case first character
-(i.e. 'generic' and 'a' are considered generic, 'Number' and 'A' aren't).
-For arrays there is a rest parameter indicated by the `...` prefix.
+*Type parameters* are strings with lower case first character and represent arbitrary types.
+Type parameters can be grouped by the `...` prefix, representing zero or more arbitrary types.
+*Generic types* is Typify's name for complex types that have some type parameter.
 
-All types are strings or should follow this format:
+Some examples:
 
 ```js
-var type = {
-  name: 'Specific'
-  data: [
-    'genOutput' // list of data types
-  ]
-}
+let concreteType = 'Number'
+let typeParameter = 'inputType'
+let genericType1 = { name: 'GenericType1', data: [concreteType, typeParameter] }
+let genericType2 = { name: 'GenericType2', data: ['String', '...andMore'] }
 ```
 
 Functions have simply a special type name and structure

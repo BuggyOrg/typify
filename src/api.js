@@ -57,10 +57,10 @@ export function TypifyAll (graph, types = [], iterations = Infinity) {
   graph.assignments = {}
   graph = Rewrite.rewrite([
     // Rewrites.TypifyNode(types),
-    // Rewrites.typifyConstants(types),
-    Rewrites.TypifyEdge(types),
-    // Rewrites.typifyLambdaInputs(types),
-    // Rewrites.typifyLambdaOutput(types),
+    Rewrites.typifyConstants(types),
+    Rewrites.typifyEdge(types),
+    Rewrites.typifyLambdaInputs(types),
+    Rewrites.typifyLambdaOutput(types),
     // Rewrites.TypifyRecursion(types),
     Rewrites.checkEdge(types)
   ], iterations)(graph)
@@ -81,8 +81,13 @@ export function assignedType (type, graph) {
   } else if (typeof (type) === 'object') {
     if (typeof (type.data) === 'string') {
       return Object.assign({}, _.omit(type, 'data'), {data: assignedType(type.data, graph)})
+      //return Object.assign({}, _.omit(type, 'data'), {data: assignedType(type.data, graph)})
+      type.data = assignedType(type.data, graph)
+      return type
     } else {
-      return Object.assign({}, _.omit(type, 'data'), {data: _.flatten(type.data.map((t) => assignedType(t, graph)))})
+      // return Object.assign({}, _.omit(type, 'data'), {data: _.flatten(type.data.map((t) => assignedType(t, graph)))})
+      type.data = _.flatten(type.data.map(t => assignedType(t, graph)))
+      return type
     }
   } else {
     return type
@@ -121,10 +126,6 @@ export function applyAssignments (graph) {
   return graph
 }
 
-export function areUnifyable (t1, t2, atomics, assignments) {
-  return Unify.areUnifyable(t1, t2, atomics, assignments)
-}
-
 export function genericName (t) {
   return t.split('.')[0]
 }
@@ -137,7 +138,10 @@ export function typeNames (t) {
 }
 
 function typeName (type) {
-  if (typeof (type) === 'string') return type
+  if (typeof (type) === 'string') {
+    if (isRest(type)) return restName(type)
+    else return type
+  }
   if (type.type === 'Function' || type.name === 'Function') {
     var inputs, outputs
     if (!type.data || !type.data[0] || !Array.isArray(type.data[0].data)) {
@@ -195,7 +199,7 @@ export function IsValidType (t) {
   if (!t) return false
   if (typeof t === 'string') return true
   if (!t.data) return false
-  return (isTypeParameter(t.data) && !isRest(t.data)) || t.data.every(IsValidType)
+  return isRest(t.data) || isTypeParameter(t.data) || (Array.isArray(t.data) && t.data.every(IsValidType))
 }
 
 function isTypeObject (t) {
@@ -211,15 +215,15 @@ export function IsGenericType (t) {
 }
 
 export function isTypeParameter (t) {
-  return (typeof (t) === 'string') && (IsLowerCase((t.name || t).charAt(0)) || isRest(t))
+  return (typeof t === 'string') && (IsLowerCase((t.name || t).charAt(0)) || isRest(t))
 }
 
 function IsLowerCase (c) {
   return c >= 'a' && c <= 'z'
 }
 
-function isRest (type) {
-  return typeof (type) === 'string' && type.slice(0, 3) === '...'
+export function isRest (type) {
+  return (typeof type === 'string') && (type.slice(0, 3) === '...')
 }
 
 function restName (type) {

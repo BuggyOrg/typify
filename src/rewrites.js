@@ -19,31 +19,26 @@ export function hasBottom (type) {
  * Generates a graph rewriter that typifies all specializing edges (ie. from generic to specific ports)
  * @return {Func} a rewrite function that takes a graph and returns a new one
  */
-export function TypifyEdge (types) {
+export function typifyEdge (types) {
   return Rewrite.applyEdge(
       (edge, graph) => {
-        if (!Graph.Edge.isBetweenPorts(edge)) return false
-        // check wether edge goes from generic to specific
-        let assign = { }
-        let type = Unify.UnifyTypes(edge.from.type, edge.to.type, types, assign)
-        // if (hasBottom(type)) throw new Error('cannot typify edge ' + JSON.stringify(edge))
-        if (hasBottom(type)) return false
-        if (Object.keys(assign).length === 0) return false
-        return [edge, type, assign]
-        // let diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
-        // if (Object.keys(diff).length === 0 && _.isEqual(type, edge.from.type) && _.isEqual(type, edge.to.type)) {
-        //   return false
-        // } else {
-        //   return [edge, type, assign]
-        // }
+          try {
+            if (!Graph.Edge.isBetweenPorts(edge)) return false
+            let assign = { }
+            let type = Unify.UnifyTypes(edge.from.type, edge.to.type, types, assign)
+            if (hasBottom(type)) return false
+            let diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
+            if (Object.keys(diff).length === 0) return false
+            return [edge, type, assign]
+          } catch (error) {
+            return false
+          }
       },
       ([edge, type, assign], graph) => {
+        //console.log('typifying edge ' + edge.from.port + '@' + edge.from.node + ' - ' + edge.to.port + '@' + edge.to.node + ' with ' + JSON.stringify(assign))
         Object.assign(graph.assignments, assign)
         graph = API.applyAssignments(graph)
-        // for (const p of [edge.from, edge.to]) {
-        //   graph = Graph.replacePort(p, _.assign(_.cloneDeep(p), { type: type }), graph)
-        // }
-        Graph.debug(API.relabelToTypes(graph))
+        Graph.debug(API.relabelToTypes(_.cloneDeep(graph)))
         return graph
       }, {noIsomorphCheck: true})
 }
@@ -52,7 +47,7 @@ export function TypifyEdge (types) {
  * Generates a graph rewriter that typifies all atomic nodes (ie. make all input and outputs of the same type)
  * @return {Func} a rewrite function that takes a graph and returns a new one
  */
-export function TypifyNode (types) {
+export function typifyNode (types) {
   return Rewrite.applyNode(
       (node, graph) => {
         if (!Graph.Node.isAtomic(node)) return false
@@ -60,31 +55,25 @@ export function TypifyNode (types) {
         for (const p1 of ports) {
           for (const p2 of ports) {
             if (p1 === p2) continue
-            let assign = { }
-            let type = Unify.UnifyTypes(p1.type, p2.type, types, assign)
-            // if (hasBottom(type)) throw new Error('cannot typify node ' + JSON.stringify(node))
-            if (hasBottom(type)) return false
-            if (Object.keys(assign).length === 0) return false
-            // let diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
-            // if (Object.keys(diff).length === 0 && _.every(ports, p => _.isEqual(p.type, type))) {
-            //   return false
-            // } else {
-            //   return [node, type, assign]
-            // }
-            return [node, type, assign]
+            try {
+              let assign = { }
+              let type = Unify.UnifyTypes(p1.type, p2.type, types, assign)
+              if (hasBottom(type)) return false
+              let diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
+              if (Object.keys(diff).length === 0) return false
+              return [node, type, assign]
+            } catch (error) {
+              return false
+            }
           }
         }
         return false
       },
       ([node, type, assign], graph) => {
-        var line = 'typifying atomic node ' + node.id + ' with ' + JSON.stringify(assign)
-        Utils.Log(line)
+        // console.log('typifying atomic node ' + node.id + ' with ' + JSON.stringify(assign))
         Object.assign(graph.assignments, assign)
         graph = API.applyAssignments(graph)
-        // for (const p of Graph.Node.ports(node, true)) {
-        //   graph = Graph.replacePort(p, _.assign(_.cloneDeep(p), { type: type }), graph)
-        // }
-        Graph.debug(API.relabelToTypes(graph))
+        Graph.debug(API.relabelToTypes(_.cloneDeep(graph)))
         return graph
       }, {noIsomorphCheck: true})
 }
@@ -96,16 +85,23 @@ export function checkEdge (types) {
         if (!edge.to) return false
         if (!edge.from.type) return false
         if (!edge.to.type) return false
-        let assign = { }
-        let type = Unify.UnifyTypes(edge.from.type, edge.to.type, types, assign)
-        if (!hasBottom(type)) return false
+        try {
+          let assign = { }
+          let type = Unify.UnifyTypes(edge.from.type, edge.to.type, types, assign)
+          if (!hasBottom(type)) return false
+        } catch (error) {
+          return false
+        }
         return edge
       },
       (edge, graph) => {
+        let assign = { }
+        let type = Unify.UnifyTypes(edge.from.type, edge.to.type, types, assign)
         throw new Error('type conflict: cannot unify '
         + JSON.stringify(edge.from.node) + ' @ ' + JSON.stringify(edge.from.port) + ' :: ' + JSON.stringify(edge.from.type)
         + ' and '
         + JSON.stringify(edge.to.node) + ' @ ' + JSON.stringify(edge.to.port) + ' :: ' + JSON.stringify(edge.to.type))
+        Graph.debug(API.relabelToTypes(_.cloneDeep(graph)))
       },
       { noIsomorphCheck: true })
 }
@@ -125,7 +121,7 @@ export function typifyConstants () {
     },
     (assignments, graph) => {
       Object.assign(graph.assignments, assignments)
-      Graph.debug(API.relabelToTypes(graph))
+      Graph.debug(API.relabelToTypes(_.cloneDeep(graph)))
       return graph
     }, {noIsomorphCheck: true})
 }
@@ -142,21 +138,22 @@ export function typifyLambdaInputs (atomics = null) {
       if (implPorts.length !== lambdaArgs.length) {
         throw new Error('Function type does not match the given lambda implementation for: ' + Node.id(node))
       }
-      const assignments = _.zip(implPorts, lambdaArgs)
-        .reduce((ass, [port, type]) => {
-          if (!API.areUnifyable(port.type, type, atomics, ass)) return ass
-          return Object.assign(ass, Unify.UnifyTypes(type, port.type, atomics, ass))
-        }, {})
-      const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
+      let assign = { }
+      _.zipWith(implPorts, lambdaArgs, (port, type) => {
+        // if (!API.areUnifyable(port.type, type, atomics, ass)) return ass
+        Unify.UnifyTypes(type, port.type, atomics, assign)
+      })
+      const diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
       if (diff.length === 0) {
         return false
       } else {
-        return [node, assignments]
+        return [node, assign]
       }
     },
-    ([node, assignments], graph) => {
-      Object.assign(graph.assignments, assignments)
-      Graph.debug(API.relabelToTypes(graph))
+    ([node, assign], graph) => {
+      Object.assign(graph.assignments, assign)
+      graph = API.applyAssignments(graph)
+      Graph.debug(API.relabelToTypes(_.cloneDeep(graph)))
       return graph
     },
     {noIsomorphCheck: true}
@@ -175,21 +172,25 @@ export function typifyLambdaOutput (atomics = null) {
       if (implPorts.length !== lambdaRets.length) {
         throw new Error('Function type does not match the given lambda implementation for: ' + Node.id(node))
       }
-      const assignments = _.zip(implPorts, lambdaRets)
-        .reduce((ass, [port, type]) => {
-          Unify.UnifyTypes(port.type, type, atomics, ass)
-          return ass
-        }, {})
-      const diff = _.difference(Object.keys(assignments), Object.keys(graph.assignments || {}))
+      let assign = { }
+      // const assignments = _.zip(implPorts, lambdaRets)
+      //   .reduce((ass, [port, type]) => {
+      //     Unify.UnifyTypes(port.type, type, atomics, ass)
+      //     return ass
+      //   }, {})
+      _.zipWith(implPorts, lambdaRets, (port, type) => {
+        Unify.UnifyTypes(type, port.type, atomics, assign)
+      })
+      const diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
       if (diff.length === 0) {
         return false
       } else {
-        return [node, assignments]
+        return [node, assign]
       }
     },
     ([node, assignments], graph) => {
       Object.assign(graph.assignments, assignments)
-      Graph.debug(API.relabelToTypes(graph))
+      Graph.debug(API.relabelToTypes(_.cloneDeep(graph)))
       return graph
     },
     {noIsomorphCheck: true}
@@ -227,7 +228,7 @@ export function TypifyRecursion () {
       },
       (assignments, graph) => {
         Object.assign(graph.assignments, assignments)
-        Graph.debug(API.relabelToTypes(graph))
+        Graph.debug(API.relabelToTypes(_.cloneDeep(graph)))
         return graph
       }, {noIsomorphCheck: true})
 }

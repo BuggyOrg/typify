@@ -4,15 +4,6 @@ import * as Subtypes from './subtypes'
 import * as Rewrites from './rewrites'
 
 const API = require('./api.js')
-export function areUnifyable (t1, t2, atomics, assign) {
-  return !Rewrites.hasBottom(UnifyTypes(t1, t2, atomics, assign))
-  // try {
-  //   UnifyTypes(t1, t2, atomics, assign)
-  //   return true
-  // } catch (err) {
-  //   return false
-  // }
-}
 
 const DefaultTypes = Subtypes.constructTypes([
   {
@@ -79,8 +70,10 @@ export function UnifyTypes (t1, t2, atomics = DefaultTypes, assign = {}) {
 }
 
 function unifyParameterTypes (t1, t2, atomics, assign) {
-  if (t1 !== t2) assign[t1] = t2
-  return t2
+  if (t1 !== t2) throw new Error('cannot unify parameter types')
+  else return t1
+  // if (t1 !== t2) assign[t1] = t2
+  // return t2
   // else return 'bottom'
 }
 
@@ -110,10 +103,10 @@ function isRest (field) {
 function unifyRecordType (t1, t2, atomics, assign) {
   if (t1.name !== t2.name) {
     return 'bottom'
-  }
-  if (t1.data.length !== t2.data.length) {
-    let r1 = isRest(_.last(t1.data))
-    let r2 = isRest(_.last(t2.data))
+  } else if (isRest(t1.data)) {
+  } else if (t1.data.length !== t2.data.length) {
+    let r1 = isRest(t1.data) || isRest(_.last(t1.data))
+    let r2 = isRest(t2.data) || isRest(_.last(t2.data))
     if (r1 && r2) {
       return 'bottom'
     } else if (r1 && !r2) {
@@ -124,10 +117,7 @@ function unifyRecordType (t1, t2, atomics, assign) {
       }
       let restName = _.last(t2.data).substring(3)
       let restData = t1.data.slice(t2.data.length - 1, t1.data.length)
-      assign[restName] = {
-        name: restName,
-        data: _.cloneDeep(restData)
-      }
+      assign[restName] = _.cloneDeep(restData)
       t2 = {
         name: t2.name,
         data: t2.data.slice(0, t2.data.length - 1).concat(_.cloneDeep(restData))
