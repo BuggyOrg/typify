@@ -11,8 +11,9 @@ export function getTypes (types, names) {
 
 export function constructTypes (types) {
     // derive direct supertypes
-    for(const t of types)
+    for(const t of types) {
         t.supertypes = []
+    }
     for(const t of types) {
         for(const st of getTypes(types, t.subtypes))
             st.supertypes.push(t.name)
@@ -30,6 +31,25 @@ export function constructTypes (types) {
                 t.transitive.supertypes = _.uniq(_.concat(t.transitive.supertypes, st.transitive.supertypes))
         }
     } while(!_.isEqual(types, newTypes)) // until fixpoint is reached
+
+    // add bottom element if it's missing
+    let bottom = getType(types, 'bottom')
+    if(!bottom) {
+        for(const t of types) {
+            if(t.transitive.subtypes.length === 0) {
+                t.subtypes.push('bottom')
+                t.transitive.subtypes.push('bottom')
+            }
+        }
+        types.push({
+            name: 'bottom',
+            subtypes: [],
+            transitive: { subtypes: [] }
+        })
+    } else if(bottom.transitive.subtypes.length > 0) {
+        throw new Error('bottom element has nonempty set of subtypes: ' + JSON.stringify(bottom.transitive.subtypes, null, 2))
+    }
+
     return types
 }
 

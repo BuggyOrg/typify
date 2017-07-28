@@ -68,6 +68,12 @@ export function TypifyAll (graph, types = [], iterations = Infinity) {
   return graph
 }
 
+/**
+ * Looks up the type assignment in a graph
+ * @param {Type} type
+ * @param {Graph} graph
+ * @return {Type} the type assigned by that graph
+ */
 export function assignedType (type, graph) {
   if (!graph) throw new Error('no graph')
   if (!graph.assignments) return type
@@ -99,6 +105,11 @@ function typeNames (node) {
     .map((p) => typeNames(p.type))))
 }
 
+/**
+ * Applies the assignments stored in a graph
+ * @param {Graph} graph 
+ * @return {Graph} the graph
+ */
 export function applyAssignments (graph) {
   if (!graph) throw new Error('no graph')
   if (!graph.assignments) return graph // nothing to apply
@@ -183,6 +194,29 @@ export function isFullyTyped (graph) {
   return typed
 }
 
+/**
+ * Unifies two types under some given subtypings and assignments
+ * @param {Type} t1 
+ * @param {Type} t2 
+ * @param {TypeTree} atomics 
+ * @param {Object} assign 
+ */
+export function UnifyTypes (t1, t2, atomics, assign) {
+  return Unify.UnifyTypes(t1, t2, atomics, assign)
+}
+
+
+/**
+ * Unifies two types under some given subtypings and assignments, and applies the assignments in place
+ * @param {Type} t1 
+ * @param {Type} t2 
+ * @param {TypeTree} atomics 
+ * @param {Object} assign 
+ */
+export function UnifyAndAssignTypes (t1, t2, atomics, assign) {
+  return Unify.UnifyAndAssignTypes(t1, t2, atomics, assign)
+}
+
 export function relabelToTypes (graph) {
   for (const node of Graph.nodesDeep(graph)) {
     const Node = Graph.Node
@@ -229,8 +263,3 @@ export function isRest (type) {
 function restName (type) {
   return type.slice(3)
 }
-
-// export function typeName (type) {
-//   if (isRest(type)) return restName(type)
-//   else return type
-// }

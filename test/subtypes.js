@@ -55,6 +55,10 @@ describe('Subtypes tests', () => {
       Subtypes.getType(types, 'top').transitive.subtypes))
       .to.deep.equal(['top'])
   })
+  it('can detect missing bottom element and add it', () => {
+    let types = Subtypes.constructTypes([])
+    expect(Subtypes.hasType(types, 'bottom')).to.be.true
+  })
   it('can query type relations', () => {
     let atomics = Subtypes.constructTypes(JSON.parse(fs.readFileSync('./test/fixtures/types-numbers.json')))
     expect(Subtypes.isSubtype(atomics, 'bottom', 'top')).to.be.true

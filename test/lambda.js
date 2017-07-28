@@ -13,5 +13,11 @@ describe('Lambda functions', () => {
     expect(Graph.hasNode('/functional/lambda', graph)).to.be.true
     const typed = API.TypifyAll(graph)
     expect(API.isFullyTyped(typed)).to.be.true
+  }),
+  it('Can propagate subtypes across functions', () => {
+    const graph = Graph.fromJSON(JSON.parse(fs.readFileSync('./test/fixtures/lambda_output.json', 'utf8')))
+    expect(Graph.hasNode('/functional/lambda', graph)).to.be.true
+    const typed = API.TypifyAll(graph)
+    expect(API.isFullyTyped(typed)).to.be.true
   })
 })

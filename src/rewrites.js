@@ -106,7 +106,7 @@ export function checkEdge (types) {
       { noIsomorphCheck: true })
 }
 
-export function typifyConstants () {
+export function typifyConstants (types) {
   return Rewrite.applyNode(
     (node, graph) => {
       if (node.componentId !== 'std/const' || !API.IsGenericType(Node.outputPorts(node)[0].type)) return false

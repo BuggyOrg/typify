@@ -35,7 +35,7 @@ export function UnifyAndAssignTypes (t1, t2, atomics, assign = { }) {
   return t
 }
 
-export function UnifyTypes (t1, t2, atomics = DefaultTypes, assign = {}) {
+export function UnifyTypes (t1, t2, atomics = DefaultTypes, assign = { }) {
   if (!API.IsValidType(t1)) {
     return 'bottom'
   }

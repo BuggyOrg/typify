@@ -1,5 +1,6 @@
 [{
     "name": "top",
+    
     "subtypes": ["poset", "group"]
 },{
     "name": "poset",
