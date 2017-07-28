@@ -35,7 +35,11 @@ export function UnifyAndAssignTypes (t1, t2, atomics, assign = { }) {
   return t
 }
 
-export function UnifyTypes (t1, t2, atomics = DefaultTypes, assign = { }) {
+export function UnifyTypes (t1, t2, atomics, assign) {
+
+  atomics = atomics || DefaultTypes
+  assign = assign || { }
+
   if (!API.IsValidType(t1)) {
     return 'bottom'
   }
@@ -47,11 +51,13 @@ export function UnifyTypes (t1, t2, atomics = DefaultTypes, assign = { }) {
   if (p1 && p2) {
     return unifyParameterTypes(t1, t2, atomics, assign)
   } else if (!p1 && p2) {
-    if (t2 in assign) t1 = UnifyTypes(t1, assign[t2], atomics, assign)
+    if (t2 in assign)
+      t1 = Subtypes.intersectionType(atomics, t1, assign[t2])
     assign[t2] = t1
     return t2
   } else if (p1 && !p2) {
-    if (t1 in assign) t2 = UnifyTypes(assign[t1], t2, atomics, assign)
+    if (t1 in assign)
+      t2 = Subtypes.intersectionType(atomics, t2, assign[t1])
     assign[t1] = t2
     return t1
   } else {
@@ -85,15 +91,18 @@ function unifyAtomicTypes (t1, t2, atomics) {
   let a2 = Subtypes.hasType(atomics, t2)
   if (a1 !== a2) {
     return 'bottom'
-  }
-  if (!a1 && !a2) {
+  } else if (!a1 && !a2) {
     if (t1 !== t2) {
       return 'bottom'
     } else {
       return t1
     }
+  } else if (a1 && a2) {
+    if (t1 === t2) return t2
+    else if (Subtypes.isSubtype(atomics, t1, t2)) return t2
+    else return 'bottom'
+    //return Subtypes.intersectionType(atomics, t1, t2)
   }
-  return Subtypes.intersectionType(atomics, t1, t2)
 }
 
 function isRest (field) {

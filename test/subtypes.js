@@ -33,14 +33,14 @@ describe('Subtypes tests', () => {
 
     expect(Subtypes.getType(types, 'bottom'))
     .to.have.deep.property('transitive.subtypes')
-    .and.to.deep.equal([])
+    .and.to.deep.equal(['bottom'])
 
     expect(Subtypes.getType(types, 'bottom'))
     .to.have.deep.property('transitive.supertypes')
 
     expect(Subtypes.getType(types, 'top'))
     .to.have.deep.property('transitive.supertypes')
-    .and.to.deep.equal([])
+    .and.to.deep.equal(['top'])
 
     expect(Subtypes.getType(types, 'top'))
     .to.have.deep.property('transitive.subtypes')
@@ -48,12 +48,12 @@ describe('Subtypes tests', () => {
     expect(_.difference(
       Subtypes.getType(types, 'top').transitive.subtypes,
       Subtypes.getType(types, 'bottom').transitive.supertypes))
-      .to.deep.equal(['bottom'])
+      .to.deep.equal([])
 
     expect(_.difference(
       Subtypes.getType(types, 'bottom').transitive.supertypes,
       Subtypes.getType(types, 'top').transitive.subtypes))
-      .to.deep.equal(['top'])
+      .to.deep.equal([])
   })
   it('can detect missing bottom element and add it', () => {
     let types = Subtypes.constructTypes([])
@@ -63,15 +63,6 @@ describe('Subtypes tests', () => {
     let atomics = Subtypes.constructTypes(JSON.parse(fs.readFileSync('./test/fixtures/types-numbers.json')))
     expect(Subtypes.isSubtype(atomics, 'bottom', 'top')).to.be.true
     expect(Subtypes.isSupertype(atomics, 'top', 'bottom')).to.be.true
-  })
-  it('can unify to intersection types', () => {
-    let atomics = Subtypes.constructTypes(JSON.parse(fs.readFileSync('./test/fixtures/types-numbers.json')))
-    let assign = { }
-    let t1 = '2Z'
-    let t2 = '3Z'
-    let t3 = Unify.UnifyTypes(t1, t2, atomics, assign)
-    expect(assign).to.deep.equal({})
-    expect(t3).to.deep.equal('6Z')
   })
   it('can unify a complex pair', () => {
     let atomics = Subtypes.constructTypes(JSON.parse(fs.readFileSync('./test/fixtures/types-numbers.json')))
@@ -84,7 +75,8 @@ describe('Subtypes tests', () => {
       data: ['b', 'b'],
       name: 'Pair'
     }
-    let t3 = Unify.UnifyTypes(t1, t2, atomics, assign)
+    let t3 = Unify.UnifyAndAssignTypes(t1, t2, atomics, assign)
+    expect(t3).to.have.deep.property('data')
     expect(assign).to.deep.equal({
       'b': '6Z'
     })

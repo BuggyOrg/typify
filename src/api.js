@@ -3,6 +3,7 @@ import * as Graph from '@buggyorg/graphtools'
 import * as Rewrite from '@buggyorg/rewrite'
 import * as Unify from './unify'
 import * as Rewrites from './rewrites'
+import * as Subtypes from './subtypes'
 import * as Utils from './utils'
 import _ from 'lodash'
 // import debug from 'debug'
@@ -201,7 +202,7 @@ export function isFullyTyped (graph) {
  * @param {TypeTree} atomics 
  * @param {Object} assign 
  */
-export function UnifyTypes (t1, t2, atomics, assign) {
+export function unifyTypes (t1, t2, atomics, assign) {
   return Unify.UnifyTypes(t1, t2, atomics, assign)
 }
 
@@ -213,8 +214,18 @@ export function UnifyTypes (t1, t2, atomics, assign) {
  * @param {TypeTree} atomics 
  * @param {Object} assign 
  */
-export function UnifyAndAssignTypes (t1, t2, atomics, assign) {
+export function unifyAndAssignTypes (t1, t2, atomics, assign) {
   return Unify.UnifyAndAssignTypes(t1, t2, atomics, assign)
+}
+
+/**
+ * constructs a type tree by deriving supertypes from subtypes and transitive type relations
+ * @param {*} types type tree prototype
+ * @return type tree result
+ */
+export function constructTypeTree(types)
+{
+  return Subtypes.constructTypes(types)
 }
 
 export function relabelToTypes (graph) {
