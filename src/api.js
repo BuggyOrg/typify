@@ -240,11 +240,11 @@ export function relabelToTypes (graph) {
 }
 
 
-export function IsValidType (t) {
+export function isValidType (t) {
   if (!t) return false
   if (typeof t === 'string') return true
   if (!t.data) return false
-  return isRest(t.data) || isTypeParameter(t.data) || (Array.isArray(t.data) && t.data.every(IsValidType))
+  return isRest(t.data) || isTypeParameter(t.data) || (Array.isArray(t.data) && t.data.every(isValidType))
 }
 
 function isTypeObject (t) {
@@ -252,7 +252,7 @@ function isTypeObject (t) {
 }
 
 export function IsGenericType (t) {
-  if (!IsValidType(t)) return false
+  if (!isValidType(t)) return false
   if (isTypeObject(t)) {
     return isTypeParameter(t.data) || t.data.some(IsGenericType)
   }

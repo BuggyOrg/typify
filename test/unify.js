@@ -188,25 +188,21 @@ describe('error handling', () => {
   it('can extract the name of the generic', () => {
     expect(API.genericName('a.#123')).to.equal('a')
   })
-
-  describe('.typeNames', () => {
-    it('returns an empty array for a non generic type', () => {
-      expect(API.typeNames('Number')).to.eql([])
-    })
-
-    it('returns an array for a simple type name', () => {
-      expect(API.typeNames('a')).to.eql(['a'])
-    })
-
-    it('extracts the generic type names in an complex type', () => {
-      expect(API.typeNames({name: 'A', data: ['x']})).to.eql(['x'])
-      expect(API.typeNames({name: 'A', data: ['x', 'Y']})).to.eql(['x'])
-      expect(API.typeNames({name: 'A', data: ['String', 'Y']})).to.eql([])
-    })
-
-    it('can extract multiple type names in a complex type', () => {
-      expect(API.typeNames({name: 'A', data: ['x', 'y']})).to.eql(['x', 'y'])
-      expect(API.typeNames({name: 'A', data: [{name: 'B', data: ['x', 'Number']}, 'y']})).to.eql(['x', 'y'])
-    })
+})
+describe('.typeNames', () => {
+  it('returns an empty array for a non generic type', () => {
+    expect(API.typeNames('Number')).to.eql([])
+  })
+  it('returns an array for a simple type name', () => {
+    expect(API.typeNames('a')).to.eql(['a'])
+  })
+  it('extracts the generic type names in an complex type', () => {
+    expect(API.typeNames({name: 'A', data: ['x']})).to.eql(['x'])
+    expect(API.typeNames({name: 'A', data: ['x', 'Y']})).to.eql(['x'])
+    expect(API.typeNames({name: 'A', data: ['String', 'Y']})).to.eql([])
+  })
+  it('can extract multiple type names in a complex type', () => {
+    expect(API.typeNames({name: 'A', data: ['x', 'y']})).to.eql(['x', 'y'])
+    expect(API.typeNames({name: 'A', data: [{name: 'B', data: ['x', 'Number']}, 'y']})).to.eql(['x', 'y'])
   })
 })

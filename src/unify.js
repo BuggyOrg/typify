@@ -40,10 +40,10 @@ export function UnifyTypes (t1, t2, atomics, assign) {
   atomics = atomics || DefaultTypes
   assign = assign || { }
 
-  if (!API.IsValidType(t1)) {
+  if (!API.isValidType(t1)) {
     return 'bottom'
   }
-  if (!API.IsValidType(t2)) {
+  if (!API.isValidType(t2)) {
     return 'bottom'
   }
   let p1 = API.isTypeParameter(t1)
