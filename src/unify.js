@@ -64,9 +64,9 @@ export function UnifyTypes (t1, t2, atomics, assign) {
     let s1 = typeof t1 === 'string'
     let s2 = typeof t2 === 'string'
     if (s1 && !s2) {
-      return 'bottom'
+      return t1 === t2.name ? t2 : 'bottom'
     } else if (!s1 && s2) {
-      return 'bottom'
+      return t2 === t1.name ? t1 : 'bottom'
     } else if (s1 && s2) {
       return unifyAtomicTypes(t1, t2, atomics)
     } else if (!s1 && !s2) {
@@ -76,11 +76,9 @@ export function UnifyTypes (t1, t2, atomics, assign) {
 }
 
 function unifyParameterTypes (t1, t2, atomics, assign) {
-  if (t1 !== t2) throw new Error('cannot unify parameter types')
-  else return t1
-  // if (t1 !== t2) assign[t1] = t2
-  // return t2
-  // else return 'bottom'
+  if (t1 === t2) return t1
+  else assign[t1] = t2
+  return t2
 }
 
 function unifyAtomicTypes (t1, t2, atomics) {
@@ -110,9 +108,7 @@ function isRest (field) {
 }
 
 function unifyRecordType (t1, t2, atomics, assign) {
-  if (t1.name !== t2.name) {
-    return 'bottom'
-  } else if (isRest(t1.data)) {
+  if (isRest(t1.data)) {
   } else if (t1.data.length !== t2.data.length) {
     let r1 = isRest(t1.data) || isRest(_.last(t1.data))
     let r2 = isRest(t2.data) || isRest(_.last(t2.data))

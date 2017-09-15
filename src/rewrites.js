@@ -7,6 +7,7 @@ import _ from 'lodash'
 const API = require('./api.js')
 const Utils = require('./utils.js')
 const Unify = require('./unify.js')
+const Fixpoint = require('./fixpoint.js')
 const Node = Graph.Node
 const Lambda = Graph.Lambda
 
@@ -36,6 +37,54 @@ export function typifyEdge (types) {
       },
       ([edge, type, assign], graph) => {
         //console.log('typifying edge ' + edge.from.port + '@' + edge.from.node + ' - ' + edge.to.port + '@' + edge.to.node + ' with ' + JSON.stringify(assign))
+        Object.assign(graph.assignments, assign)
+        graph = API.applyAssignments(graph)
+        Graph.debug(API.relabelToTypes(_.cloneDeep(graph)))
+        return graph
+      }, {noIsomorphCheck: true})
+}
+
+/**
+ * Generates a graph rewriter that typifies all catamorphism nodes
+ * @param {Types} types a collection of atomic types
+ * @return {Func} a rewrite function that takes a graph and returns a new one
+ */
+export function typifyCatamorphism (types) {
+  return Rewrite.applyNode(
+      (node, graph) => {
+        if (!Graph.Node.isAtomic(node)) return false
+        if (node.componentId !== 'functional/catamorphism') return false
+
+        let inputs = Graph.Node.inputPorts(node)
+        let outputs = Graph.Node.outputPorts(node)
+
+        if (inputs.length !== 2) return false
+        if (outputs.length !== 1) return false
+
+        let inType = inputs[0].type
+        let outType = outputs[0].type
+        let fType = inputs[1].type
+
+        if (!API.isFunctionType(fType)) return false
+        if (fType.data.length !== 2) return false
+        if (!Fixpoint.isFixpointType(inType)) return false
+
+        let unfoldedType = Fixpoint.unfoldType(inType)
+        var assign = { }
+
+        let unify1 = Unify.UnifyTypes(unfoldedType, fType.data[0].data[0], types, assign)
+        let unify2 = Unify.UnifyTypes(outType, fType.data[0].data[1], types, assign)
+        let unify3 = Unify.UnifyTypes(outType, fType.data[1].data[0], types, assign)
+
+        if (hasBottom(unify1)) return false
+        if (hasBottom(unify2)) return false
+        if (hasBottom(unify3)) return false
+
+        let diff = _.difference(Object.keys(assign), Object.keys(graph.assignments || {}))
+        if (assign.length === 0 || diff.length === 0) return false
+        return [node, assign]
+      },
+      ([node, assign], graph) => {
         Object.assign(graph.assignments, assign)
         graph = API.applyAssignments(graph)
         Graph.debug(API.relabelToTypes(_.cloneDeep(graph)))
@@ -173,11 +222,6 @@ export function typifyLambdaOutput (atomics = null) {
         throw new Error('Function type does not match the given lambda implementation for: ' + Node.id(node))
       }
       let assign = { }
-      // const assignments = _.zip(implPorts, lambdaRets)
-      //   .reduce((ass, [port, type]) => {
-      //     Unify.UnifyTypes(port.type, type, atomics, ass)
-      //     return ass
-      //   }, {})
       _.zipWith(implPorts, lambdaRets, (port, type) => {
         Unify.UnifyTypes(type, port.type, atomics, assign)
       })

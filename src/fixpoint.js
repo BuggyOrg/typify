@@ -19,13 +19,15 @@ export function unfoldType (type) {
     return unfoldLFP(_.cloneDeep(type), _.cloneDeep(type))
 }
 
-export function unfoldLFP (type, to) {
-    if (typeof type === 'string') {
-        if (type === to.name) return _.cloneDeep(to)
-        else return type
-    }
-    type.data = _.map(type.data, t => unfoldLFP(t, to))
-    return type
+export function unfoldLFP (type, root) {
+    if(typeof type === 'string')
+        return type === root.name
+            ? _.cloneDeep(root)
+            : type
+    else
+        return Object.assign(_.cloneDeep(type), {
+            data: _.map(type.data, t => unfoldLFP(t, root))
+        })
 }
 
 export function foldType (type) {

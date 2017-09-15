@@ -11,9 +11,12 @@ export function getTypes (types, names) {
 
 export function constructTypes (types) {
 
+    types = _.map(types, t => typeof t === 'string' ? { name: t } : t) 
+
     // derive direct supertypes
     for(const t of types) {
-        t.supertypes = []
+        t.supertypes = t.supertypes || []
+        t.subtypes = t.subtypes || []
     }
     for(const t of types) {
         for(const st of getTypes(types, t.subtypes))
@@ -32,9 +35,6 @@ export function constructTypes (types) {
         if(newTypes) types = newTypes
         var newTypes = _.cloneDeep(types)
         for(const t of newTypes) {
-            if(!t.transitive) {
-                
-            }
             for(const st of getTypes(types, t.transitive.subtypes))
                 t.transitive.subtypes = _.uniq(_.concat(t.transitive.subtypes, st.transitive.subtypes))
             for(const st of getTypes(types, t.transitive.supertypes))

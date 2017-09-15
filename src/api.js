@@ -4,6 +4,7 @@ import * as Rewrite from '@buggyorg/rewrite'
 import * as Unify from './unify'
 import * as Rewrites from './rewrites'
 import * as Subtypes from './subtypes'
+import * as Fixpoint from './subtypes'
 import * as Utils from './utils'
 import _ from 'lodash'
 // import debug from 'debug'
@@ -62,6 +63,7 @@ export function TypifyAll (graph, types = [], iterations = Infinity) {
     Rewrites.typifyEdge(types),
     Rewrites.typifyLambdaInputs(types),
     Rewrites.typifyLambdaOutput(types),
+    Rewrites.typifyCatamorphism(types),
     // Rewrites.TypifyRecursion(types),
     Rewrites.checkEdge(types)
   ], iterations)(graph)
@@ -126,10 +128,11 @@ export function applyAssignments (graph) {
       const port = node.ports[i]
       if (IsGenericType(port.type)) {
         var assType = assignedType(port.type, graph)
-        var newPort = _.merge(_.cloneDeep(port), {
+        var newPort = Object.assign(_.cloneDeep(port), {
           type: _.cloneDeep(assType)
         })
-        // node.ports[i] = newPort
+
+        port.id = node.id
         graph = Graph.replacePort(port, newPort, graph)
         node = Graph.node(node.id, graph)
       }
@@ -147,6 +150,15 @@ export function typeNames (t) {
   if (isTypeParameter(t)) return [typeName(t)]
   if (typeof (t.data) === 'string') return [typeName(t.data)]
   else return _.flatten(t.data.map(typeNames))
+}
+
+export function isFunctionType (t) {
+  if (typeof t !== 'object') return false
+  if (t.name !== 'Function') return false
+  if (t.data.length !== 2) return false
+  if (t.data[0].name !== 'Arguments') return false
+  if (t.data[1].name !== 'Returns') return false
+  return true
 }
 
 function typeName (type) {
@@ -238,7 +250,6 @@ export function relabelToTypes (graph) {
   }
   return graph
 }
-
 
 export function isValidType (t) {
   if (!t) return false
